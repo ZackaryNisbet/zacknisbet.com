@@ -18,6 +18,8 @@
   --display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --body: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", "Roboto Mono", monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
   background: var(--ink);
   color: var(--paper);
   font-family: var(--body);
@@ -150,7 +152,7 @@ textarea {
   position: absolute;
   inset: 0;
   z-index: 3;
-  background: linear-gradient(105deg, oklch(0.1 0.02 162 / 0.92) 0%, oklch(0.11 0.018 162 / 0.66) 24%, transparent 52%);
+  background: radial-gradient(135% 130% at 0% 100%, oklch(0.1 0.02 162 / 0.93) 0%, oklch(0.1 0.02 162 / 0.62) 26%, transparent 56%);
   pointer-events: none;
 }
 
@@ -797,72 +799,144 @@ h2 {
   font-weight: 900;
 }
 
-.motion-ok [data-reveal].is-visible {
-  animation: reveal-in 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* Scroll reveals: hidden from the very first paint under html.motion (the
+   class is set synchronously in <head>), so nothing flashes in before it
+   animates. Reduced-motion users never get the .motion class, so they see
+   everything immediately. */
+html.motion :is(
+  .section-intro,
+  .role-card,
+  .system-card,
+  .skills-section .skill-cloud,
+  .education-grid article,
+  .press-card,
+  .contact-copy
+) {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition: opacity 0.9s var(--ease-expo), transform 0.9s var(--ease-expo);
+  will-change: opacity, transform;
 }
 
-.motion-ok .press-card,
-.motion-ok .role-card,
-.motion-ok .system-card,
-.motion-ok .education-grid article {
-  transition: opacity 640ms cubic-bezier(0.16, 1, 0.3, 1), transform 640ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+html.motion .reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+.press-card,
+.role-card,
+.system-card,
+.education-grid article {
+  transition: border-color 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
 }
 
 .press-card:hover,
 .role-card:hover,
 .system-card:hover,
 .education-grid article:hover {
-  border-color: oklch(0.61 0.18 24 / 0.3);
-  box-shadow: 0 22px 70px oklch(0.2 0.04 24 / 0.16);
+  border-color: oklch(0.61 0.18 24 / 0.34);
+  box-shadow: 0 26px 80px oklch(0.2 0.04 24 / 0.18);
 }
 
-@keyframes reveal-in {
-  from {
-    opacity: 0.001;
-    transform: translate3d(0, 16px, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+/* hero copy rises on load; hidden from first paint under .motion */
+html.motion .hero-copy > *,
+html.motion .current-panel {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  animation: hero-rise 0.95s var(--ease-expo) forwards;
 }
 
-.motion-ok .hero-copy > *,
-.motion-ok .current-panel {
-  animation: hero-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.motion-ok .hero-copy .eyebrow {
-  animation-delay: 60ms;
-}
-
-.motion-ok .hero-copy h1 {
-  animation-delay: 130ms;
-}
-
-.motion-ok .hero-copy .linkedin-line {
-  animation-delay: 210ms;
-}
-
-.motion-ok .hero-copy .hero-actions {
-  animation-delay: 290ms;
-}
-
-.motion-ok .current-panel {
-  animation-delay: 360ms;
-}
+html.motion .hero-copy .eyebrow { animation-delay: 0.15s; }
+html.motion .hero-copy h1 { animation-delay: 0.26s; }
+html.motion .hero-copy .linkedin-line { animation-delay: 0.4s; }
+html.motion .hero-copy .hero-actions { animation-delay: 0.54s; }
+html.motion .current-panel { animation-delay: 0.66s; }
 
 @keyframes hero-rise {
-  from {
-    opacity: 0.001;
-    transform: translate3d(0, 22px, 0);
-  }
-
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: none;
   }
+}
+
+/* Cursor-tracked spotlight on the dark system cards */
+.role-card,
+.system-card {
+  position: relative;
+}
+
+html.fine :is(.role-card, .system-card)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), oklch(0.7 0.13 152 / 0.20), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  mix-blend-mode: screen;
+  z-index: 2;
+}
+
+html.fine :is(.role-card, .system-card):hover::after {
+  opacity: 1;
+}
+
+/* Custom cursor (activated by JS only, so a failed script never hides the
+   native cursor with nothing to replace it) */
+html.cursor-active,
+html.cursor-active a,
+html.cursor-active button,
+html.cursor-active .button-primary,
+html.cursor-active .button-secondary {
+  cursor: none;
+}
+
+.cursor {
+  display: none;
+}
+
+html.cursor-active .cursor {
+  display: block;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translate3d(var(--x, -100px), var(--y, -100px), 0);
+}
+
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  background: oklch(0.97 0 0);
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1.4px solid oklch(0.97 0 0 / 0.7);
+  transition: width 0.26s var(--ease-out), height 0.26s var(--ease-out), background 0.26s var(--ease-out);
+}
+
+.cursor.is-hover .cursor-ring {
+  width: 58px;
+  height: 58px;
+  background: oklch(0.97 0 0 / 0.12);
+}
+
+.cursor.is-down .cursor-ring {
+  width: 26px;
+  height: 26px;
 }
 
 @media (max-width: 1040px) {

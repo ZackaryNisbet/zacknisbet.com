@@ -34,4 +34,10 @@ Use Archivo for display and Manrope for text. Keep headings strong but controlle
 
 ## Motion
 
-No cursor follower. Use a quiet scroll meter, section reveals, and small hover depth. No motion is required for crawlers to understand content.
+The site should feel like a living instrument: bold and immersive, never quiet-for-quiet's-sake. All motion is progressive enhancement, gated behind `prefers-reduced-motion` and pointer capability, and no motion is required for crawlers to understand the content.
+
+- Hero: a cursor-reactive WebGL field (domain-warped emerald flow with brass/gold veins) where a warm light tracks the pointer and bends the flow toward it. Falls back to the CSS gradient when WebGL or motion is unavailable.
+- Custom cursor (fine pointers only): a dot plus a lagging ring that grows over interactive targets. Native cursor is only hidden once JS has activated the replacement.
+- Magnetic primary/secondary CTAs; cursor-tracked spotlight on the dark system cards.
+- Momentum smooth-scroll with scroll-linked hero parallax and fade.
+- Scroll reveals must be hidden from the first paint (synchronous `<head>` class), never shown-then-hidden, so nothing flashes. A timeout safety net reveals everything if scripts fail.
