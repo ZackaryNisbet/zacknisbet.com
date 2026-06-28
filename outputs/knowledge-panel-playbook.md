@@ -27,10 +27,13 @@ Completed on June 28, 2026:
 - Cleaned up the about.me profile at https://about.me/zacknisbet with canonical bio, website CTA, and links to GitHub, LinkedIn, and Hugging Face.
 - Added the about.me profile to website `Person.sameAs` schema.
 - Verified `zackarynisbet.com`, `www.zackarynisbet.com`, and HTTP variants redirect to `https://zacknisbet.com/`.
+- Updated the X profile at https://x.com/ZackNisbet with canonical bio, broad location, and website link.
+- Corrected the canonical Hugging Face profile URL to https://huggingface.co/zacknisbet in website schema and about.me.
 
 Still pending:
 
-- Update remaining public profiles to point to `https://zacknisbet.com/`, especially X, Rammenta, and K9-related pages.
+- Complete Hugging Face profile settings after password confirmation.
+- Update remaining public profiles to point to `https://zacknisbet.com/`, especially Rammenta and K9-related pages.
 - Run Google's rich result and structured data validation tools after Google recrawls.
 - Send the required Wikimedia Commons permission email for the headshot if Commons requests VRT confirmation.
 - Gather stronger independent, non-self sources before attempting Wikidata again or requesting undeletion.
