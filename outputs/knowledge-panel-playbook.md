@@ -24,10 +24,13 @@ Completed on June 28, 2026:
 - Updated website `Person.image` schema to point at the Commons-hosted headshot.
 - Removed the deleted Wikidata item from website `Person.sameAs` schema.
 - Confirmed the Wikidata item `Q140371357` was deleted on June 28, 2026 because it did not meet Wikidata notability review.
+- Cleaned up the about.me profile at https://about.me/zacknisbet with canonical bio, website CTA, and links to GitHub, LinkedIn, and Hugging Face.
+- Added the about.me profile to website `Person.sameAs` schema.
+- Verified `zackarynisbet.com`, `www.zackarynisbet.com`, and HTTP variants redirect to `https://zacknisbet.com/`.
 
 Still pending:
 
-- Update remaining public profiles to point to `https://zacknisbet.com/`, especially LinkedIn, Hugging Face, X, Rammenta, and K9-related pages.
+- Update remaining public profiles to point to `https://zacknisbet.com/`, especially X, Rammenta, and K9-related pages.
 - Run Google's rich result and structured data validation tools after Google recrawls.
 - Send the required Wikimedia Commons permission email for the headshot if Commons requests VRT confirmation.
 - Gather stronger independent, non-self sources before attempting Wikidata again or requesting undeletion.
