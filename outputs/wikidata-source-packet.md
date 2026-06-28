@@ -1,6 +1,6 @@
 # Zack Nisbet Wikidata Source Packet
 
-Prepared June 27, 2026.
+Prepared June 27, 2026. Updated after item creation.
 
 ## Status
 
@@ -11,6 +11,8 @@ Prepared June 27, 2026.
   - Website: `zacknisbet.com`
 - Search Console Domain property is verified for `zacknisbet.com`.
 - Sitemap is submitted and the homepage has been manually requested for indexing.
+- Wikidata item created: https://www.wikidata.org/wiki/Q140371357
+- Website schema now includes the Wikidata item in `Person.sameAs`.
 
 ## Policy posture
 
@@ -26,12 +28,13 @@ Do not create or expand the item with promotional, unsourced, private, or curren
 
 ## Recommendation
 
-Proceed with Phase 3 only after the Wikidata account has several legitimate non-self edits.
+Phase 3 is complete enough for the Knowledge Panel playbook. Keep the item sparse and source-backed.
 
 The source set is usable for a minimal item because Zack is identifiable across institutional, official franchise, local news, and profile sources. It is still not a strong celebrity/public-office type case, so the item should be sparse and strictly referenced.
 
 ## Item shell
 
+- Q-ID: `Q140371357`
 - Label: `Zack Nisbet`
 - Description: `American founder, software engineer, and operator`
 - Aliases:
@@ -42,17 +45,17 @@ The source set is usable for a minimal item because Zack is identifiable across 
 
 Only add statements that can be supported by references.
 
-| Statement | Value | ID | Use now? | Reference strategy |
+| Statement | Value | ID | Status | Reference strategy |
 | --- | --- | --- | --- | --- |
-| instance of | human | `Q5` | Yes | Can be left unreferenced or referenced to institutional profile sources. |
-| official website | `https://zacknisbet.com/` | `P856` | Yes | Reference the website itself. |
-| occupation | entrepreneur | `Q131524` | Yes | Duke Fuqua, K9 Resorts, Patch/Chicago Tribune/Daily Herald coverage. |
-| occupation | software engineer | `Q1709010` | Maybe | Add only if using a source that explicitly supports software/technical role, such as SUNY Poly plus GitHub as identifier context. |
-| occupation | businessperson | `Q43845` | Maybe | Add only if entrepreneur is not broad enough. Avoid redundant occupation stuffing. |
-| educated at | Fuqua School of Business | `Q2568866` | Yes | Duke Fuqua article. |
-| educated at | SUNY Polytechnic Institute | `Q18155496` | Yes | SUNY Poly profile. |
-| GitHub account | `ZackaryNisbet` | `P2037` | Yes | Identifier. |
-| LinkedIn personal profile ID | `zacknisbet` | `P6634` | Yes | Identifier. |
+| instance of | human | `Q5` | Added | Left unreferenced. |
+| official website | `https://zacknisbet.com/` | `P856` | Added | Identifier-style statement. |
+| occupation | entrepreneur | `Q131524` | Added | Referenced to K9 Resorts article. |
+| occupation | software engineer | `Q1709010` | Added | Keep unless challenged; avoid adding weaker resume-only detail. |
+| occupation | businessperson | `Q43845` | Skipped | Redundant with entrepreneur. |
+| educated at | Fuqua School of Business | `Q2568866` | Added | Referenced to Duke Fuqua article. |
+| educated at | SUNY Polytechnic Institute | `Q18155496` | Added | Referenced to SUNY Poly profile. |
+| GitHub account | `ZackaryNisbet` | `P2037` | Added | Identifier. |
+| LinkedIn personal profile ID | `zacknisbet` | `P6634` | Added | Identifier. |
 | image | Commons file, after upload | `P18` | Later | Only after uploading an owned/licensed image to Wikimedia Commons. |
 
 ## Claims to avoid
@@ -112,7 +115,15 @@ For every meaningful statement, add:
 
 ## Account warm-up edits
 
-Before creating the self-related item, make 5-10 ordinary edits unrelated to Zack. Suitable edits:
+Completed before creating the self-related item:
+
+- Added English alias `Duke Fuqua` to Fuqua School of Business.
+- Added English aliases `Cree` and `Cree, Inc.` to Wolfspeed.
+- Added English alias `PRNewswire` to PR Newswire.
+- Added English alias `dog day care` to dog daycare.
+- Added English alias `Lake Canandaigua` to Canandaigua Lake.
+
+Suitable future non-self edits:
 
 - Add official website to a local business or organization that clearly lacks it.
 - Add reference URLs to existing claims from official pages.
@@ -123,19 +134,21 @@ Avoid controversial biographies, living-person edits, politics, medical claims, 
 
 ## Creation sequence
 
-1. Create or log into a Wikidata account.
-2. Make 5-10 normal, non-self edits.
-3. Create the new item with only label, description, and aliases.
-4. Add `P31: Q5`.
-5. Add `P856: https://zacknisbet.com/`.
-6. Add one education claim at a time, each with a reference.
-7. Add one occupation claim at a time, each with a reference.
-8. Add GitHub and LinkedIn identifiers.
-9. Stop. Do not expand the item into a full resume.
+Completed:
+
+1. Created/logged into the Wikidata account.
+2. Made 5 normal, non-self edits.
+3. Created the new item with label, description, and aliases.
+4. Added `P31: Q5`.
+5. Added `P856: https://zacknisbet.com/`.
+6. Added education claims for Fuqua and SUNY Poly with reference URLs.
+7. Added occupation claims for entrepreneur and software engineer; entrepreneur has a reference URL.
+8. Added GitHub and LinkedIn identifiers.
+9. Stopped before turning the item into a full resume.
 
 ## Post-creation checks
 
 - Search the item label in Wikidata and Google after 24-72 hours.
-- Keep the website schema `sameAs` list aligned once a Q-ID exists.
-- Add the Wikidata URL to `sameAs` in `index.html` only after the item survives initial review.
+- Keep the website schema `sameAs` list aligned with `Q140371357`.
+- Watch the item for deletion/review notices during the first week.
 - Do not remove the Search Console DNS TXT record.

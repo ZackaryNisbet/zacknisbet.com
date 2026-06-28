@@ -14,12 +14,15 @@ Completed on June 27, 2026:
 - Requested indexing for `https://zacknisbet.com/`; Search Console confirmed `Indexing requested`.
 - Updated the public GitHub profile to include the canonical tagline and website.
 - Prepared `outputs/wikidata-source-packet.md` for Phase 3.
+- Completed Wikidata account warm-up with 5 legitimate non-self edits.
+- Created the Wikidata person item: https://www.wikidata.org/wiki/Q140371357
+- Added the Wikidata item to the website `Person.sameAs` schema.
 
 Still pending:
 
 - Update remaining public profiles to point to `https://zacknisbet.com/`, especially LinkedIn, Hugging Face, X, Rammenta, and K9-related pages.
 - Run Google's rich result and structured data validation tools after Google recrawls.
-- Create or log into a Wikidata account, make 5-10 legitimate non-self edits, then decide whether to publish the minimal person item.
+- Upload a freely licensed headshot to Wikimedia Commons only if Zack wants the image to be reusable under Commons licensing.
 
 ## Canonical setup
 
@@ -66,24 +69,31 @@ Use this short bio:
 
 ## Wikidata
 
-Only create a Wikidata item if enough source-backed notability exists. Start with conservative statements:
+Created item:
+
+- https://www.wikidata.org/wiki/Q140371357
+
+Current conservative statements:
 
 - Instance of: human
 - Name and alternate names
-- Occupation: entrepreneur, software engineer, businessperson
+- Occupation: entrepreneur, software engineer
 - Official website: `https://zacknisbet.com/`
 - Education: Duke Fuqua, SUNY Polytechnic Institute
-- Social/profile IDs where Wikidata supports the identifier
+- GitHub account: `ZackaryNisbet`
+- LinkedIn personal profile ID: `zacknisbet`
 
-Every meaningful claim should include:
+References added:
 
-- Reference URL (`P854`)
-- Retrieved date (`P813`)
-- Publisher or stated in, when appropriate
+- Fuqua education: Duke Fuqua article.
+- SUNY Poly education: SUNY Poly profile.
+- Entrepreneur occupation: K9 Resorts article.
+
+Do not expand this into a full resume. Add future claims only when a public source supports them.
 
 ## Watch period
 
-After the site, redirects, schema, Commons image, and Wikidata item are complete:
+After the site, redirects, schema, and Wikidata item are complete:
 
 - Avoid rewriting the canonical facts for 5-6 weeks.
 - Search `Zack Nisbet` weekly in a clean browser.
