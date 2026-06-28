@@ -12,12 +12,14 @@ Completed on June 27, 2026:
 - Submitted `https://zacknisbet.com/sitemap.xml` in Search Console. Status returned `Success` with 1 discovered page.
 - Ran URL Inspection for `https://zacknisbet.com/`; Google reported `Discovered - currently not indexed`.
 - Requested indexing for `https://zacknisbet.com/`; Search Console confirmed `Indexing requested`.
+- Updated the public GitHub profile to include the canonical tagline and website.
+- Prepared `outputs/wikidata-source-packet.md` for Phase 3.
 
 Still pending:
 
-- Update public profiles to point to `https://zacknisbet.com/`, starting with GitHub, LinkedIn, Hugging Face, and X.
+- Update remaining public profiles to point to `https://zacknisbet.com/`, especially LinkedIn, Hugging Face, X, Rammenta, and K9-related pages.
 - Run Google's rich result and structured data validation tools after Google recrawls.
-- Decide whether to create a Wikidata item only after source-backed notability is strong enough.
+- Create or log into a Wikidata account, make 5-10 legitimate non-self edits, then decide whether to publish the minimal person item.
 
 ## Canonical setup
 

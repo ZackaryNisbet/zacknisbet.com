@@ -28,3 +28,4 @@ Supporting materials live in `outputs/`:
 
 - `outputs/knowledge-panel-playbook.md`
 - `outputs/source-inventory.md`
+- `outputs/wikidata-source-packet.md`
