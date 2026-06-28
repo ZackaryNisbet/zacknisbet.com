@@ -58,7 +58,7 @@
 
     float fbm(vec2 p) {
       float s = 0.0, a = 0.5;
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 4; i++) {
         s += a * snoise(p);
         p = p * 2.03 + 11.5;
         a *= 0.5;
@@ -177,8 +177,9 @@
     lastMove = performance.now();
   }, { passive: true });
 
-  const DPR_CAP = 1.6;
-  function resize() {
+  const DPR_CAP = 1.25;
+  // measure on resize only, never per frame (avoids a forced layout each draw)
+  function measure() {
     const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
     const w = Math.round(canvas.clientWidth * dpr);
     const h = Math.round(canvas.clientHeight * dpr);
@@ -189,28 +190,30 @@
   }
 
   function draw(timeSec) {
-    resize();
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, timeSec);
     gl.uniform2f(uMouse, curX, curY);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  let running = false, raf = 0, start = 0;
+  let running = false, raf = 0, start = 0, lastDraw = 0;
+  const FRAME_MS = 1000 / 30; // ~30fps is plenty for a slow flow field
 
   function frame(now) {
     if (!running) return;
+    raf = requestAnimationFrame(frame);
     if (!start) start = now;
+    if (now - lastDraw < FRAME_MS) return;
+    lastDraw = now;
     const tsec = (now - start) / 1000;
     // when the pointer is idle, the light drifts on its own so it stays alive
     if (now - lastMove > 2000) {
       targetX = 0.5 + 0.34 * Math.cos(tsec * 0.45);
       targetY = 0.56 + 0.24 * Math.sin(tsec * 0.38);
     }
-    curX += (targetX - curX) * 0.045;
-    curY += (targetY - curY) * 0.045;
+    curX += (targetX - curX) * 0.08;
+    curY += (targetY - curY) * 0.08;
     draw(tsec);
-    raf = requestAnimationFrame(frame);
   }
 
   function play() { if (!running) { running = true; raf = requestAnimationFrame(frame); } }
@@ -228,9 +231,9 @@
     else if (darkAct.getBoundingClientRect().bottom > 0) play();
   });
 
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", measure);
 
   // immediate first frame so there's never a flash of the CSS fallback
-  resize();
+  measure();
   draw(0);
 })();

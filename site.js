@@ -30,33 +30,44 @@ updateMeter();
 // Everything below is motion-only progressive enhancement.
 // =====================================================================
 if (motionOK) {
-  root.classList.add("reveal-ready");
-
   // --- reveal on scroll (no flash: elements start hidden via CSS) ---
   const revealItems = document.querySelectorAll(
-    ".section-intro, .role-card, .system-card, .skills-section .skill-cloud, .education-grid article, .press-card, .contact-copy"
+    ".section-intro, .role-card, .system-card, .skill-cloud, .education-grid, .press-card, .contact-copy"
   );
+  const revealAll = () => revealItems.forEach((i) => i.classList.add("reveal-in"));
 
-  const groupIndex = new Map();
-  revealItems.forEach((item) => {
-    const parent = item.parentElement;
-    const i = (groupIndex.get(parent) || 0);
-    groupIndex.set(parent, i + 1);
-    item.style.transitionDelay = `${Math.min(i, 5) * 70}ms`;
-  });
+  // Set up the observer FIRST; only mark ready once content is guaranteed to
+  // reveal. If IntersectionObserver is missing or throws, reveal everything so
+  // nothing is ever left permanently hidden.
+  try {
+    if (!("IntersectionObserver" in window)) throw new Error("no IntersectionObserver");
 
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("reveal-in");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
-  );
-  revealItems.forEach((item) => revealObserver.observe(item));
+    const groupIndex = new Map();
+    revealItems.forEach((item) => {
+      const parent = item.parentElement;
+      const i = groupIndex.get(parent) || 0;
+      groupIndex.set(parent, i + 1);
+      item.style.transitionDelay = `${Math.min(i, 5) * 70}ms`;
+    });
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-in");
+            entry.target.style.willChange = "auto";
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+    );
+    revealItems.forEach((item) => revealObserver.observe(item));
+  } catch (e) {
+    revealAll();
+  }
+
+  root.classList.add("reveal-ready");
 
   // --- hero scroll choreography + atmosphere fade ---
   const hero = document.querySelector(".hero");
@@ -107,10 +118,12 @@ if (motionOK) {
 
   // --- card spotlight (track cursor across dark cards) ---
   document.querySelectorAll(".role-card, .system-card").forEach((card) => {
+    let r = null;
+    card.addEventListener("pointerenter", () => { r = card.getBoundingClientRect(); });
     card.addEventListener(
       "pointermove",
       (e) => {
-        const r = card.getBoundingClientRect();
+        if (!r) r = card.getBoundingClientRect();
         card.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
         card.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
       },
@@ -142,8 +155,14 @@ if (motionOK) {
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
-      if (lenis) lenis.scrollTo(target, { offset: -84 });
-      else target.scrollIntoView({ behavior: "smooth" });
+      target.setAttribute("tabindex", "-1");
+      const focusTarget = () => target.focus({ preventScroll: true });
+      if (lenis) {
+        lenis.scrollTo(target, { offset: -84, onComplete: focusTarget });
+      } else {
+        target.scrollIntoView({ behavior: "smooth" });
+        setTimeout(focusTarget, 600);
+      }
     });
   });
 
@@ -160,6 +179,23 @@ if (motionOK) {
       let rx = mx;
       let ry = my;
 
+      let ringRaf = 0;
+      const ringLoop = () => {
+        rx += (mx - rx) * 0.18;
+        ry += (my - ry) * 0.18;
+        ring.style.setProperty("--x", `${rx}px`);
+        ring.style.setProperty("--y", `${ry}px`);
+        // stop looping once the ring has caught up; resume on the next move
+        if (!document.hidden && (Math.abs(mx - rx) > 0.3 || Math.abs(my - ry) > 0.3)) {
+          ringRaf = requestAnimationFrame(ringLoop);
+        } else {
+          ringRaf = 0;
+        }
+      };
+      const kickRing = () => {
+        if (!ringRaf) ringRaf = requestAnimationFrame(ringLoop);
+      };
+
       window.addEventListener(
         "pointermove",
         (e) => {
@@ -167,18 +203,11 @@ if (motionOK) {
           my = e.clientY;
           dot.style.setProperty("--x", `${mx}px`);
           dot.style.setProperty("--y", `${my}px`);
+          kickRing();
         },
         { passive: true }
       );
-
-      const ringLoop = () => {
-        rx += (mx - rx) * 0.18;
-        ry += (my - ry) * 0.18;
-        ring.style.setProperty("--x", `${rx}px`);
-        ring.style.setProperty("--y", `${ry}px`);
-        requestAnimationFrame(ringLoop);
-      };
-      requestAnimationFrame(ringLoop);
+      kickRing();
 
       const hoverSel = "a, button, [data-email-link], .role-card, .system-card, .press-card, .button-primary, .button-secondary";
       document.addEventListener("pointerover", (e) => {
@@ -196,14 +225,17 @@ if (motionOK) {
     // magnetic CTAs
     document.querySelectorAll(".button-primary, .button-secondary").forEach((btn) => {
       const strength = 0.32;
+      let r = null;
+      btn.addEventListener("pointerenter", () => { r = btn.getBoundingClientRect(); });
       btn.addEventListener("pointermove", (e) => {
-        const r = btn.getBoundingClientRect();
+        if (!r) r = btn.getBoundingClientRect();
         const x = e.clientX - (r.left + r.width / 2);
         const y = e.clientY - (r.top + r.height / 2);
         btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
       });
       btn.addEventListener("pointerleave", () => {
         btn.style.transform = "";
+        r = null;
       });
     });
   }

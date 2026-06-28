@@ -30,14 +30,33 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+:is(.skills-section, .education-section, .press-section, .contact-section, .site-footer) :focus-visible {
+  outline-color: oklch(0.5 0.17 25);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--ink);
+  /* dark-emerald fallback shown when the WebGL atmosphere is absent
+     (reduced motion, no WebGL); opaque paper sections cover it below */
+  background: linear-gradient(170deg, oklch(0.135 0.03 163) 0%, oklch(0.11 0.02 162) 42%, var(--ink) 100%);
+  background-attachment: fixed;
   color: var(--paper);
 }
 
@@ -140,8 +159,8 @@ textarea {
   position: absolute;
   inset: auto 0 0;
   z-index: 2;
-  height: 42%;
-  background: linear-gradient(0deg, var(--ink) 0%, oklch(0.115 0.018 163 / 0.96) 26%, transparent 100%);
+  height: 22%;
+  background: linear-gradient(0deg, oklch(0.1 0.02 162 / 0.45) 0%, transparent 100%);
   pointer-events: none;
 }
 
@@ -835,8 +854,8 @@ html.motion :is(
   .section-intro,
   .role-card,
   .system-card,
-  .skills-section .skill-cloud,
-  .education-grid article,
+  .skill-cloud,
+  .education-grid,
   .press-card,
   .contact-copy
 ) {
@@ -846,7 +865,15 @@ html.motion :is(
   will-change: opacity, transform;
 }
 
-html.motion .reveal-in {
+html.motion :is(
+  .section-intro,
+  .role-card,
+  .system-card,
+  .skill-cloud,
+  .education-grid,
+  .press-card,
+  .contact-copy
+).reveal-in {
   opacity: 1;
   transform: none;
 }
