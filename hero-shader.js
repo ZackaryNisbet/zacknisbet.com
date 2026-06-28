@@ -6,8 +6,9 @@
 // gradient on .hero shows instead. Crawlers never depend on any of this.
 
 (function () {
-  const canvas = document.querySelector(".hero-shader");
+  const canvas = document.querySelector(".atmosphere");
   if (!canvas) return;
+  const darkAct = document.querySelector(".dark-act") || canvas;
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const hide = () => { canvas.style.display = "none"; };
@@ -215,15 +216,16 @@
   function play() { if (!running) { running = true; raf = requestAnimationFrame(frame); } }
   function pause() { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
 
+  // run only while the dark act is on screen
   const io = new IntersectionObserver((entries) => {
     const visible = entries[0] && entries[0].isIntersecting;
     if (visible && !document.hidden) play(); else pause();
-  }, { threshold: 0.01 });
-  io.observe(canvas);
+  }, { threshold: 0 });
+  io.observe(darkAct);
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) pause();
-    else if (canvas.getBoundingClientRect().bottom > 0) play();
+    else if (darkAct.getBoundingClientRect().bottom > 0) play();
   });
 
   window.addEventListener("resize", resize);

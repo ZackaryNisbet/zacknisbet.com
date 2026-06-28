@@ -58,24 +58,38 @@ if (motionOK) {
   );
   revealItems.forEach((item) => revealObserver.observe(item));
 
-  // --- hero scroll choreography (parallax + fade away) ---
+  // --- hero scroll choreography + atmosphere fade ---
   const hero = document.querySelector(".hero");
   const heroMedia = document.querySelector(".hero-media");
   const heroGrid = document.querySelector(".hero-grid");
+  const atmosphere = document.querySelector(".atmosphere");
+  const darkAct = document.querySelector(".dark-act");
   let ticking = false;
 
   const onScroll = () => {
     ticking = false;
     updateMeter();
-    if (!hero) return;
-    const y = window.scrollY;
-    const h = hero.offsetHeight || 1;
-    if (y > h + 80) return;
-    const prog = Math.min(1, y / h);
-    if (heroMedia) heroMedia.style.transform = `translate3d(0, ${y * 0.18}px, 0) scale(1.06)`;
-    if (heroGrid) {
-      heroGrid.style.transform = `translate3d(0, ${y * 0.08}px, 0)`;
-      heroGrid.style.opacity = String(Math.max(0, 1 - prog * 1.15));
+    const vh = window.innerHeight;
+
+    // dissolve the living backdrop as the dark act leaves the viewport
+    if (atmosphere && darkAct) {
+      const bottom = darkAct.getBoundingClientRect().bottom;
+      const o = Math.max(0, Math.min(1, (bottom - vh * 0.15) / (vh * 0.85)));
+      atmosphere.style.opacity = o.toFixed(3);
+    }
+
+    // hero parallax only while the hero is near the viewport
+    if (hero) {
+      const y = window.scrollY;
+      const h = hero.offsetHeight || 1;
+      if (y <= h + 140) {
+        const prog = Math.min(1, y / h);
+        if (heroMedia) heroMedia.style.transform = `translate3d(0, ${y * 0.18}px, 0) scale(1.06)`;
+        if (heroGrid) {
+          heroGrid.style.transform = `translate3d(0, ${y * 0.08}px, 0)`;
+          heroGrid.style.opacity = String(Math.max(0, 1 - prog * 1.15));
+        }
+      }
     }
   };
 
