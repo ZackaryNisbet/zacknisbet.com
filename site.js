@@ -60,4 +60,31 @@ if (!reducedMotion.matches) {
   );
 
   revealItems.forEach((item) => observer.observe(item));
+
+  const heroMedia = document.querySelector(".hero-media");
+
+  if (heroMedia) {
+    let ticking = false;
+
+    const applyParallax = () => {
+      ticking = false;
+      const y = window.scrollY;
+      if (y > window.innerHeight) return;
+      const shift = Math.min(y * 0.16, 120);
+      heroMedia.style.transform = `translate3d(0, ${shift}px, 0) scale(1.04)`;
+    };
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(applyParallax);
+        }
+      },
+      { passive: true }
+    );
+
+    applyParallax();
+  }
 }
