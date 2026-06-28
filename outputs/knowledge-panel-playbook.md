@@ -1,5 +1,24 @@
 # Zack Nisbet Knowledge Panel Playbook
 
+## Current execution status
+
+Completed on June 27, 2026:
+
+- Created the canonical local repository at `/Users/zacknisbet/Developer/zacknisbet.com`.
+- Created the public GitHub repository: https://github.com/ZackaryNisbet/zacknisbet.com
+- Connected the Vercel project to the GitHub repository and renamed the Vercel project to `zacknisbet-com`.
+- Verified `zacknisbet.com` as a Google Search Console Domain property for `zacknisbet@gmail.com`.
+- Added the Google Search Console TXT verification record in GoDaddy DNS. Do not remove this record.
+- Submitted `https://zacknisbet.com/sitemap.xml` in Search Console. Status returned `Success` with 1 discovered page.
+- Ran URL Inspection for `https://zacknisbet.com/`; Google reported `Discovered - currently not indexed`.
+- Requested indexing for `https://zacknisbet.com/`; Search Console confirmed `Indexing requested`.
+
+Still pending:
+
+- Update public profiles to point to `https://zacknisbet.com/`, starting with GitHub, LinkedIn, Hugging Face, and X.
+- Run Google's rich result and structured data validation tools after Google recrawls.
+- Decide whether to create a Wikidata item only after source-backed notability is strong enough.
+
 ## Canonical setup
 
 1. Use `zacknisbet.com` as the canonical domain.
