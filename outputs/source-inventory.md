@@ -21,7 +21,7 @@ This inventory separates source-backed facts from self-controlled profiles. It i
 - Hugging Face: https://huggingface.co/zacknisbet
   - Confirms AI/developer profile under zacknisbet.
 - about.me: https://about.me/zacknisbet
-  - Confirms canonical personal profile, website link, GitHub, LinkedIn, Hugging Face, and short bio.
+  - Confirms canonical personal profile, website link, GitHub, LinkedIn, Hugging Face, X, and short bio.
 - Rammenta: https://www.rammenta.com/
   - Supports current product/company identity.
 - K9 Operations: https://k9operations.com/
