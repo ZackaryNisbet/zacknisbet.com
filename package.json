@@ -1,0 +1,17 @@
+{
+  "name": "zacknisbet-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Canonical personal site for Zack Nisbet.",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "check": "node scripts/check-site.mjs"
+  },
+  "keywords": [
+    "zack-nisbet",
+    "personal-site",
+    "knowledge-panel"
+  ],
+  "license": "UNLICENSED"
+}
+

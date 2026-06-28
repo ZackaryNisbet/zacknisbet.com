@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Zack Nisbet">
+  <rect width="64" height="64" rx="14" fill="oklch(0.115 0.018 163)"/>
+  <path d="M16 43c13-4 23-13 31-27" fill="none" stroke="oklch(0.78 0.12 80)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="45" cy="43" r="6" fill="oklch(0.7 0.13 152)"/>
+</svg>
