@@ -1,6 +1,6 @@
 # Zack Nisbet Wikidata Source Packet
 
-Prepared June 27, 2026. Updated after item creation.
+Prepared June 27, 2026. Updated June 28, 2026 after Commons upload and Wikidata deletion review.
 
 ## Status
 
@@ -11,8 +11,11 @@ Prepared June 27, 2026. Updated after item creation.
   - Website: `zacknisbet.com`
 - Search Console Domain property is verified for `zacknisbet.com`.
 - Sitemap is submitted and the homepage has been manually requested for indexing.
-- Wikidata item created: https://www.wikidata.org/wiki/Q140371357
-- Website schema now includes the Wikidata item in `Person.sameAs`.
+- Wikidata item `Q140371357` was created, then deleted on June 28, 2026.
+- Deletion log: https://www.wikidata.org/wiki/Special:Log?type=delete&page=Q140371357
+- Website schema no longer includes the deleted Wikidata item in `Person.sameAs`.
+- Wikimedia Commons headshot uploaded: https://commons.wikimedia.org/wiki/File:Zack_Nisbet_headshot_July_2023.jpg
+- Website schema now points `Person.image` at the Commons-hosted headshot.
 
 ## Policy posture
 
@@ -28,13 +31,13 @@ Do not create or expand the item with promotional, unsourced, private, or curren
 
 ## Recommendation
 
-Phase 3 is complete enough for the Knowledge Panel playbook. Keep the item sparse and source-backed.
+Phase 3 is not complete on Wikidata. The attempted item was deleted for not meeting Wikidata notability review.
 
-The source set is usable for a minimal item because Zack is identifiable across institutional, official franchise, local news, and profile sources. It is still not a strong celebrity/public-office type case, so the item should be sparse and strictly referenced.
+Do not immediately recreate the item. The current source set identifies Zack across institutional, official franchise, local news, and profile sources, but it was not strong enough to survive Wikidata review as a self-created person item. The next attempt should come only after stronger independent coverage exists, or through a careful undeletion request with a better notability argument.
 
 ## Item shell
 
-- Q-ID: `Q140371357`
+- Q-ID: `Q140371357` - deleted June 28, 2026
 - Label: `Zack Nisbet`
 - Description: `American founder, software engineer, and operator`
 - Aliases:
@@ -47,16 +50,16 @@ Only add statements that can be supported by references.
 
 | Statement | Value | ID | Status | Reference strategy |
 | --- | --- | --- | --- | --- |
-| instance of | human | `Q5` | Added | Left unreferenced. |
-| official website | `https://zacknisbet.com/` | `P856` | Added | Identifier-style statement. |
-| occupation | entrepreneur | `Q131524` | Added | Referenced to K9 Resorts article. |
-| occupation | software engineer | `Q1709010` | Added | Keep unless challenged; avoid adding weaker resume-only detail. |
+| instance of | human | `Q5` | Added before deletion | Left unreferenced. |
+| official website | `https://zacknisbet.com/` | `P856` | Added before deletion | Identifier-style statement. |
+| occupation | entrepreneur | `Q131524` | Added before deletion | Referenced to K9 Resorts article. |
+| occupation | software engineer | `Q1709010` | Added before deletion | Keep unless challenged; avoid adding weaker resume-only detail. |
 | occupation | businessperson | `Q43845` | Skipped | Redundant with entrepreneur. |
-| educated at | Fuqua School of Business | `Q2568866` | Added | Referenced to Duke Fuqua article. |
-| educated at | SUNY Polytechnic Institute | `Q18155496` | Added | Referenced to SUNY Poly profile. |
-| GitHub account | `ZackaryNisbet` | `P2037` | Added | Identifier. |
-| LinkedIn personal profile ID | `zacknisbet` | `P6634` | Added | Identifier. |
-| image | Commons file, after upload | `P18` | Later | Only after uploading an owned/licensed image to Wikimedia Commons. |
+| educated at | Fuqua School of Business | `Q2568866` | Added before deletion | Referenced to Duke Fuqua article. |
+| educated at | SUNY Polytechnic Institute | `Q18155496` | Added before deletion | Referenced to SUNY Poly profile. |
+| GitHub account | `ZackaryNisbet` | `P2037` | Added before deletion | Identifier. |
+| LinkedIn personal profile ID | `zacknisbet` | `P6634` | Added before deletion | Identifier. |
+| image | `File:Zack Nisbet headshot July 2023.jpg` | `P18` | Blocked | Commons upload succeeded, but the Wikidata item was deleted before `P18` could be added. |
 
 ## Claims to avoid
 
@@ -134,7 +137,7 @@ Avoid controversial biographies, living-person edits, politics, medical claims, 
 
 ## Creation sequence
 
-Completed:
+Completed before deletion:
 
 1. Created/logged into the Wikidata account.
 2. Made 5 normal, non-self edits.
@@ -145,10 +148,28 @@ Completed:
 7. Added occupation claims for entrepreneur and software engineer; entrepreneur has a reference URL.
 8. Added GitHub and LinkedIn identifiers.
 9. Stopped before turning the item into a full resume.
+10. Uploaded the headshot to Wikimedia Commons under CC BY-SA 4.0.
+11. Attempted to add the Commons file as `P18`, but the item had already been deleted.
 
-## Post-creation checks
+Deletion outcome:
 
-- Search the item label in Wikidata and Google after 24-72 hours.
-- Keep the website schema `sameAs` list aligned with `Q140371357`.
-- Watch the item for deletion/review notices during the first week.
+- Item `Q140371357` was deleted on June 28, 2026.
+- Deletion reason shown in Wikidata: does not meet the notability policy.
+- The website schema was updated to remove the deleted QID from `sameAs`.
+- The website schema still uses the Commons headshot as `Person.image`.
+
+Commons status:
+
+- File page: https://commons.wikimedia.org/wiki/File:Zack_Nisbet_headshot_July_2023.jpg
+- Direct image: https://upload.wikimedia.org/wikipedia/commons/a/a6/Zack_Nisbet_headshot_July_2023.jpg
+- License: CC BY-SA 4.0.
+- Source/author: Fuqua School of Business headshot session, July 2023.
+- Permission status: pending as of June 28, 2026. If requested, written permission should be sent to `permissions-commons@wikimedia.org`.
+
+## Follow-up checks
+
+- Search the item label in Wikidata and Google after 24-72 hours to confirm no duplicate or stale item appears.
+- Keep the website schema free of the deleted `Q140371357` URL unless the item is restored.
+- Watch the Commons file page for permission/VRT notices.
 - Do not remove the Search Console DNS TXT record.
+- Keep collecting independent source coverage before another Wikidata attempt.

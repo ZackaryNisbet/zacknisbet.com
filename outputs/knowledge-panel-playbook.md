@@ -15,14 +15,22 @@ Completed on June 27, 2026:
 - Updated the public GitHub profile to include the canonical tagline and website.
 - Prepared `outputs/wikidata-source-packet.md` for Phase 3.
 - Completed Wikidata account warm-up with 5 legitimate non-self edits.
-- Created the Wikidata person item: https://www.wikidata.org/wiki/Q140371357
-- Added the Wikidata item to the website `Person.sameAs` schema.
+- Created the Wikidata person item: `Q140371357`.
+
+Completed on June 28, 2026:
+
+- Uploaded the headshot to Wikimedia Commons: https://commons.wikimedia.org/wiki/File:Zack_Nisbet_headshot_July_2023.jpg
+- Published it under CC BY-SA 4.0 with source/author attribution to Fuqua School of Business.
+- Updated website `Person.image` schema to point at the Commons-hosted headshot.
+- Removed the deleted Wikidata item from website `Person.sameAs` schema.
+- Confirmed the Wikidata item `Q140371357` was deleted on June 28, 2026 because it did not meet Wikidata notability review.
 
 Still pending:
 
 - Update remaining public profiles to point to `https://zacknisbet.com/`, especially LinkedIn, Hugging Face, X, Rammenta, and K9-related pages.
 - Run Google's rich result and structured data validation tools after Google recrawls.
-- Upload a freely licensed headshot to Wikimedia Commons only if Zack wants the image to be reusable under Commons licensing.
+- Send the required Wikimedia Commons permission email for the headshot if Commons requests VRT confirmation.
+- Gather stronger independent, non-self sources before attempting Wikidata again or requesting undeletion.
 
 ## Canonical setup
 
@@ -62,38 +70,37 @@ Use this short bio:
 
 ## Wikimedia Commons headshot
 
-1. Use a headshot Zack owns or has written permission to license freely.
-2. Upload to Wikimedia Commons as CC BY-SA 4.0 or another accepted free license.
-3. Use a descriptive filename, for example `Zack Nisbet headshot 2026.jpg`.
-4. Add it to the Wikidata person item as `P18`.
+Uploaded file:
+
+- Commons page: https://commons.wikimedia.org/wiki/File:Zack_Nisbet_headshot_July_2023.jpg
+- Direct image URL: https://upload.wikimedia.org/wikipedia/commons/a/a6/Zack_Nisbet_headshot_July_2023.jpg
+- Filename: `Zack Nisbet headshot July 2023.jpg`
+- License: CC BY-SA 4.0
+- Source: Fuqua School of Business headshot session, July 2023; uploaded with permission to license under CC BY-SA 4.0.
+- Author/credit: Fuqua School of Business.
+
+Commons currently marks the file as permission pending as of June 28, 2026. If Wikimedia Commons asks for confirmation, the creator or authorized rights holder should email written consent to `permissions-commons@wikimedia.org`. If that permission is not confirmed, Commons may delete the image.
 
 ## Wikidata
 
-Created item:
+Created item, now deleted:
 
-- https://www.wikidata.org/wiki/Q140371357
+- Deleted item: https://www.wikidata.org/wiki/Q140371357
+- Deletion log: https://www.wikidata.org/wiki/Special:Log?type=delete&page=Q140371357
 
-Current conservative statements:
+The item was deleted on June 28, 2026 by a Wikidata administrator for not meeting the notability policy. The website schema no longer points to this deleted item.
 
-- Instance of: human
-- Name and alternate names
-- Occupation: entrepreneur, software engineer
-- Official website: `https://zacknisbet.com/`
-- Education: Duke Fuqua, SUNY Polytechnic Institute
-- GitHub account: `ZackaryNisbet`
-- LinkedIn personal profile ID: `zacknisbet`
+Do not immediately recreate the item. The next Wikidata path is:
 
-References added:
-
-- Fuqua education: Duke Fuqua article.
-- SUNY Poly education: SUNY Poly profile.
-- Entrepreneur occupation: K9 Resorts article.
+- Build more independent, non-self source coverage.
+- Keep the website, GitHub profile, LinkedIn, and public company/profile pages aligned around the same canonical identity.
+- Consider an undeletion request or fresh item only after the source base is stronger and less self-promotional.
 
 Do not expand this into a full resume. Add future claims only when a public source supports them.
 
 ## Watch period
 
-After the site, redirects, schema, and Wikidata item are complete:
+After the site, redirects, schema, Search Console, and Commons image are complete:
 
 - Avoid rewriting the canonical facts for 5-6 weeks.
 - Search `Zack Nisbet` weekly in a clean browser.
