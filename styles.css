@@ -282,7 +282,8 @@ html.motion .hero-inner { padding-bottom: clamp(96px, 13vh, 150px); }
 .link-cta.primary:hover { background: oklch(0.7 0.19 28); border-color: oklch(0.7 0.19 28); }
 
 .current-panel {
-  align-self: end;
+  /* in-flow default (mobile + reduced-motion): an inset card aligned to the copy */
+  margin-inline: var(--gutter);
   max-width: 320px;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
@@ -303,11 +304,13 @@ html.motion .hero-inner { padding-bottom: clamp(96px, 13vh, 150px); }
 @media (min-width: 921px) {
   html.motion .current-panel {
     position: absolute;
-    right: var(--gutter);
+    /* hug the hero's right edge, clear of Zack's centered ribbon-cutting scissors */
+    right: clamp(20px, 3vw, 56px);
     bottom: var(--panel-clear, calc(220px - 8vh));
     z-index: 3;
-    width: min(304px, 33vw);
+    width: min(300px, 30vw);
     max-width: none;
+    margin: 0;
   }
 }
 
