@@ -591,6 +591,47 @@ main { counter-reset: section-index; }
 .news-reel figcaption a span { color: var(--accent); }
 .news-reel figcaption a:hover { color: var(--text); }
 
+/* sticky dock: large in section, shrinks to a corner as you scroll past */
+.news-reel-spacer { display: none; }
+html.float-news .news-reel-spacer { display: block; }
+
+.news-reel.floating {
+  position: fixed;
+  z-index: 20;          /* under the header while tracking in-flow */
+  margin: 0;
+  will-change: top, left, width;
+}
+.news-reel.floating.flip-anim {
+  transition: top 0.7s var(--ease), left 0.7s var(--ease), width 0.7s var(--ease), box-shadow 0.7s var(--ease);
+}
+.news-reel.docked {
+  z-index: 45;          /* above content once it's a corner player */
+  box-shadow: 0 22px 55px oklch(0 0 0 / 0.55);
+}
+.news-reel.docked figcaption { display: none; }
+
+.news-dismiss {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: none;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: oklch(0 0 0 / 0.55);
+  color: oklch(0.98 0 0);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+.news-dismiss:hover { background: oklch(0 0 0 / 0.82); }
+.news-reel.docked .news-dismiss { display: inline-flex; }
+
 /* quote press card */
 .press-card.quote {
   grid-column: span 2;
