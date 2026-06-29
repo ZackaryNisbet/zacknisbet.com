@@ -149,7 +149,10 @@ html.motion .hero-inner {
 
 /* ---------- "current focus" status card ---------- */
 .current-panel {
-  /* in-flow default (mobile + reduced-motion): an inset card aligned to the copy */
+  /* in-flow default (mobile + reduced-motion): an inset card aligned to the copy.
+     position/z-index keep it above the hero's bottom-fade overlay (.hero::after). */
+  position: relative;
+  z-index: 2;
   margin-inline: var(--gutter);
   max-width: 320px;
   display: grid;
