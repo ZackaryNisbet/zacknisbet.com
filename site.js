@@ -114,7 +114,9 @@ if (motionOK) {
     const clamp01 = (v) => Math.max(0, Math.min(1, v));
     const lerp = (a, b, t) => a + (b - a) * t;
 
-    let homeW = 0, homeH = 0, dockW = 300, headerH = 64;
+    const trayPad = 16;
+    const heroInner = document.querySelector(".hero-inner");
+    let homeW = 0, homeH = 0, dockW = 300, headerH = 64, trayH = 0, restTrayTop = 0;
     const measure = () => {
       // read the clip's natural in-flow size with no stale inline width applied
       stage.style.width = "";
@@ -134,9 +136,25 @@ if (motionOK) {
       if (vw > 0) dockW = Math.round(Math.min(vw < 720 ? vw * 0.56 : 280, vw - 28));
       const headerEl = document.querySelector(".site-header");
       headerH = headerEl ? headerEl.offsetHeight : 64;
+      // tray height tracks the docked clip's aspect ratio; read its true resting
+      // top from the browser once here (correct even when the mobile toolbar
+      // skews innerHeight) and cache it so the scroll path needs no layout reads
+      const dockH = dockW * (homeH / homeW || 0.5625);
+      trayH = Math.round(dockH + trayPad * 2);
+      tray.style.height = trayH + "px";
+      tray.style.top = "auto";
+      tray.style.bottom = "0px";
+      tray.style.transform = "none";
+      restTrayTop = tray.getBoundingClientRect().top;
+      // park the desktop status card a constant gap above the docked tray, keyed
+      // off the tray's real position so it holds even when the hero overflows the
+      // viewport on short screens (where a static vh-based offset would collide)
+      if (heroInner) {
+        const clear = Math.max(28, Math.round(heroInner.offsetHeight - restTrayTop + 24));
+        root.style.setProperty("--panel-clear", clear + "px");
+      }
     };
 
-    const trayPad = 16;
     const place = () => {
       if (!(homeW > 0 && homeH > 0)) return;
       const home = slot.getBoundingClientRect();
@@ -144,19 +162,18 @@ if (motionOK) {
       const slotCenter = home.top + home.height / 2;
       const b = clamp01(1 - Math.abs(slotCenter - vh * 0.5) / (vh * 0.6));
       reel.style.setProperty("--mount", b.toFixed(3));
-      const dockH = dockW * (homeH / homeW || 0.5625);
       const goingTop = slotCenter < vh * 0.5;
 
       // the frosted tray rides whichever side the clip docks on, and slides /
-      // fades out as the clip lifts up to mount full-size in the section
-      const trayH = Math.round(dockH + trayPad * 2);
-      tray.style.height = trayH + "px";
+      // fades out as the clip lifts up to mount full-size in the section; its
+      // resting top is cached (headerH up top, restTrayTop at the bottom) so this
+      // hot path stays free of forced layout reads
       if (goingTop) { tray.style.top = headerH + "px"; tray.style.bottom = "auto"; }
       else { tray.style.top = "auto"; tray.style.bottom = "0px"; }
       tray.style.opacity = (1 - b).toFixed(3);
       tray.style.transform = `translateY(${(b * (goingTop ? -100 : 100)).toFixed(1)}%)`;
 
-      const dockTop = goingTop ? headerH + trayPad : vh - dockH - trayPad;
+      const dockTop = (goingTop ? headerH : restTrayTop) + trayPad;
       const dockLeft = (vw - dockW) / 2;
       const s = lerp(dockW / homeW, 1, b);
       const tx = lerp(dockLeft, home.left, b);
@@ -170,13 +187,18 @@ if (motionOK) {
     window.addEventListener("load", () => { measure(); place(); });
     setTimeout(() => { measure(); place(); }, 400);
     let tick = false;
-    window.addEventListener(
-      "scroll",
-      () => { if (!tick) { tick = true; requestAnimationFrame(() => { tick = false; place(); }); } },
-      { passive: true }
-    );
+    const onScroll = () => { if (!tick) { tick = true; requestAnimationFrame(() => { tick = false; place(); }); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
     let rt;
-    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { measure(); place(); }, 150); });
+    const remeasure = () => { clearTimeout(rt); rt = setTimeout(() => { measure(); place(); }, 150); };
+    window.addEventListener("resize", remeasure);
+    // the mobile URL bar showing / hiding changes the real viewport bottom but
+    // doesn't reliably fire window resize/scroll; refresh through the same gates
+    // (resize -> re-measure the cached tray top, scroll -> rAF-throttled place)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", remeasure, { passive: true });
+      window.visualViewport.addEventListener("scroll", onScroll, { passive: true });
+    }
   }
 
   // --- momentum smooth scroll (Lenis, if it loaded) ---

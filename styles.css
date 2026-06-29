@@ -220,9 +220,10 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 28px clamp(32px, 5vw, 72px);
-  /* bottom padding clears the frosted clip tray pinned to the viewport bottom */
-  padding-block: clamp(140px, 20vh, 230px) clamp(96px, 13vh, 150px);
+  padding-block: clamp(140px, 20vh, 230px) clamp(44px, 7vh, 82px);
 }
+/* extra bottom room only when the clip tray is actually pinned to the bottom */
+html.motion .hero-inner { padding-bottom: clamp(96px, 13vh, 150px); }
 
 .hero-copy { max-width: 660px; }
 .hero-copy .kicker { margin-bottom: 24px; }
@@ -284,13 +285,30 @@ h1, h2, h3, p { margin: 0; }
   align-self: end;
   max-width: 320px;
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  gap: 14px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px 18px;
-  background: var(--surface);
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  border: 1px solid var(--line-2);
+  border-radius: 13px;
+  padding: 15px 17px;
+  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  backdrop-filter: blur(10px) saturate(1.1);
+  box-shadow: 0 16px 44px oklch(0 0 0 / 0.42);
+}
+/* only with motion does the clip tray exist: float the card low over the empty
+   marble counter, a constant gap above the tray. --panel-clear is measured in JS
+   from the tray's real position (robust when the hero overflows short viewports);
+   calc() is just the pre-JS fallback. */
+@media (min-width: 921px) {
+  html.motion .current-panel {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--panel-clear, calc(220px - 8vh));
+    z-index: 3;
+    width: min(304px, 33vw);
+    max-width: none;
+  }
 }
 
 .current-panel img { border-radius: 8px; }
@@ -803,18 +821,24 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
     inset: auto;
     order: -1;
     width: 100%;
-    height: 46vh;
-    -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 34%, #000 100%);
-    mask-image: linear-gradient(0deg, transparent 0%, #000 34%, #000 100%);
+    /* cropped tight so the team reads and the copy clears the clip tray */
+    height: clamp(208px, 30vh, 300px);
+    -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 24%, #000 100%);
+    mask-image: linear-gradient(0deg, transparent 0%, #000 24%, #000 100%);
   }
-  .hero-media img { object-position: 50% 36%; }
-  .hero-media::after { background: none; }
+  .hero-media img { object-position: 50% 40%; }
+  /* cinematic vignette + merge, echoing the desktop frame so it isn't flat */
+  .hero-media::after {
+    background:
+      radial-gradient(122% 86% at 50% 36%, transparent 40%, oklch(0 0 0 / 0.52) 100%),
+      linear-gradient(0deg, var(--bg) 1%, transparent 34%);
+  }
   .hero-inner {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding-block: 12px clamp(40px, 8vh, 64px);
+    padding-block: 16px clamp(40px, 8vh, 64px);
   }
-  .current-panel { max-width: none; }
+  .current-panel { max-width: 460px; }
   .section-head { grid-template-columns: 1fr; }
   .section-note { grid-column: 1; }
   .role-card { grid-template-columns: 1fr; }
