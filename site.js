@@ -81,12 +81,11 @@ if (motionOK) {
 
   root.classList.add("reveal-ready");
 
-  // --- "In the news" clip: travels a right-side lane (wide), else develops in place ---
+  // --- "In the news" clip: docks at the bottom, mounts at the section, then docks at the top ---
   const reel = document.querySelector(".news-reel");
+  const stage = reel && reel.querySelector(".news-stage");
   const newsVideo = reel && reel.querySelector(".news-video");
-  const laneOK = window.matchMedia("(min-width: 1360px)").matches;
-
-  if (reel && newsVideo) {
+  if (reel && stage && newsVideo) {
     const startVideo = () => {
       if (!newsVideo.src && newsVideo.dataset.src) newsVideo.src = newsVideo.dataset.src;
       const played = newsVideo.play();
@@ -94,103 +93,61 @@ if (motionOK) {
     };
     newsVideo.addEventListener("playing", () => newsVideo.classList.add("is-live"), { once: true });
 
-    if ("IntersectionObserver" in window) {
-      const playObserver = new IntersectionObserver(
-        (entries) => entries.forEach((e) => (e.isIntersecting ? startVideo() : newsVideo.pause())),
-        { threshold: 0.1 }
-      );
-      playObserver.observe(reel);
-    }
+    // reserve the clip's home space, then float the stage and lerp it between a
+    // small centered dock and that home slot as the section passes through center
+    const slot = document.createElement("div");
+    slot.className = "news-slot";
+    stage.before(slot);
+    root.classList.add("travel-on");
+    stage.classList.add("traveling");
+    startVideo();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) newsVideo.pause(); else startVideo();
+    });
 
-    if (laneOK) {
-      // TRAVELING LANE: the clip rides the right margin and blooms to its home slot at the news section
-      root.classList.add("lane-on");
-      const slot = document.createElement("div");
-      slot.className = "news-slot";
-      reel.before(slot);
-      reel.classList.add("traveling");
-      startVideo();
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
 
-      let geom = { pipW: 220, pipH: 124, contentRight: 0, lane: 280 };
-      const measure = () => {
-        const gutter = parseFloat(getComputedStyle(root).getPropertyValue("--gutter")) || 48;
-        const max = parseFloat(getComputedStyle(root).getPropertyValue("--max")) || 1080;
-        const vw = window.innerWidth;
-        const contentW = Math.min(max, vw - gutter * 2);
-        const contentRight = (vw + contentW) / 2;   // content is centered
-        const lane = vw - contentRight;              // the clean right margin
-        const pipW = Math.max(150, Math.min(lane - 26, 230));
-        const homeH = Math.round(contentW * 9 / 16);
-        slot.style.height = homeH + "px";
-        reel.style.width = pipW + "px";
-        geom = { pipW, pipH: (pipW * 9) / 16, contentRight, lane };
-      };
+    let homeW = 0, homeH = 0, dockW = 300, headerH = 64;
+    const measure = () => {
+      stage.classList.remove("traveling");
+      homeW = stage.offsetWidth;
+      homeH = stage.offsetHeight;
+      slot.style.height = homeH + "px";
+      stage.classList.add("traveling");
+      stage.style.width = homeW + "px";
+      const vw = window.innerWidth;
+      dockW = Math.round(Math.min(vw < 720 ? vw * 0.6 : 340, vw - 28));
+      const header = document.querySelector(".site-header");
+      headerH = header ? header.offsetHeight : 64;
+    };
 
-      const place = () => {
-        const home = slot.getBoundingClientRect();
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const { pipW, pipH, contentRight, lane } = geom;
-        const pipLeft = contentRight + (lane - pipW) / 2;
-        const pipTop = vh / 2 - pipH / 2;
-        reel.style.left = pipLeft + "px";
-        reel.style.top = pipTop + "px";
-        const slotCenter = home.top + home.height / 2;
-        const b = Math.max(0, Math.min(1, 1 - Math.abs(slotCenter - vh / 2) / (vh * 0.62)));
-        reel.style.setProperty("--bloom", b.toFixed(3));
-        const dx = home.left - pipLeft;
-        const dy = home.top - pipTop;
-        const s = home.width / pipW;
-        reel.style.transform =
-          `translate(${(dx * b).toFixed(1)}px, ${(dy * b).toFixed(1)}px) scale(${(1 + (s - 1) * b).toFixed(4)})`;
-      };
+    const place = () => {
+      const home = slot.getBoundingClientRect();
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const slotCenter = home.top + home.height / 2;
+      const b = clamp01(1 - Math.abs(slotCenter - vh * 0.5) / (vh * 0.6));
+      reel.style.setProperty("--mount", b.toFixed(3));
+      const dockH = dockW * (homeH / homeW || 0.5625);
+      const goingTop = slotCenter < vh * 0.5;
+      const dockTop = goingTop ? headerH + 14 : vh - dockH - 18;
+      const dockLeft = (vw - dockW) / 2;
+      const s = lerp(dockW / homeW, 1, b);
+      const tx = lerp(dockLeft, home.left, b);
+      const ty = lerp(dockTop, home.top, b);
+      stage.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+    };
 
-      measure();
-      place();
-      let lTick = false;
-      window.addEventListener(
-        "scroll",
-        () => { if (!lTick) { lTick = true; requestAnimationFrame(() => { lTick = false; place(); }); } },
-        { passive: true }
-      );
-      let lrt;
-      window.addEventListener("resize", () => { clearTimeout(lrt); lrt = setTimeout(() => { measure(); place(); }, 150); });
-    } else {
-      // DEVELOP: the still resolves into the live clip as it enters
-      let latched = false;
-      const develop = () => {
-        const r = reel.getBoundingClientRect();
-        const vh = window.innerHeight || 1;
-        const p = Math.max(0, Math.min(1, (vh * 0.82 - r.top) / vh));
-        reel.style.setProperty("--develop", p.toFixed(3));
-        if (p >= 0.55 && !latched) { latched = true; startVideo(); }
-      };
-      let dTick = false;
-      const onDevelop = () => { if (!dTick) { dTick = true; requestAnimationFrame(() => { dTick = false; develop(); }); } };
-      window.addEventListener("scroll", onDevelop, { passive: true });
-      window.addEventListener("resize", onDevelop, { passive: true });
-      develop();
-    }
-  }
-
-  // --- wayfinding rail (only when the clip is NOT traveling) ---
-  if (!laneOK && window.matchMedia("(min-width: 1240px)").matches) {
-    const fill = document.querySelector(".wayfinder-fill");
-    if (fill) {
-      root.classList.add("rail-on");
-      let rTick = false;
-      const updateRail = () => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const prog = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-        fill.style.transform = `scaleY(${prog.toFixed(4)})`;
-      };
-      window.addEventListener(
-        "scroll",
-        () => { if (!rTick) { rTick = true; requestAnimationFrame(() => { rTick = false; updateRail(); }); } },
-        { passive: true }
-      );
-      window.addEventListener("resize", updateRail, { passive: true });
-      updateRail();
-    }
+    measure();
+    place();
+    let tick = false;
+    window.addEventListener(
+      "scroll",
+      () => { if (!tick) { tick = true; requestAnimationFrame(() => { tick = false; place(); }); } },
+      { passive: true }
+    );
+    let rt;
+    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { measure(); place(); }, 150); });
   }
 
   // --- momentum smooth scroll (Lenis, if it loaded) ---

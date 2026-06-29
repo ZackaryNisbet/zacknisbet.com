@@ -166,7 +166,7 @@ h1, h2, h3, p { margin: 0; }
 
 .hero-media {
   position: absolute;
-  inset: 0 0 0 32%;
+  inset: 0 0 0 34%;
   z-index: 0;
   -webkit-mask-image:
     linear-gradient(90deg, transparent 0%, #000 22%, #000 100%),
@@ -191,8 +191,8 @@ h1, h2, h3, p { margin: 0; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, var(--bg) 0%, color-mix(in oklab, var(--bg) 58%, transparent) 30%, transparent 62%),
-    linear-gradient(0deg, var(--bg) 0%, transparent 48%);
+    linear-gradient(80deg, var(--bg) 0%, color-mix(in oklab, var(--bg) 42%, transparent) 26%, transparent 50%),
+    linear-gradient(0deg, var(--bg) 2%, transparent 40%);
 }
 
 .hero::after {
@@ -601,67 +601,22 @@ main { counter-reset: section-index; }
 .news-reel figcaption a span { color: var(--accent); }
 .news-reel figcaption a:hover { color: var(--text); }
 
-/* "develop into focus": the still resolves into the live clip as it enters */
-html.motion:not(.lane-on) .news-stage {
-  transform: scale(calc(1.05 - 0.05 * var(--develop, 0)));
-  will-change: transform;
-}
-html.motion:not(.lane-on) .news-poster {
-  display: block;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-html.motion:not(.lane-on) .news-stage .news-video {
-  position: relative;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.8s var(--ease);
-}
-html.motion:not(.lane-on) .news-stage .news-video.is-live { opacity: 1; }
-html.motion:not(.lane-on) .news-grain {
-  display: block;
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: calc(1 - var(--develop, 0));
-  background:
-    radial-gradient(135% 135% at 50% 45%, transparent 48%, oklch(0 0 0 / 0.62) 100%),
-    repeating-linear-gradient(0deg, oklch(0 0 0 / 0.16) 0 1px, transparent 1px 3px);
-}
-
-/* traveling video lane (wide + motion + fine pointer): the clip rides a right lane */
+/* travel dock: the clip floats and lerps between a small centered dock and its home slot */
 .news-slot { display: none; }
-html.lane-on .news-slot { display: block; }
+html.travel-on .news-slot { display: block; }
+html.travel-on .news-stage { max-height: none; aspect-ratio: 16 / 9; }
 
-html.lane-on { --max: 1080px; }
-/* content stays centered; the photo just stops at the content edge so the
-   right margin is a clean lane, and the hero scrim is eased so Zack stays lit */
-html.lane-on .hero-media {
-  right: calc((100vw - var(--max)) / 2);
-}
-html.lane-on .hero-media::after {
-  background:
-    linear-gradient(90deg, var(--bg) 0%, color-mix(in oklab, var(--bg) 45%, transparent) 22%, transparent 44%),
-    linear-gradient(0deg, var(--bg) 0%, transparent 46%);
-}
-html.lane-on .news-stage { max-height: none; }
-html.lane-on .news-reel figcaption { display: none; }
-
-html.lane-on .news-reel.traveling {
+html.travel-on .news-stage.traveling {
   position: fixed;
+  top: 0;
+  left: 0;
   z-index: 35;
-  margin: 0;
-  overflow: hidden;
   border-radius: 12px;
   transform-origin: top left;
   will-change: transform;
   box-shadow: 0 18px 50px oklch(0 0 0 / 0.5);
 }
+html.travel-on .news-reel figcaption { opacity: var(--mount, 1); }
 
 /* hero "now on the news" cue */
 .news-cue {
@@ -689,28 +644,7 @@ html.motion .rec-dot { animation: rec-pulse 2.2s ease-in-out infinite; }
   50% { opacity: 0.3; }
 }
 
-/* wayfinding rail (wide screens, motion only): leads the eye down the gutter */
 .wayfinder { display: none; }
-html.rail-on .scroll-meter { display: none; }
-html.rail-on .wayfinder {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: max(20px, calc((100vw - var(--max)) / 2 - 26px));
-  width: 1px;
-  height: 100vh;
-  z-index: 25;
-  background: var(--line);
-  pointer-events: none;
-}
-.wayfinder-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: top center;
-  transform: scaleY(0);
-}
 
 /* quote press card */
 .press-card.quote {
@@ -834,11 +768,23 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
 
 /* ---------- responsive ---------- */
 @media (max-width: 920px) {
-  .hero-media { inset: 0; }
-  .hero-media::after {
-    background: linear-gradient(0deg, var(--bg) 6%, color-mix(in oklab, var(--bg) 46%, transparent) 46%, transparent 88%);
+  .hero { display: flex; flex-direction: column; }
+  .hero-media {
+    position: relative;
+    inset: auto;
+    order: -1;
+    width: 100%;
+    height: 46vh;
+    -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 34%, #000 100%);
+    mask-image: linear-gradient(0deg, transparent 0%, #000 34%, #000 100%);
   }
-  .hero-inner { grid-template-columns: 1fr; min-height: 86svh; }
+  .hero-media img { object-position: 50% 36%; }
+  .hero-media::after { background: none; }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: 12px clamp(40px, 8vh, 64px);
+  }
   .current-panel { max-width: none; }
   .section-head { grid-template-columns: 1fr; }
   .section-note { grid-column: 1; }
@@ -856,5 +802,4 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
   .nav { gap: 14px; }
   .press-grid { grid-template-columns: 1fr; }
   .press-card.feature, .press-card.quote { grid-column: span 1; }
-  .news-stage { aspect-ratio: 4 / 3; }
 }
