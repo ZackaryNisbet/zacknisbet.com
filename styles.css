@@ -558,14 +558,24 @@ main { counter-reset: section-index; }
   background: var(--surface);
 }
 
-.news-video {
-  display: block;
+.news-stage {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   max-height: 380px;
-  object-fit: cover;
+  overflow: hidden;
   background: #000;
 }
+
+.news-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-poster,
+.news-grain { display: none; }
 
 .news-reel figcaption {
   display: flex;
@@ -591,46 +601,87 @@ main { counter-reset: section-index; }
 .news-reel figcaption a span { color: var(--accent); }
 .news-reel figcaption a:hover { color: var(--text); }
 
-/* sticky dock: large in section, shrinks to a corner as you scroll past */
-.news-reel-spacer { display: none; }
-html.float-news .news-reel-spacer { display: block; }
-
-.news-reel.floating {
-  position: fixed;
-  z-index: 20;          /* under the header while tracking in-flow */
-  margin: 0;
-  will-change: top, left, width;
+/* "develop into focus": the still resolves into the live clip as it enters */
+html.motion .news-stage {
+  transform: scale(calc(1.05 - 0.05 * var(--develop, 0)));
+  will-change: transform;
 }
-.news-reel.floating.flip-anim {
-  transition: top 0.7s var(--ease), left 0.7s var(--ease), width 0.7s var(--ease), box-shadow 0.7s var(--ease);
-}
-.news-reel.docked {
-  z-index: 45;          /* above content once it's a corner player */
-  box-shadow: 0 22px 55px oklch(0 0 0 / 0.55);
-}
-.news-reel.docked figcaption { display: none; }
-
-.news-dismiss {
+html.motion .news-poster {
+  display: block;
   position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  display: none;
-  width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background: oklch(0 0 0 / 0.55);
-  color: oklch(0.98 0 0);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s var(--ease);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
-.news-dismiss:hover { background: oklch(0 0 0 / 0.82); }
-.news-reel.docked .news-dismiss { display: inline-flex; }
+html.motion .news-stage .news-video {
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+}
+html.motion .news-stage .news-video.is-live { opacity: 1; }
+html.motion .news-grain {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: calc(1 - var(--develop, 0));
+  background:
+    radial-gradient(135% 135% at 50% 45%, transparent 48%, oklch(0 0 0 / 0.62) 100%),
+    repeating-linear-gradient(0deg, oklch(0 0 0 / 0.16) 0 1px, transparent 1px 3px);
+}
+
+/* hero "now on the news" cue */
+.news-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 26px;
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  transition: color 0.2s var(--ease);
+}
+.news-cue:hover { color: var(--text); }
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+html.motion .rec-dot { animation: rec-pulse 2.2s ease-in-out infinite; }
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* wayfinding rail (wide screens, motion only): leads the eye down the gutter */
+.wayfinder { display: none; }
+html.rail-on .scroll-meter { display: none; }
+html.rail-on .wayfinder {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: max(20px, calc((100vw - var(--max)) / 2 - 26px));
+  width: 1px;
+  height: 100vh;
+  z-index: 25;
+  background: var(--line);
+  pointer-events: none;
+}
+.wayfinder-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: top center;
+  transform: scaleY(0);
+}
 
 /* quote press card */
 .press-card.quote {
@@ -777,5 +828,5 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
   .nav { gap: 14px; }
   .press-grid { grid-template-columns: 1fr; }
   .press-card.feature, .press-card.quote { grid-column: span 1; }
-  .news-video { aspect-ratio: 4 / 3; }
+  .news-stage { aspect-ratio: 4 / 3; }
 }

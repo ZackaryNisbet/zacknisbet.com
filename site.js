@@ -81,112 +81,63 @@ if (motionOK) {
 
   root.classList.add("reveal-ready");
 
-  // --- "In the news" clip: lazy play, then shrink + dock to a corner on scroll ---
+  // --- "In the news" clip: scroll-scrubbed "develop into focus" reveal ---
   const reel = document.querySelector(".news-reel");
   const newsVideo = reel && reel.querySelector(".news-video");
   if (reel && newsVideo) {
-    // lazy-load + play only while the clip is on screen
+    const startVideo = () => {
+      if (!newsVideo.src && newsVideo.dataset.src) newsVideo.src = newsVideo.dataset.src;
+      const played = newsVideo.play();
+      if (played && played.catch) played.catch(() => {});
+    };
+    // crossfade the live video over the still poster once it actually plays
+    newsVideo.addEventListener("playing", () => newsVideo.classList.add("is-live"), { once: true });
+
+    // lazy-load + play/pause as the clip enters/leaves the viewport
     if ("IntersectionObserver" in window) {
       const playObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              if (!newsVideo.src && newsVideo.dataset.src) newsVideo.src = newsVideo.dataset.src;
-              const played = newsVideo.play();
-              if (played && played.catch) played.catch(() => {});
-            } else {
-              newsVideo.pause();
-            }
-          });
-        },
-        { threshold: 0.12 }
+        (entries) => entries.forEach((e) => (e.isIntersecting ? startVideo() : newsVideo.pause())),
+        { threshold: 0.1 }
       );
       playObserver.observe(reel);
     }
 
-    // sticky shrink-to-corner dock (desktop + motion only)
-    if (window.matchMedia("(min-width: 940px)").matches) {
-      const spacer = document.createElement("div");
-      spacer.className = "news-reel-spacer";
-      reel.before(spacer);
-      root.classList.add("float-news");
+    // the still resolves into the live clip, scrubbed to scroll via one custom property
+    let latched = false;
+    const develop = () => {
+      const r = reel.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const p = Math.max(0, Math.min(1, (vh * 0.82 - r.top) / vh));
+      reel.style.setProperty("--develop", p.toFixed(3));
+      if (p >= 0.55 && !latched) { latched = true; startVideo(); }
+    };
+    let dTick = false;
+    const onDevelop = () => {
+      if (!dTick) { dTick = true; requestAnimationFrame(() => { dTick = false; develop(); }); }
+    };
+    window.addEventListener("scroll", onDevelop, { passive: true });
+    window.addEventListener("resize", onDevelop, { passive: true });
+    develop();
+  }
 
-      const dismiss = document.createElement("button");
-      dismiss.type = "button";
-      dismiss.className = "news-dismiss";
-      dismiss.setAttribute("aria-label", "Dismiss the clip");
-      dismiss.textContent = "×";
-      reel.appendChild(dismiss);
-
-      const DOCK_W = 340;
-      let homeH = 0;
-      let mode = "home";
-      let dismissed = false;
-      let returnedAt = -1e9;
-
-      const measure = () => {
-        reel.classList.remove("floating");
-        homeH = reel.offsetHeight;
-        spacer.style.height = homeH + "px";
-        reel.classList.add("floating");
+  // --- wayfinding rail: a thin brass line in the left gutter that fills as you scroll ---
+  if (window.matchMedia("(min-width: 1240px)").matches) {
+    const fill = document.querySelector(".wayfinder-fill");
+    if (fill) {
+      root.classList.add("rail-on");
+      let rTick = false;
+      const updateRail = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const prog = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        fill.style.transform = `scaleY(${prog.toFixed(4)})`;
       };
-
-      const set = (w, top, left, anim) => {
-        reel.classList.toggle("flip-anim", anim);
-        reel.style.width = w + "px";
-        reel.style.top = top + "px";
-        reel.style.left = left + "px";
-      };
-
-      const contact = document.querySelector("#contact");
-
-      const place = () => {
-        if (dismissed) return;
-        const r = spacer.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        if (r.top > -homeH * 0.5) {
-          // HOME: track the reserved slot exactly (animate briefly on return)
-          if (mode !== "home") { mode = "home"; reel.classList.remove("docked"); returnedAt = performance.now(); }
-          set(r.width, r.top, r.left, performance.now() - returnedAt < 720);
-        } else {
-          // DOCKED: corner player; hops to the left as contact comes up so it never covers it
-          if (mode !== "docked") { mode = "docked"; reel.classList.add("docked"); }
-          const dockH = (DOCK_W * 9) / 16;
-          const toLeft = contact && contact.getBoundingClientRect().top < vh * 0.7;
-          set(DOCK_W, vh - dockH - 26, toLeft ? 26 : vw - DOCK_W - 26, true);
-        }
-      };
-
-      dismiss.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dismissed = true;
-        reel.style.display = "none";
-        spacer.style.height = "0px";
-        newsVideo.pause();
-      });
-
-      measure();
-      place();
-
-      let queued = false;
       window.addEventListener(
         "scroll",
-        () => {
-          if (!queued) {
-            queued = true;
-            requestAnimationFrame(() => { queued = false; place(); });
-          }
-        },
+        () => { if (!rTick) { rTick = true; requestAnimationFrame(() => { rTick = false; updateRail(); }); } },
         { passive: true }
       );
-
-      let resizeTimer;
-      window.addEventListener("resize", () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => { if (!dismissed) { measure(); place(); } }, 150);
-      });
+      window.addEventListener("resize", updateRail, { passive: true });
+      updateRail();
     }
   }
 

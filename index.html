@@ -291,6 +291,7 @@
   </head>
   <body>
     <div class="scroll-meter" aria-hidden="true"></div>
+    <div class="wayfinder" aria-hidden="true"><span class="wayfinder-fill"></span></div>
 
     <header class="site-header" aria-label="Site header">
       <a class="site-name" href="/" aria-label="Zack Nisbet home">Zack Nisbet</a>
@@ -321,6 +322,10 @@
               <a class="link-cta primary" href="#experience">Read the resume <span aria-hidden="true">&rarr;</span></a>
               <a class="link-cta" href="#press">See press coverage <span aria-hidden="true">&rarr;</span></a>
             </div>
+            <a class="news-cue" href="#press">
+              <span class="rec-dot" aria-hidden="true"></span>
+              <span>Rec &middot; CBS News Chicago &middot; 2025</span>
+            </a>
           </div>
           <div class="current-panel" aria-label="Current focus">
             <img src="/assets/logos/rammenta.png" alt="" width="38" height="38">
@@ -496,7 +501,11 @@
         </div>
 
         <figure class="news-reel">
-          <video class="news-video" muted loop playsinline preload="none" data-src="/assets/press/deerfield-opening.mp4" poster="/assets/press/deerfield-opening-poster.jpg" aria-label="CBS News Chicago segment on the K9 Resorts Deerfield opening"></video>
+          <div class="news-stage">
+            <img class="news-poster" src="/assets/press/deerfield-opening-poster.jpg" alt="" aria-hidden="true">
+            <video class="news-video" muted loop playsinline preload="none" data-src="/assets/press/deerfield-opening.mp4" poster="/assets/press/deerfield-opening-poster.jpg" aria-label="CBS News Chicago segment on the K9 Resorts Deerfield opening"></video>
+            <span class="news-grain" aria-hidden="true"></span>
+          </div>
           <figcaption>
             <span>As seen on CBS News Chicago &mdash; K9 Resorts Deerfield opening</span>
             <a href="https://www.youtube.com/watch?v=RtyFYbMyANY">Watch on YouTube <span aria-hidden="true">&rarr;</span></a>
