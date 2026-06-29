@@ -110,19 +110,28 @@ if (motionOK) {
 
     let homeW = 0, homeH = 0, dockW = 300, headerH = 64;
     const measure = () => {
+      // read the clip's natural in-flow size with no stale inline width applied
+      stage.style.width = "";
       stage.classList.remove("traveling");
-      homeW = stage.offsetWidth;
-      homeH = stage.offsetHeight;
-      slot.style.height = homeH + "px";
+      const w = stage.offsetWidth;
+      const h = stage.offsetHeight;
       stage.classList.add("traveling");
-      stage.style.width = homeW + "px";
-      const vw = window.innerWidth;
-      dockW = Math.round(Math.min(vw < 720 ? vw * 0.6 : 340, vw - 28));
-      const header = document.querySelector(".site-header");
-      headerH = header ? header.offsetHeight : 64;
+      // ignore bogus 0-size reads (e.g. a backgrounded tab collapses layout) so a
+      // single bad measure can never poison the scale with a divide-by-zero
+      if (w > 0 && h > 0) {
+        homeW = w;
+        homeH = h;
+        slot.style.height = homeH + "px";
+      }
+      if (homeW > 0) stage.style.width = homeW + "px";
+      const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+      if (vw > 0) dockW = Math.round(Math.min(vw < 720 ? vw * 0.6 : 340, vw - 28));
+      const headerEl = document.querySelector(".site-header");
+      headerH = headerEl ? headerEl.offsetHeight : 64;
     };
 
     const place = () => {
+      if (!(homeW > 0 && homeH > 0)) return;
       const home = slot.getBoundingClientRect();
       const vw = window.innerWidth, vh = window.innerHeight;
       const slotCenter = home.top + home.height / 2;
@@ -140,6 +149,9 @@ if (motionOK) {
 
     measure();
     place();
+    // re-measure once everything (fonts, video metadata) has settled
+    window.addEventListener("load", () => { measure(); place(); });
+    setTimeout(() => { measure(); place(); }, 400);
     let tick = false;
     window.addEventListener(
       "scroll",
