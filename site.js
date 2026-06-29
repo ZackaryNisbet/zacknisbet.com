@@ -98,6 +98,12 @@ if (motionOK) {
     const slot = document.createElement("div");
     slot.className = "news-slot";
     stage.before(slot);
+    // frosted bar the docked clip rests in, so page content scrolls cleanly
+    // behind it instead of being covered
+    const tray = document.createElement("div");
+    tray.className = "news-tray";
+    tray.setAttribute("aria-hidden", "true");
+    document.body.appendChild(tray);
     root.classList.add("travel-on");
     stage.classList.add("traveling");
     startVideo();
@@ -125,11 +131,12 @@ if (motionOK) {
       }
       if (homeW > 0) stage.style.width = homeW + "px";
       const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-      if (vw > 0) dockW = Math.round(Math.min(vw < 720 ? vw * 0.6 : 340, vw - 28));
+      if (vw > 0) dockW = Math.round(Math.min(vw < 720 ? vw * 0.56 : 280, vw - 28));
       const headerEl = document.querySelector(".site-header");
       headerH = headerEl ? headerEl.offsetHeight : 64;
     };
 
+    const trayPad = 16;
     const place = () => {
       if (!(homeW > 0 && homeH > 0)) return;
       const home = slot.getBoundingClientRect();
@@ -139,7 +146,17 @@ if (motionOK) {
       reel.style.setProperty("--mount", b.toFixed(3));
       const dockH = dockW * (homeH / homeW || 0.5625);
       const goingTop = slotCenter < vh * 0.5;
-      const dockTop = goingTop ? headerH + 14 : vh - dockH - 18;
+
+      // the frosted tray rides whichever side the clip docks on, and slides /
+      // fades out as the clip lifts up to mount full-size in the section
+      const trayH = Math.round(dockH + trayPad * 2);
+      tray.style.height = trayH + "px";
+      if (goingTop) { tray.style.top = headerH + "px"; tray.style.bottom = "auto"; }
+      else { tray.style.top = "auto"; tray.style.bottom = "0px"; }
+      tray.style.opacity = (1 - b).toFixed(3);
+      tray.style.transform = `translateY(${(b * (goingTop ? -100 : 100)).toFixed(1)}%)`;
+
+      const dockTop = goingTop ? headerH + trayPad : vh - dockH - trayPad;
       const dockLeft = (vw - dockW) / 2;
       const s = lerp(dockW / homeW, 1, b);
       const tx = lerp(dockLeft, home.left, b);

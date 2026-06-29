@@ -220,7 +220,8 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 28px clamp(32px, 5vw, 72px);
-  padding-block: clamp(150px, 22vh, 240px) clamp(44px, 7vh, 82px);
+  /* bottom padding clears the frosted clip tray pinned to the viewport bottom */
+  padding-block: clamp(140px, 20vh, 230px) clamp(96px, 13vh, 150px);
 }
 
 .hero-copy { max-width: 660px; }
@@ -624,6 +625,27 @@ html.travel-on .news-stage.traveling {
   box-shadow: 0 18px 50px oklch(0 0 0 / 0.5);
 }
 html.travel-on .news-reel figcaption { opacity: var(--mount, 1); }
+
+/* frosted tray: gives the docked clip a home so content scrolls cleanly behind it */
+.news-tray { display: none; }
+html.travel-on .news-tray {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 30;
+  background: oklch(0.14 0.012 160 / 0.62);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.travel-on .news-tray { display: none; }
+}
 
 /* hero "now on the news" cue */
 .news-cue {
