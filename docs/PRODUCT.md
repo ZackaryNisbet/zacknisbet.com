@@ -1,8 +1,6 @@
-# Zack Nisbet Personal Site
+# Product — Zack Nisbet Personal Site
 
-## Register
-
-brand
+_Why this site exists and who it serves._
 
 ## Product Purpose
 

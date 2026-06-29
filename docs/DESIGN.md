@@ -1,8 +1,7 @@
-# Zack Nisbet Personal Site Design
+# Design — Zack Nisbet Personal Site
 
-## Register
-
-brand
+_The visual system: direction, colour, type, layout, and motion. Tokens live in
+[`styles/tokens.css`](../styles/tokens.css)._
 
 ## Design Direction
 

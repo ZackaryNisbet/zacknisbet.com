@@ -48,18 +48,18 @@ Do not immediately recreate the item. The current source set identifies Zack acr
 
 Only add statements that can be supported by references.
 
-| Statement | Value | ID | Status | Reference strategy |
-| --- | --- | --- | --- | --- |
-| instance of | human | `Q5` | Added before deletion | Left unreferenced. |
-| official website | `https://zacknisbet.com/` | `P856` | Added before deletion | Identifier-style statement. |
-| occupation | entrepreneur | `Q131524` | Added before deletion | Referenced to K9 Resorts article. |
-| occupation | software engineer | `Q1709010` | Added before deletion | Keep unless challenged; avoid adding weaker resume-only detail. |
-| occupation | businessperson | `Q43845` | Skipped | Redundant with entrepreneur. |
-| educated at | Fuqua School of Business | `Q2568866` | Added before deletion | Referenced to Duke Fuqua article. |
-| educated at | SUNY Polytechnic Institute | `Q18155496` | Added before deletion | Referenced to SUNY Poly profile. |
-| GitHub account | `ZackaryNisbet` | `P2037` | Added before deletion | Identifier. |
-| LinkedIn personal profile ID | `zacknisbet` | `P6634` | Added before deletion | Identifier. |
-| image | `File:Zack Nisbet headshot July 2023.jpg` | `P18` | Blocked | Commons upload succeeded, but the Wikidata item was deleted before `P18` could be added. |
+| Statement                    | Value                                     | ID          | Status                | Reference strategy                                                                       |
+| ---------------------------- | ----------------------------------------- | ----------- | --------------------- | ---------------------------------------------------------------------------------------- |
+| instance of                  | human                                     | `Q5`        | Added before deletion | Left unreferenced.                                                                       |
+| official website             | `https://zacknisbet.com/`                 | `P856`      | Added before deletion | Identifier-style statement.                                                              |
+| occupation                   | entrepreneur                              | `Q131524`   | Added before deletion | Referenced to K9 Resorts article.                                                        |
+| occupation                   | software engineer                         | `Q1709010`  | Added before deletion | Keep unless challenged; avoid adding weaker resume-only detail.                          |
+| occupation                   | businessperson                            | `Q43845`    | Skipped               | Redundant with entrepreneur.                                                             |
+| educated at                  | Fuqua School of Business                  | `Q2568866`  | Added before deletion | Referenced to Duke Fuqua article.                                                        |
+| educated at                  | SUNY Polytechnic Institute                | `Q18155496` | Added before deletion | Referenced to SUNY Poly profile.                                                         |
+| GitHub account               | `ZackaryNisbet`                           | `P2037`     | Added before deletion | Identifier.                                                                              |
+| LinkedIn personal profile ID | `zacknisbet`                              | `P6634`     | Added before deletion | Identifier.                                                                              |
+| image                        | `File:Zack Nisbet headshot July 2023.jpg` | `P18`       | Blocked               | Commons upload succeeded, but the Wikidata item was deleted before `P18` could be added. |
 
 ## Claims to avoid
 
@@ -83,31 +83,37 @@ For every meaningful statement, add:
 ## Best references to use first
 
 1. Duke Fuqua article
+
    - URL: https://blogs.fuqua.duke.edu/duke-mms/2024/04/29/zackary-nisbet/from-fuqua-to-ceo-my-journey-to-becoming-a-franchisee
    - Title: `From Fuqua to CEO: My Journey to Becoming a Franchisee`
    - Use for: Fuqua education, entrepreneurship/franchisee context.
    - Caveat: This is institutional but autobiographical, so do not rely on it alone for notability.
 
 2. SUNY Poly profile
+
    - URL: https://webapp.sunypoly.edu/stories/zackary-nisbet-23-network-and-computer-security-cybersecurity/
    - Title: `Zackary Nisbet '23 - Network and Computer Security: Cybersecurity`
    - Use for: SUNY Poly education and technical background.
 
 3. K9 Resorts official article
+
    - URL: https://www.k9resorts.com/about-us/articles/news/k9-resorts-takes-flight-with-11-unit-agreement-in-los-angeles-marks-first-location-near-an-airport/
    - Use for: franchisee/operator context.
    - Caveat: Official company source, good for verification but weaker for independent notability.
 
 4. Patch Deerfield
+
    - URL: https://patch.com/illinois/deerfield/ritz-carlton-dogs-set-open-first-il-location-deerfield
    - Use for: independent local coverage of K9 Resorts franchise context.
 
 5. Chicago Tribune
+
    - URL: https://www.chicagotribune.com/2025/06/21/pet-hotel-ritz-carlton-dogs/
    - Use for: independent regional coverage of the K9 Resorts opening.
    - Caveat: May be paywalled or syndicated.
 
 6. Daily Herald
+
    - URL: https://www.dailyherald.com/20250908/business/palatine-council-has-reservations-about-dog-resort/
    - Use for: independent local coverage of K9 Resorts expansion context.
 
