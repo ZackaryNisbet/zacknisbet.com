@@ -114,13 +114,13 @@ if (motionOK) {
       let geom = { pipW: 220, pipH: 124, contentRight: 0, lane: 280 };
       const measure = () => {
         const gutter = parseFloat(getComputedStyle(root).getPropertyValue("--gutter")) || 48;
-        const max = parseFloat(getComputedStyle(root).getPropertyValue("--max")) || 1040;
+        const max = parseFloat(getComputedStyle(root).getPropertyValue("--max")) || 1080;
         const vw = window.innerWidth;
-        const contentRight = gutter + Math.min(max, vw - gutter * 2);
-        const lane = vw - contentRight;
-        const pipW = Math.max(160, Math.min(lane - 36, 300));
-        // home slot height = the bloomed video (16:9 of content width)
-        const homeH = Math.round(Math.min(max, vw - gutter * 2) * 9 / 16);
+        const contentW = Math.min(max, vw - gutter * 2);
+        const contentRight = (vw + contentW) / 2;   // content is centered
+        const lane = vw - contentRight;              // the clean right margin
+        const pipW = Math.max(150, Math.min(lane - 26, 230));
+        const homeH = Math.round(contentW * 9 / 16);
         slot.style.height = homeH + "px";
         reel.style.width = pipW + "px";
         geom = { pipW, pipH: (pipW * 9) / 16, contentRight, lane };

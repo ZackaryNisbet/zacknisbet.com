@@ -638,15 +638,16 @@ html.motion:not(.lane-on) .news-grain {
 .news-slot { display: none; }
 html.lane-on .news-slot { display: block; }
 
-html.lane-on { --max: 1040px; }
-html.lane-on .shell,
-html.lane-on .section,
-html.lane-on .site-footer {
-  margin-left: var(--gutter);
-  margin-right: auto;
-}
+html.lane-on { --max: 1080px; }
+/* content stays centered; the photo just stops at the content edge so the
+   right margin is a clean lane, and the hero scrim is eased so Zack stays lit */
 html.lane-on .hero-media {
-  right: max(0px, calc(100vw - var(--gutter) - var(--max)));
+  right: calc((100vw - var(--max)) / 2);
+}
+html.lane-on .hero-media::after {
+  background:
+    linear-gradient(90deg, var(--bg) 0%, color-mix(in oklab, var(--bg) 45%, transparent) 22%, transparent 44%),
+    linear-gradient(0deg, var(--bg) 0%, transparent 46%);
 }
 html.lane-on .news-stage { max-height: none; }
 html.lane-on .news-reel figcaption { display: none; }
@@ -754,10 +755,9 @@ html.rail-on .wayfinder {
 }
 
 .portrait img {
+  display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: 50% 28%;
+  height: auto;
 }
 
 .contact-copy { max-width: 60ch; }
