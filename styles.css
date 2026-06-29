@@ -166,7 +166,7 @@ h1, h2, h3, p { margin: 0; }
 
 .hero-media {
   position: absolute;
-  inset: 0 0 0 28%;
+  inset: 0 0 0 32%;
   z-index: 0;
   -webkit-mask-image:
     linear-gradient(90deg, transparent 0%, #000 22%, #000 100%),
@@ -216,16 +216,15 @@ h1, h2, h3, p { margin: 0; }
   padding-block: clamp(150px, 22vh, 240px) clamp(44px, 7vh, 82px);
 }
 
-.hero-copy { max-width: 760px; }
+.hero-copy { max-width: 660px; }
 .hero-copy .kicker { margin-bottom: 24px; }
 
 .hero h1 {
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(2.7rem, 6.4vw, 4.7rem);
-  line-height: 0.97;
+  font-size: clamp(2.6rem, 5.6vw, 4.3rem);
+  line-height: 0.98;
   letter-spacing: -0.035em;
-  text-wrap: balance;
 }
 
 .hero h1 em {
@@ -356,14 +355,18 @@ main { counter-reset: section-index; }
 
 .role-card {
   display: grid;
-  grid-template-columns: minmax(200px, 0.32fr) minmax(108px, 0.15fr) minmax(0, 1fr);
-  gap: 16px clamp(24px, 4vw, 56px);
-  padding: clamp(22px, 3vw, 32px);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px clamp(24px, 4vw, 48px);
+  align-items: start;
+  padding: clamp(24px, 3vw, 34px);
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
   transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
 }
+
+.role-card .role-meta { grid-column: 2; align-items: flex-end; text-align: right; }
+.role-card .role-bullets { grid-column: 1 / -1; }
 
 .role-card:hover { border-color: var(--line-2); background: var(--surface-2); }
 
@@ -546,6 +549,28 @@ main { counter-reset: section-index; }
 }
 
 /* ---------- contact ---------- */
+.contact-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.portrait {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.portrait img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 28%;
+}
+
 .contact-copy { max-width: 60ch; }
 .contact-copy h2 {
   font-family: var(--display);
@@ -633,6 +658,9 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
   .system-grid, .education-grid { grid-template-columns: 1fr; }
   .press-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .press-card.feature { grid-column: span 2; }
+  .contact-inner { grid-template-columns: 1fr; }
+  .portrait { max-width: 220px; }
+  .role-card .role-meta { grid-column: 1; text-align: left; align-items: flex-start; }
 }
 
 @media (max-width: 560px) {
