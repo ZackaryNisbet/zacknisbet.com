@@ -116,7 +116,9 @@ if (motionOK) {
 
     const trayPad = 16;
     const heroInner = document.querySelector(".hero-inner");
-    let homeW = 0, homeH = 0, dockW = 300, headerH = 64, trayH = 0, restTrayTop = 0;
+    // the *visual* viewport height — tracks the mobile URL bar; window.innerHeight does not
+    const viewportH = () => (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    let homeW = 0, homeH = 0, dockW = 300, headerH = 64, trayH = 0;
     const measure = () => {
       // read the clip's natural in-flow size with no stale inline width applied
       stage.style.width = "";
@@ -144,13 +146,10 @@ if (motionOK) {
       tray.style.height = trayH + "px";
       tray.style.top = "auto";
       tray.style.bottom = "0px";
-      tray.style.transform = "none";
-      restTrayTop = tray.getBoundingClientRect().top;
-      // park the desktop status card a constant gap above the docked tray, keyed
-      // off the tray's real position so it holds even when the hero overflows the
-      // viewport on short screens (where a static vh-based offset would collide)
+      // park the desktop status card a constant gap above the docked bottom tray;
+      // the hero can overflow a short viewport, so key it off the real heights
       if (heroInner) {
-        const clear = Math.max(28, Math.round(heroInner.offsetHeight - restTrayTop + 24));
+        const clear = Math.max(28, Math.round(heroInner.offsetHeight - viewportH() + trayH + 24));
         root.style.setProperty("--panel-clear", clear + "px");
       }
     };
@@ -158,26 +157,31 @@ if (motionOK) {
     const place = () => {
       if (!(homeW > 0 && homeH > 0)) return;
       const home = slot.getBoundingClientRect();
-      const vw = window.innerWidth, vh = window.innerHeight;
+      const vw = window.innerWidth, vh = viewportH();
       const slotCenter = home.top + home.height / 2;
       const b = clamp01(1 - Math.abs(slotCenter - vh * 0.5) / (vh * 0.6));
       reel.style.setProperty("--mount", b.toFixed(3));
       const goingTop = slotCenter < vh * 0.5;
+      const dockH = dockW * (homeH / homeW || 0.5625);
 
       // the frosted tray rides whichever side the clip docks on, and slides /
-      // fades out as the clip lifts up to mount full-size in the section; its
-      // resting top is cached (headerH up top, restTrayTop at the bottom) so this
-      // hot path stays free of forced layout reads
+      // fades out as the clip lifts up to mount. clip AND tray are both anchored
+      // to the viewport bottom in CSS, so the docked clip tracks the mobile URL
+      // bar in lockstep with the tray and can never drift off it
       if (goingTop) { tray.style.top = headerH + "px"; tray.style.bottom = "auto"; }
       else { tray.style.top = "auto"; tray.style.bottom = "0px"; }
       tray.style.opacity = (1 - b).toFixed(3);
       tray.style.transform = `translateY(${(b * (goingTop ? -100 : 100)).toFixed(1)}%)`;
 
-      const dockTop = (goingTop ? headerH : restTrayTop) + trayPad;
+      // clip: position:fixed; bottom:0; left:0; transform-origin:bottom left.
+      // docked  -> trayPad above the viewport bottom, centered (no vh term, so it
+      //            stays glued to the tray as the URL bar moves)
+      // mounted -> bottom-left aligned with the in-flow slot, full scale
       const dockLeft = (vw - dockW) / 2;
+      const dockTy = goingTop ? (headerH + trayPad + dockH - vh) : -trayPad;
       const s = lerp(dockW / homeW, 1, b);
       const tx = lerp(dockLeft, home.left, b);
-      const ty = lerp(dockTop, home.top, b);
+      const ty = lerp(dockTy, home.bottom - vh, b);
       stage.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
     };
 

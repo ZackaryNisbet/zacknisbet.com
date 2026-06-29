@@ -637,11 +637,13 @@ html.travel-on .news-stage { max-height: none; aspect-ratio: 16 / 9; }
 
 html.travel-on .news-stage.traveling {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   z-index: 35;
   border-radius: 12px;
-  transform-origin: top left;
+  /* bottom-anchored so the docked clip tracks the viewport bottom (and the
+     mobile URL bar) in lockstep with the tray; JS lerps it up to mount */
+  transform-origin: bottom left;
   will-change: transform;
   box-shadow: 0 18px 50px oklch(0 0 0 / 0.5);
 }
@@ -818,14 +820,16 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
 
 /* ---------- responsive ---------- */
 @media (max-width: 920px) {
-  .hero { display: flex; flex-direction: column; }
+  /* compact one-line nav, and start the hero below it so it never covers the photo */
+  .site-header { padding: 12px var(--gutter); }
+  .hero { display: flex; flex-direction: column; padding-top: 54px; }
   .hero-media {
     position: relative;
     inset: auto;
     order: -1;
     width: 100%;
     /* cropped tight so the team reads and the copy clears the clip tray */
-    height: clamp(208px, 30vh, 300px);
+    height: clamp(188px, 27vh, 272px);
     -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 24%, #000 100%);
     mask-image: linear-gradient(0deg, transparent 0%, #000 24%, #000 100%);
   }
@@ -855,7 +859,10 @@ html.motion :is(.section-head, .role-card, .system-card, .skill-cloud, .educatio
 }
 
 @media (max-width: 560px) {
-  .nav { gap: 14px; }
+  /* shrink the brand + links so the whole nav still fits one line on phones */
+  .site-name { font-size: 0.9rem; white-space: nowrap; }
+  .nav { gap: 10px; }
+  .nav a { font-size: 0.68rem; letter-spacing: 0.02em; }
   .press-grid { grid-template-columns: 1fr; }
   .press-card.feature, .press-card.quote { grid-column: span 1; }
 }
