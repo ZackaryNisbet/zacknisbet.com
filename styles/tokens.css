@@ -1,0 +1,45 @@
+/*
+ * Design tokens — the single source of truth for the visual system.
+ * Near-monochrome dark ink surface, paper-white text at graded opacities,
+ * one brass-red accent. Perceptual oklch throughout.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg: oklch(0.168 0.009 168);
+  --surface: oklch(0.205 0.009 168);
+  --surface-2: oklch(0.235 0.01 168);
+
+  /* Text — paper white at descending opacity */
+  --text: oklch(0.96 0.004 150);
+  --text-2: oklch(0.96 0.004 150 / 0.66);
+  --text-3: oklch(0.96 0.004 150 / 0.42);
+
+  /* Hairlines */
+  --line: oklch(1 0 0 / 0.09);
+  --line-2: oklch(1 0 0 / 0.16);
+  --line-3: oklch(1 0 0 / 0.28);
+
+  /* Accent — the one brand colour, plus a stronger hover and on-accent ink */
+  --accent: oklch(0.66 0.19 28);
+  --accent-strong: oklch(0.7 0.19 28);
+  --on-accent: oklch(0.99 0 0);
+
+  /* Layout + type */
+  --max: 1180px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Roboto Mono", monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}

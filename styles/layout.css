@@ -1,0 +1,171 @@
+/*
+ * Page chrome and the section grid: scroll meter, header/nav, content shell,
+ * the numbered <section> system, and the footer.
+ */
+
+/* ---------- scroll progress ---------- */
+.scroll-meter {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 80;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* ---------- header ---------- */
+.site-header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px var(--gutter);
+  background: color-mix(in oklab, var(--bg) 72%, transparent);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(14px);
+  transition:
+    border-color 0.3s var(--ease),
+    background 0.3s var(--ease);
+}
+
+.site-header.is-scrolled {
+  border-bottom-color: var(--line);
+  background: color-mix(in oklab, var(--bg) 86%, transparent);
+}
+
+.site-name {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 28px);
+}
+
+.nav a {
+  position: relative;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  padding: 4px 0;
+  transition: color 0.2s var(--ease);
+}
+
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s var(--ease);
+}
+
+.nav a:hover {
+  color: var(--text);
+}
+.nav a:hover::after {
+  transform: scaleX(1);
+}
+
+/* ---------- shell ---------- */
+.shell {
+  width: min(var(--max), 100%);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------- numbered section system ---------- */
+main {
+  counter-reset: section-index;
+}
+
+.section {
+  width: min(var(--max), 100%);
+  margin-inline: auto;
+  padding: clamp(64px, 9vh, 116px) var(--gutter);
+  border-top: 1px solid var(--line);
+  counter-increment: section-index;
+}
+
+.section-head {
+  margin-bottom: clamp(38px, 6vh, 64px);
+}
+
+.section .kicker::before {
+  content: "[" counter(section-index, decimal-leading-zero) "] ";
+  color: var(--accent);
+}
+
+/* ---------- footer ---------- */
+.site-footer {
+  width: min(var(--max), 100%);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 36px var(--gutter) 52px;
+  border-top: 1px solid var(--line);
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.site-footer a:hover {
+  color: var(--text);
+}
+
+.social-links {
+  display: flex;
+  gap: 8px;
+}
+.social-links a {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text-2);
+  transition:
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+.social-links a:hover {
+  border-color: var(--line-2);
+  color: var(--text);
+}
+.social-links svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.social-links img {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+.social-links span {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.7rem;
+}

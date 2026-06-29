@@ -2,16 +2,22 @@
   "name": "zacknisbet-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Canonical personal site for Zack Nisbet.",
+  "type": "module",
+  "description": "Canonical personal site for Zack Nisbet — a hand-written, buildless static site.",
+  "homepage": "https://zacknisbet.com",
   "scripts": {
     "start": "python3 -m http.server 4173",
-    "check": "node scripts/check-site.mjs"
+    "check": "node tools/check-site.mjs",
+    "format": "npx --yes prettier@3.3.3 --write .",
+    "format:check": "npx --yes prettier@3.3.3 --check ."
   },
   "keywords": [
     "zack-nisbet",
     "personal-site",
     "knowledge-panel"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "license": "UNLICENSED"
 }
-

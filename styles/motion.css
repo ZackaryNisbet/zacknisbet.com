@@ -1,0 +1,31 @@
+/* ---------- reveals (hidden from first paint under .motion) ---------- */
+html.motion
+  :is(
+    .section-head,
+    .role-card,
+    .system-card,
+    .skill-cloud,
+    .education-grid article,
+    .press-card,
+    .contact-copy
+  ) {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+  will-change: opacity, transform;
+}
+html.motion
+  :is(
+    .section-head,
+    .role-card,
+    .system-card,
+    .skill-cloud,
+    .education-grid article,
+    .press-card,
+    .contact-copy
+  ).in {
+  opacity: 1;
+  transform: none;
+}

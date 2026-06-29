@@ -1,0 +1,113 @@
+/*
+ * "In the news" video reel + the JS-driven travel dock. The clip lifts from a
+ * frosted tray pinned to the viewport bottom, mounts full-size in the section,
+ * then docks at the top. Frame geometry is computed in scripts/travel-dock.js;
+ * these are the static styles plus the state classes it toggles
+ * (html.travel-on on the root, .traveling on the clip).
+ */
+
+/* news video reel */
+.news-reel {
+  margin: 0 0 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.news-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 380px;
+  overflow: hidden;
+  background: #000;
+}
+
+.news-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-reel figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+}
+
+.news-reel figcaption a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  transition: color 0.2s var(--ease);
+}
+.news-reel figcaption a span {
+  color: var(--accent);
+}
+.news-reel figcaption a:hover {
+  color: var(--text);
+}
+
+/* travel dock: the clip floats and lerps between a small centered dock and its home slot */
+.news-slot {
+  display: none;
+}
+html.travel-on .news-slot {
+  display: block;
+}
+html.travel-on .news-stage {
+  max-height: none;
+  aspect-ratio: 16 / 9;
+}
+
+html.travel-on .news-stage.traveling {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 35;
+  border-radius: 12px;
+  /* bottom-anchored so the docked clip tracks the viewport bottom (and the
+     mobile URL bar) in lockstep with the tray; JS lerps it up to mount */
+  transform-origin: bottom left;
+  will-change: transform;
+  box-shadow: 0 18px 50px oklch(0 0 0 / 0.5);
+}
+html.travel-on .news-reel figcaption {
+  opacity: var(--mount, 1);
+}
+
+/* frosted tray: gives the docked clip a home so content scrolls cleanly behind it */
+.news-tray {
+  display: none;
+}
+html.travel-on .news-tray {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 30;
+  background: oklch(0.14 0.012 160 / 0.62);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.05);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.travel-on .news-tray {
+    display: none;
+  }
+}
