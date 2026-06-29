@@ -1,0 +1,9 @@
+assets/
+.vercel/
+node_modules/
+work/
+package-lock.json
+
+# index.html is authored by hand: section ordering, the JSON-LD @graph, and
+# reading flow are deliberate and not driven by line width.
+index.html

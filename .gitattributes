@@ -1,0 +1,10 @@
+# Normalise line endings; let Git detect text vs binary.
+* text=auto eol=lf
+
+# Binary assets — never diff or normalise these.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.ico binary
+*.mp4 binary
+*.svg text
