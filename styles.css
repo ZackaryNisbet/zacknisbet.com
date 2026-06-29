@@ -562,7 +562,7 @@ main { counter-reset: section-index; }
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 460px;
+  max-height: 380px;
   object-fit: cover;
   background: #000;
 }
