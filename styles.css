@@ -602,11 +602,11 @@ main { counter-reset: section-index; }
 .news-reel figcaption a:hover { color: var(--text); }
 
 /* "develop into focus": the still resolves into the live clip as it enters */
-html.motion .news-stage {
+html.motion:not(.lane-on) .news-stage {
   transform: scale(calc(1.05 - 0.05 * var(--develop, 0)));
   will-change: transform;
 }
-html.motion .news-poster {
+html.motion:not(.lane-on) .news-poster {
   display: block;
   position: absolute;
   inset: 0;
@@ -615,14 +615,14 @@ html.motion .news-poster {
   object-fit: cover;
   z-index: 0;
 }
-html.motion .news-stage .news-video {
+html.motion:not(.lane-on) .news-stage .news-video {
   position: relative;
   z-index: 1;
   opacity: 0;
   transition: opacity 0.8s var(--ease);
 }
-html.motion .news-stage .news-video.is-live { opacity: 1; }
-html.motion .news-grain {
+html.motion:not(.lane-on) .news-stage .news-video.is-live { opacity: 1; }
+html.motion:not(.lane-on) .news-grain {
   display: block;
   position: absolute;
   inset: 0;
@@ -632,6 +632,34 @@ html.motion .news-grain {
   background:
     radial-gradient(135% 135% at 50% 45%, transparent 48%, oklch(0 0 0 / 0.62) 100%),
     repeating-linear-gradient(0deg, oklch(0 0 0 / 0.16) 0 1px, transparent 1px 3px);
+}
+
+/* traveling video lane (wide + motion + fine pointer): the clip rides a right lane */
+.news-slot { display: none; }
+html.lane-on .news-slot { display: block; }
+
+html.lane-on { --max: 1040px; }
+html.lane-on .shell,
+html.lane-on .section,
+html.lane-on .site-footer {
+  margin-left: var(--gutter);
+  margin-right: auto;
+}
+html.lane-on .hero-media {
+  right: max(0px, calc(100vw - var(--gutter) - var(--max)));
+}
+html.lane-on .news-stage { max-height: none; }
+html.lane-on .news-reel figcaption { display: none; }
+
+html.lane-on .news-reel.traveling {
+  position: fixed;
+  z-index: 35;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  transform-origin: top left;
+  will-change: transform;
+  box-shadow: 0 18px 50px oklch(0 0 0 / 0.5);
 }
 
 /* hero "now on the news" cue */

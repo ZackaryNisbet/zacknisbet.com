@@ -81,19 +81,19 @@ if (motionOK) {
 
   root.classList.add("reveal-ready");
 
-  // --- "In the news" clip: scroll-scrubbed "develop into focus" reveal ---
+  // --- "In the news" clip: travels a right-side lane (wide), else develops in place ---
   const reel = document.querySelector(".news-reel");
   const newsVideo = reel && reel.querySelector(".news-video");
+  const laneOK = window.matchMedia("(min-width: 1360px)").matches;
+
   if (reel && newsVideo) {
     const startVideo = () => {
       if (!newsVideo.src && newsVideo.dataset.src) newsVideo.src = newsVideo.dataset.src;
       const played = newsVideo.play();
       if (played && played.catch) played.catch(() => {});
     };
-    // crossfade the live video over the still poster once it actually plays
     newsVideo.addEventListener("playing", () => newsVideo.classList.add("is-live"), { once: true });
 
-    // lazy-load + play/pause as the clip enters/leaves the viewport
     if ("IntersectionObserver" in window) {
       const playObserver = new IntersectionObserver(
         (entries) => entries.forEach((e) => (e.isIntersecting ? startVideo() : newsVideo.pause())),
@@ -102,26 +102,78 @@ if (motionOK) {
       playObserver.observe(reel);
     }
 
-    // the still resolves into the live clip, scrubbed to scroll via one custom property
-    let latched = false;
-    const develop = () => {
-      const r = reel.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const p = Math.max(0, Math.min(1, (vh * 0.82 - r.top) / vh));
-      reel.style.setProperty("--develop", p.toFixed(3));
-      if (p >= 0.55 && !latched) { latched = true; startVideo(); }
-    };
-    let dTick = false;
-    const onDevelop = () => {
-      if (!dTick) { dTick = true; requestAnimationFrame(() => { dTick = false; develop(); }); }
-    };
-    window.addEventListener("scroll", onDevelop, { passive: true });
-    window.addEventListener("resize", onDevelop, { passive: true });
-    develop();
+    if (laneOK) {
+      // TRAVELING LANE: the clip rides the right margin and blooms to its home slot at the news section
+      root.classList.add("lane-on");
+      const slot = document.createElement("div");
+      slot.className = "news-slot";
+      reel.before(slot);
+      reel.classList.add("traveling");
+      startVideo();
+
+      let geom = { pipW: 220, pipH: 124, contentRight: 0, lane: 280 };
+      const measure = () => {
+        const gutter = parseFloat(getComputedStyle(root).getPropertyValue("--gutter")) || 48;
+        const max = parseFloat(getComputedStyle(root).getPropertyValue("--max")) || 1040;
+        const vw = window.innerWidth;
+        const contentRight = gutter + Math.min(max, vw - gutter * 2);
+        const lane = vw - contentRight;
+        const pipW = Math.max(160, Math.min(lane - 36, 300));
+        // home slot height = the bloomed video (16:9 of content width)
+        const homeH = Math.round(Math.min(max, vw - gutter * 2) * 9 / 16);
+        slot.style.height = homeH + "px";
+        reel.style.width = pipW + "px";
+        geom = { pipW, pipH: (pipW * 9) / 16, contentRight, lane };
+      };
+
+      const place = () => {
+        const home = slot.getBoundingClientRect();
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const { pipW, pipH, contentRight, lane } = geom;
+        const pipLeft = contentRight + (lane - pipW) / 2;
+        const pipTop = vh / 2 - pipH / 2;
+        reel.style.left = pipLeft + "px";
+        reel.style.top = pipTop + "px";
+        const slotCenter = home.top + home.height / 2;
+        const b = Math.max(0, Math.min(1, 1 - Math.abs(slotCenter - vh / 2) / (vh * 0.62)));
+        reel.style.setProperty("--bloom", b.toFixed(3));
+        const dx = home.left - pipLeft;
+        const dy = home.top - pipTop;
+        const s = home.width / pipW;
+        reel.style.transform =
+          `translate(${(dx * b).toFixed(1)}px, ${(dy * b).toFixed(1)}px) scale(${(1 + (s - 1) * b).toFixed(4)})`;
+      };
+
+      measure();
+      place();
+      let lTick = false;
+      window.addEventListener(
+        "scroll",
+        () => { if (!lTick) { lTick = true; requestAnimationFrame(() => { lTick = false; place(); }); } },
+        { passive: true }
+      );
+      let lrt;
+      window.addEventListener("resize", () => { clearTimeout(lrt); lrt = setTimeout(() => { measure(); place(); }, 150); });
+    } else {
+      // DEVELOP: the still resolves into the live clip as it enters
+      let latched = false;
+      const develop = () => {
+        const r = reel.getBoundingClientRect();
+        const vh = window.innerHeight || 1;
+        const p = Math.max(0, Math.min(1, (vh * 0.82 - r.top) / vh));
+        reel.style.setProperty("--develop", p.toFixed(3));
+        if (p >= 0.55 && !latched) { latched = true; startVideo(); }
+      };
+      let dTick = false;
+      const onDevelop = () => { if (!dTick) { dTick = true; requestAnimationFrame(() => { dTick = false; develop(); }); } };
+      window.addEventListener("scroll", onDevelop, { passive: true });
+      window.addEventListener("resize", onDevelop, { passive: true });
+      develop();
+    }
   }
 
-  // --- wayfinding rail: a thin brass line in the left gutter that fills as you scroll ---
-  if (window.matchMedia("(min-width: 1240px)").matches) {
+  // --- wayfinding rail (only when the clip is NOT traveling) ---
+  if (!laneOK && window.matchMedia("(min-width: 1240px)").matches) {
     const fill = document.querySelector(".wayfinder-fill");
     if (fill) {
       root.classList.add("rail-on");
