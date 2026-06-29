@@ -81,6 +81,26 @@ if (motionOK) {
 
   root.classList.add("reveal-ready");
 
+  // --- looping news clip: lazy-load + play only while on screen ---
+  const newsVideo = document.querySelector(".news-video");
+  if (newsVideo && "IntersectionObserver" in window) {
+    const videoObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (!newsVideo.src && newsVideo.dataset.src) newsVideo.src = newsVideo.dataset.src;
+            const played = newsVideo.play();
+            if (played && played.catch) played.catch(() => {});
+          } else {
+            newsVideo.pause();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+    videoObserver.observe(newsVideo);
+  }
+
   // --- momentum smooth scroll (Lenis, if it loaded) ---
   let lenis = null;
   if (window.Lenis) {
