@@ -3,6 +3,19 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Visit ping → Discord (#zacknisbet-com-visits). Fire-and-forget; never blocks render. -->
+    <script>
+      (function () {
+        try {
+          var im = new Image();
+          im.referrerPolicy = 'no-referrer';
+          im.src = 'https://ibacdmdmyzcfmhesrhiz.supabase.co/functions/v1/website-event?e=visit&s=zn'
+            + '&p=' + encodeURIComponent(location.pathname || '/')
+            + '&r=' + encodeURIComponent(document.referrer || '')
+            + '&t=' + Date.now();
+        } catch (e) { /* analytics must never break the page */ }
+      })();
+    </script>
     <script>
       (function () {
         var d = document.documentElement;
