@@ -130,16 +130,11 @@ export function initTravelDock() {
     const dockTop = slotCentre < vh * 0.5;
     reel.style.setProperty("--mount", mount.toFixed(3));
 
-    // iOS Safari leaves a fixed `bottom: 0` sitting above the visible bottom (the
-    // collapsed toolbar gap). Push the docked clip + tray down to the real visible
-    // bottom; clamp to >= 0 so it can only help, and it's 0 on every other browser.
-    const vv = window.visualViewport;
-    const bottomShift =
-      !dockTop && vv ? Math.max(0, Math.round(vv.height + vv.offsetTop - root.clientHeight)) : 0;
-
     // The tray rides whichever side the clip docks on and fades as it mounts. On
-    // the bottom it extends past the viewport (bottomBuffer) so no content can peek
-    // out beneath the clip even when `bottom: 0` falls short of the visible bottom.
+    // the bottom it extends past the viewport (bottomBuffer) so the iOS Safari
+    // toolbar gap — where fixed `bottom: 0` sits above the visible bottom — can't
+    // expose page content beneath the clip. The clip itself stays at `bottom: 0`,
+    // which already sits above Safari's bottom bar.
     if (dockTop) {
       tray.style.top = `${headerHeight}px`;
       tray.style.bottom = "auto";
@@ -150,18 +145,15 @@ export function initTravelDock() {
       tray.style.height = `${trayHeight + DOCK.bottomBuffer}px`;
     }
     tray.style.opacity = (1 - mount).toFixed(3);
-    const traySlide = mount * (dockTop ? -1 : 1) * trayHeight + bottomShift;
-    tray.style.transform = `translateY(${traySlide.toFixed(1)}px)`;
+    // Slide in px tied to the un-buffered height so the buffer can't alter the fade.
+    tray.style.transform = `translateY(${(mount * (dockTop ? -1 : 1) * trayHeight).toFixed(1)}px)`;
 
     // Clip: position:fixed; bottom:0; left:0; transform-origin:bottom left.
     // The docked translateY has no `vh` term, so it stays glued to the bottom as
-    // the URL bar moves (+ the iOS shift). Mounted, it aligns its bottom-left with
-    // the slot.
+    // the URL bar moves. Mounted, it aligns its bottom-left with the slot.
     const clipHeight = dockHeight();
     const dockedX = (vw - dockWidth) / 2;
-    const dockedY = dockTop
-      ? headerHeight + DOCK.trayPad + clipHeight - vh
-      : -DOCK.trayPad + bottomShift;
+    const dockedY = dockTop ? headerHeight + DOCK.trayPad + clipHeight - vh : -DOCK.trayPad;
     const scale = lerp(dockWidth / homeWidth, 1, mount);
     const translateX = lerp(dockedX, home.left, mount);
     const translateY = lerp(dockedY, home.bottom - vh, mount);
