@@ -587,22 +587,29 @@
 
     .summary-table td:nth-child(2) { font-weight: 500; color: var(--etf-white); }
 
-    table a { color: var(--etf-white2); }
-    table a:hover { color: var(--etf-orange); }
+    p a, .cost-path a, table a, .vendor-cell a {
+      color: var(--etf-orange);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255, 85, 0, 0.45);
+      font-weight: 500;
+    }
+
+    p a:hover, .cost-path a:hover, table a:hover, .vendor-cell a:hover {
+      color: var(--etf-orange);
+      text-decoration-color: var(--etf-orange);
+    }
 
     .vendor-cell a {
-      color: var(--etf-white);
-      font-weight: 500;
-      text-decoration: none;
       display: inline-block;
       margin-bottom: 2px;
     }
 
-    .vendor-cell a:hover { color: var(--etf-orange); }
-
     .vendor-cell .no-link {
       color: var(--etf-white2);
       font-size: 13px;
+      font-weight: 400;
+      text-decoration: none;
     }
 
     th.col-vendor { min-width: 100px; }
