@@ -516,6 +516,7 @@
       <a href="#corgi-path">Corgi path</a>
       <a href="#fund-accounting">Fund accounting</a>
       <a href="#nav-market-value">NAV &amp; market value</a>
+      <a href="#nav-data-quality">NAV data quality</a>
       <a href="#roadmap">6-week plan</a>
       <a href="#migration">Migration</a>
       <a href="#architecture">Architecture</a>
@@ -822,27 +823,59 @@ flowchart TB
       <h3>Step 3 — Publish and reconcile</h3>
       <p>Official NAV goes out EOD to the transfer agent, listing venues, and APs. On the secondary market, the ETF can trade slightly above or below NAV (premium / discount). APs arbitrage that gap through the primary market — creating when price &gt; NAV, redeeming when price &lt; NAV. That keeps exchange price close to NAV; the arb profit goes to APs, not the issuer.</p>
 
-      <h3>What actually breaks NAV</h3>
-      <p>The arithmetic almost never fails. Wrong NAV comes from <strong>bad or stale inputs</strong>:</p>
+      <h3 id="nav-data-quality">The real problem is inputs, not the formula</h3>
+      <p>NAV arithmetic is third-grade math. When official NAV is wrong, the root cause is almost always <strong>bad, stale, or missing input data</strong> that slipped through before publish — not a bug in the division.</p>
+
+      <div class="mermaid">
+flowchart LR
+  subgraph inputs["Inputs that feed NAV"]
+    I1[Holdings qty]
+    I2[Mark price]
+    I3[FX rate]
+    I4[Shares outstanding]
+    I5[Liabilities / fees]
+    I6[Corp actions]
+  end
+  subgraph failures["How each one fails"]
+    F1[Stale / missing price]
+    F2[Wrong FX date or pair]
+    F3[Custodian qty break]
+    F4[Flow not in share count]
+    F5[Late file / wrong cutoff]
+    F6[Split or dividend not applied]
+  end
+  subgraph outcome["If not caught"]
+    BAD[Wrong NAV published]
+  end
+  I2 --> F1
+  I3 --> F2
+  I1 --> F3
+  I4 --> F4
+  I1 & I2 & I3 --> F5
+  I1 --> F6
+  F1 & F2 & F3 & F4 & F5 & F6 --> BAD
+      </div>
+
       <table>
-        <tr><th>Input</th><th>Source</th><th>Typical failure</th></tr>
-        <tr><td>Quantity</td><td>Custodian holdings file, rec'd internally</td><td>Break vs internal books — wrong qty</td></tr>
-        <tr><td>Mark price</td><td>Pricing vendor</td><td>Stale, missing, wrong security, halted</td></tr>
-        <tr><td>FX</td><td>FX vendor EOD</td><td>Wrong date, wrong currency pair</td></tr>
-        <tr><td>Shares outstanding</td><td>Transfer agent</td><td>Create/redeem not yet reflected</td></tr>
-        <tr><td>Corp actions</td><td>Ops / vendor alerts</td><td>Split, merger, dividend not applied</td></tr>
-        <tr><td>Cutoff</td><td>Batch schedule</td><td>Late file → wrong day's prices in NAV</td></tr>
+        <tr><th>Input</th><th>Source</th><th>Stale / bad data failure</th><th>Effect on NAV</th></tr>
+        <tr><td><strong>Mark price</strong></td><td>Pricing vendor (Bloomberg, Refinitiv…)</td><td>Stale close, missing security, halted name, wrong identifier</td><td>Holding MV wrong → entire NAV skewed</td></tr>
+        <tr><td><strong>FX rate</strong></td><td>FX vendor EOD</td><td>Wrong date, wrong pair, rate not updated</td><td>Non-USD holdings mispriced</td></tr>
+        <tr><td><strong>Quantity</strong></td><td>Custodian file, rec'd to internal books</td><td>Break vs internal holdings — trade settled, corp action missed</td><td>MV wrong even if price is right</td></tr>
+        <tr><td><strong>Shares outstanding</strong></td><td>Transfer agent register</td><td>Create/redeem confirmed but not yet in NAV batch</td><td>NAV/share wrong — denominator error</td></tr>
+        <tr><td><strong>Liabilities</strong></td><td>Fee accrual engine / GL</td><td>Fee not accrued, double-counted, wrong rate</td><td>NAV systematically high or low</td></tr>
+        <tr><td><strong>Corp actions</strong></td><td>Ops alerts, vendor feeds</td><td>Split, merger, spin-off, special dividend not applied</td><td>Qty and price both wrong</td></tr>
+        <tr><td><strong>Cutoff timing</strong></td><td>Batch schedule + file arrival</td><td>Late custodian or price file → prior day's data in today's NAV</td><td>Whole portfolio marked to wrong day</td></tr>
       </table>
 
       <div class="mermaid">
 flowchart LR
-  D[Bad input data] --> R[Reconciliation catches break]
+  D[Bad or stale input] --> R[Reconciliation catches break]
   R -->|material| B[Block NAV publish]
   R -->|cleared| P[Accountant sign-off → publish]
-  B --> F[Fix data → re-run batch]
+  B --> F[Fix source data → re-run batch]
       </div>
 
-      <h3>Controls that matter for in-house build</h3>
+      <h3>Controls — guard the publish, not the formula</h3>
       <table>
         <tr><th>Control</th><th>What it catches</th></tr>
         <tr><td>Custodian rec</td><td>Holdings + cash qty breaks before NAV runs</td></tr>
