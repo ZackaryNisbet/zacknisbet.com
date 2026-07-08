@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" href="assets/images/corgifunds-favicon.png">
+  <title>Corgi Fund Administration Blueprint</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    /* Corgi Funds design tokens — sourced from corgifunds.com */
+    @font-face {
+      font-family: Geist;
+      src: url("assets/fonts/geist/Geist-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Geist;
+      src: url("assets/fonts/geist/Geist-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Geist;
+      src: url("assets/fonts/geist/Geist-SemiBold.woff2") format("woff2");
+      font-weight: 600;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Geist;
+      src: url("assets/fonts/geist/Geist-LightItalic.woff2") format("woff2");
+      font-weight: 300;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    :root {
+      --etf-black: #0a0a0a;
+      --etf-black2: #131313;
+      --etf-black3: #1e1e1e;
+      --etf-border: rgba(255, 255, 255, 0.13);
+      --etf-border2: rgba(255, 255, 255, 0.08);
+      --etf-orange: #ff5500;
+      --etf-white: #f5f2ee;
+      --etf-white2: #c4bdb4;
+      --etf-white3: #9e9488;
+      --etf-green: #3adb6a;
+      --etf-red: #ff4f4f;
+      --etf-muted: #6b6259;
+      --font-geist: Geist, ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-geist);
+      font-weight: 400;
+      background-color: var(--etf-black);
+      background-image:
+        linear-gradient(rgba(255, 85, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 85, 0, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--etf-white);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--etf-black);
+      border-bottom: 1px solid var(--etf-border);
+      backdrop-filter: blur(6px);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-link img {
+      height: 22px;
+      width: auto;
+    }
+
+    .doc-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--etf-white3);
+      border: 1px solid var(--etf-border);
+      padding: 5px 10px;
+      background: var(--etf-black2);
+    }
+
+    nav.doc-nav {
+      position: sticky;
+      top: 51px;
+      z-index: 90;
+      background: var(--etf-black2);
+      border-bottom: 1px solid var(--etf-border2);
+      padding: 0 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    nav.doc-nav::-webkit-scrollbar { display: none; }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+      min-width: max-content;
+    }
+
+    nav.doc-nav a {
+      color: var(--etf-white2);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 12px 14px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    nav.doc-nav a:hover {
+      color: var(--etf-orange);
+      border-bottom-color: var(--etf-orange);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .hero {
+      margin-bottom: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--etf-border2);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--etf-orange);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin: 0 0 16px;
+      color: var(--etf-white);
+    }
+
+    h2 {
+      font-size: clamp(22px, 2.5vw, 28px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin: 56px 0 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--etf-border2);
+      color: var(--etf-white);
+    }
+
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+
+    h3 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--etf-orange);
+      margin: 32px 0 12px;
+    }
+
+    .subtitle {
+      color: var(--etf-white2);
+      font-size: 16px;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.7;
+      max-width: 640px;
+      margin: 0;
+    }
+
+    .author-byline {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--etf-border2);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .author-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--etf-white);
+      letter-spacing: -0.01em;
+    }
+
+    .author-future {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--etf-white3);
+    }
+
+    .author-future .sep {
+      color: var(--etf-muted);
+      margin: 0 0.35em;
+    }
+
+    .author-future .role {
+      color: var(--etf-orange);
+    }
+
+    .author-date {
+      font-size: 12px;
+      color: var(--etf-muted);
+      letter-spacing: 0.02em;
+    }
+
+    p { color: var(--etf-white2); font-size: 14px; }
+
+    section > p { margin: 0 0 12px; }
+
+    .callout {
+      background: var(--etf-black2);
+      border: 1px solid var(--etf-border);
+      border-left: 3px solid var(--etf-orange);
+      padding: 18px 20px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: var(--etf-white2);
+    }
+
+    .callout strong { color: var(--etf-white); }
+
+    .callout.warn {
+      border-left-color: var(--etf-orange);
+      background: rgba(255, 85, 0, 0.06);
+    }
+
+    .mermaid {
+      background: var(--etf-black2);
+      border: 1px solid var(--etf-border);
+      padding: 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 16px 0;
+    }
+
+    th, td {
+      border: 1px solid var(--etf-border2);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--etf-black3);
+      color: var(--etf-orange);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    tr:hover td { background: rgba(255, 85, 0, 0.03); }
+
+    td.num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      color: var(--etf-white);
+    }
+
+    ul, ol { padding-left: 20px; color: var(--etf-white2); font-size: 14px; }
+    li { margin: 6px 0; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--etf-black3);
+      border: 1px solid var(--etf-border2);
+      padding: 2px 6px;
+      color: var(--etf-white);
+    }
+
+    .formula {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--etf-black3);
+      border: 1px solid var(--etf-border);
+      padding: 16px 18px;
+      margin: 12px 0;
+      color: var(--etf-white);
+      line-height: 1.8;
+    }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 16px;
+      margin: 14px 0;
+      padding: 14px 16px;
+      background: var(--etf-black2);
+      border: 1px solid var(--etf-border2);
+      border-left: 3px solid var(--etf-orange);
+    }
+
+    .phase-label {
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--etf-orange);
+      font-family: var(--font-mono);
+    }
+
+    .phase span:last-child { color: var(--etf-white2); font-size: 14px; }
+
+    .foundations-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .foundations-grid .mermaid { margin: 0; }
+
+    .figure-caption {
+      font-size: 12px;
+      color: var(--etf-muted);
+      margin: 8px 0 0;
+      text-align: center;
+    }
+
+    .market-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .market-card {
+      background: var(--etf-black2);
+      border: 1px solid var(--etf-border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 100%;
+    }
+
+    .market-card.primary { border-top: 3px solid var(--etf-orange); }
+    .market-card.secondary { border-top: 3px solid var(--etf-white3); }
+
+    .market-card-header {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .market-card.primary .market-card-header { color: var(--etf-orange); }
+    .market-card.secondary .market-card-header { color: var(--etf-white2); }
+
+    .market-card-share {
+      font-size: 12px;
+      color: var(--etf-muted);
+      margin-top: -8px;
+    }
+
+    .market-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+    }
+
+    .market-step {
+      background: var(--etf-black3);
+      border: 1px solid var(--etf-border2);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--etf-white);
+      line-height: 1.45;
+    }
+
+    .market-step strong {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--etf-white3);
+      margin-bottom: 4px;
+    }
+
+    .market-arrow {
+      text-align: center;
+      color: var(--etf-orange);
+      font-size: 14px;
+      padding: 4px 0;
+      line-height: 1;
+    }
+
+    .market-card.primary .market-arrow { color: var(--etf-orange); }
+    .market-card.secondary .market-arrow { color: var(--etf-white3); }
+
+    .market-step.outcome {
+      border-color: rgba(255, 85, 0, 0.35);
+      background: rgba(255, 85, 0, 0.06);
+    }
+
+    .market-card.secondary .market-step.outcome {
+      border-color: var(--etf-border);
+      background: var(--etf-black3);
+    }
+
+    .market-compare th:first-child { width: 28%; }
+
+    @media (max-width: 768px) {
+      .foundations-grid { grid-template-columns: 1fr; }
+      .market-columns { grid-template-columns: 1fr; }
+    }
+
+    .site-footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+      border-top: 1px solid var(--etf-border2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .site-footer img { height: 18px; opacity: 0.7; }
+
+    .footer-meta {
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      color: var(--etf-muted);
+      line-height: 1.6;
+    }
+
+    .footer-meta a {
+      color: var(--etf-white3);
+      text-decoration: none;
+    }
+
+    .footer-meta a:hover { color: var(--etf-orange); }
+
+    @media (max-width: 640px) {
+      .header-inner, main, .site-footer { padding-left: 16px; padding-right: 16px; }
+      nav.doc-nav { padding: 0 16px; }
+      .doc-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#overview" class="logo-link">
+        <img src="assets/images/corgifunds-logo-orange.webp" alt="Corgi Funds">
+      </a>
+      <span class="doc-badge">Internal · Fund Administration</span>
+    </div>
+  </header>
+
+  <nav class="doc-nav" aria-label="Document sections">
+    <div class="nav-inner">
+      <a href="#foundations">Foundations</a>
+      <a href="#corgi-path">Corgi path</a>
+      <a href="#fund-accounting">Fund accounting</a>
+      <a href="#nav-market-value">NAV &amp; market value</a>
+      <a href="#roadmap">6-week plan</a>
+      <a href="#migration">Migration</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#eod">Daily EOD</a>
+      <a href="#report">Daily report</a>
+      <a href="#modules">Modules</a>
+      <a href="#data">Data catalog</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="overview" class="hero">
+      <span class="eyebrow">Corgi Strategies</span>
+      <h1>ETF Fund Administration Blueprint</h1>
+      <p class="subtitle">Full in-house fund accounting · Daily Volume Report automated · Sequential migration in 6 weeks</p>
+      <div class="author-byline">
+        <div class="author-name">Zack Nisbet</div>
+        <div class="author-future">Work Trial<span class="sep">|</span><span class="role">Full Stack Engineer - ETF Focus</span></div>
+        <div class="author-date">July 8–9, 2026</div>
+      </div>
+    </section>
+
+    <section id="foundations">
+      <h2>Foundational knowledge</h2>
+
+      <h3>What is an ETF?</h3>
+      <p>An ETF is a <strong>regulated fund</strong> that holds a portfolio (stocks, bonds, commodities, crypto, etc.) and issues <strong>shares listed on exchanges</strong>. Corgi is the <em>issuer</em>; investors hold fund shares, not direct ownership of every underlying stock.</p>
+
+      <h3>Two markets — primary vs secondary</h3>
+      <p>ETF activity splits into two markets. <strong>Secondary</strong> is investors buying and selling existing ETF shares on exchanges — this is the vast majority of volume. <strong>Primary</strong> is Authorized Participants (APs) creating or redeeming shares directly with the fund — this changes shares outstanding and AUM, but happens far less often.</p>
+
+      <div class="foundations-grid">
+        <div>
+          <div class="mermaid">
+pie showData
+    title US ETF activity
+    "Secondary" : 90
+    "Primary" : 10
+          </div>
+          <p class="figure-caption">US average · ICI</p>
+        </div>
+        <div>
+          <div class="mermaid">
+pie showData
+    title Europe ETF activity
+    "Secondary" : 67
+    "Primary" : 33
+          </div>
+          <p class="figure-caption">Europe approx. · ~2:1 sec:prim</p>
+        </div>
+      </div>
+
+      <div class="market-columns">
+        <div class="market-card primary">
+          <div class="market-card-header">Primary market</div>
+          <div class="market-card-share">~10% US · ~33% Europe</div>
+          <div class="market-steps">
+            <div class="market-step"><strong>Who</strong>Authorized Participants — banks / broker-dealers only</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step"><strong>Action</strong>Create or redeem creation units with the fund</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step"><strong>System</strong>Fund accounting · flow ledger</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step outcome"><strong>Result</strong>Shares outstanding + AUM change · <strong>Flow</strong> columns in report</div>
+          </div>
+        </div>
+        <div class="market-card secondary">
+          <div class="market-card-header">Secondary market</div>
+          <div class="market-card-share">~90% US · ~67% Europe</div>
+          <div class="market-steps">
+            <div class="market-step"><strong>Who</strong>Investors — retail, institutions, market makers</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step"><strong>Action</strong>Buy or sell existing ETF shares on an exchange</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step"><strong>Where</strong>LSE · Xetra · Euronext · NYSE Arca…</div>
+            <div class="market-arrow">↓</div>
+            <div class="market-step outcome"><strong>Result</strong>Ownership changes · fund portfolio unchanged · <strong>Turnover</strong> columns in report</div>
+          </div>
+        </div>
+      </div>
+
+      <table class="market-compare">
+        <tr><th></th><th>Primary</th><th>Secondary</th></tr>
+        <tr><td><strong>Plain English</strong></td><td>APs add or remove shares with the fund</td><td>Investors trade shares with each other</td></tr>
+        <tr><td><strong>Who</strong></td><td>APs only — JPM, Goldman, BofA, Citi, Jane Street… <em>not retail</em></td><td>Anyone — retail apps, institutions, market makers</td></tr>
+        <tr><td><strong>What moves</strong></td><td>Creation units (25k–600k shares); basket of securities ± cash</td><td>Existing ETF shares; underlying portfolio unchanged</td></tr>
+        <tr><td><strong>Share of activity</strong></td><td class="num">~10% US · ~33% Europe</td><td class="num">~90% US · ~67% Europe</td></tr>
+        <tr><td><strong>In daily report</strong></td><td><strong>Flow</strong> — 1D / 30D / YTD</td><td><strong>Turnover</strong> — LSE, DE, FR…</td></tr>
+        <tr><td><strong>Typical day</strong></td><td colspan="2" style="text-align:center;color:var(--etf-white3);">~75% of fund-days have <em>no</em> primary activity (ICI) — turnover only</td></tr>
+      </table>
+
+      <h3 id="primary-market">Primary market — creates, redeems &amp; flows</h3>
+      <p>The primary market is how ETF share count actually changes. Retail investors never touch it — only <strong>Authorized Participants</strong> can create new shares (deliver a basket of securities + cash) or redeem them (receive the basket back). Corgi does not profit on the spread; APs earn arbitrage when ETF price drifts from NAV.</p>
+
+      <div class="mermaid">
+sequenceDiagram
+  participant AP as Authorized Participant
+  participant TA as Transfer Agent
+  participant FA as Fund accounting
+  participant CU as Custodian
+
+  AP->>TA: Submit create / redeem order
+  TA->>FA: Confirm shares + flow
+  FA->>FA: Update flow ledger + shares outstanding
+  FA->>CU: Reconcile basket vs holdings
+  Note over FA: Flow columns in Daily Volume Report
+      </div>
+
+      <table>
+        <tr><th>Concept</th><th>What it is</th><th>Why fund accounting cares</th></tr>
+        <tr><td><strong>Creation unit</strong></td><td>Standard block of shares (e.g. 25k–600k) per create/redeem</td><td>One order can move AUM materially</td></tr>
+        <tr><td><strong>Basket / PCF</strong></td><td>List of securities (± cash) AP must deliver or receive</td><td>Published EOD; must match holdings + NAV</td></tr>
+        <tr><td><strong>Flow</strong></td><td>Net creates minus redeems over a period</td><td>Drives shares outstanding → AUM = shares × NAV</td></tr>
+        <tr><td><strong>Create/redeem fee</strong></td><td class="num">Typically $250–$3,000/order (Corgi: up to $300 + variable to 2%)</td><td>AP cost, not Corgi revenue</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Primary market data comes from the <strong>transfer agent + fund accounting flow ledger</strong> — not from exchange market data.</p>
+
+      <h3>Secondary market — where ETFs trade</h3>
+      <p>All exchange activity is <strong>secondary market</strong>. When your daily report shows turnover on LSE, Xetra, or Euronext, that is investors trading existing shares — the fund's portfolio does not change. Europe is fragmented across venues; no single exchange dominates.</p>
+
+      <table>
+        <tr><th>Venue</th><th>Region</th><th>~EU on-venue share</th><th>What you pay (indicative)</th></tr>
+        <tr><td><strong>Xetra</strong></td><td>Europe</td><td class="num">Largest single venue</td><td class="num">Listing fees + ~0.48 bp/trade</td></tr>
+        <tr><td><strong>LSE</strong></td><td>UK / Europe</td><td class="num">~11%</td><td class="num">Per-fund listing fee schedule</td></tr>
+        <tr><td><strong>Euronext</strong></td><td>Paris, Amsterdam, Milan…</td><td class="num">Fragmented</td><td class="num">0.15 bp AUM/yr listing (min €1.5k, max €12k)</td></tr>
+        <tr><td><strong>SIX</strong></td><td>Switzerland</td><td class="num">Smaller</td><td class="num">Issuer-specific</td></tr>
+        <tr><td><strong>NYSE Arca</strong></td><td>US</td><td class="num">~80% of US ETF listings</td><td class="num">Listing + SEC sale fee ~0.00278%</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Sources: Deutsche Börse 2025, LSE ETP report 2025, Euronext listing fees Jan 2026, iShares global ETF facts Q4 2023. Turnover columns in the report = secondary only.</p>
+    </section>
+
+    <section id="corgi-path">
+      <h2>Corgi today &amp; migration path</h2>
+
+      <h3>Current state — U.S. Bank Global Fund Services</h3>
+      <p>Per SEC filings (Corgi ETF Trust I): <strong>U.S. Bancorp Fund Services</strong> (dba U.S. Bank Global Fund Services) is <strong>fund administrator, fund accountant, and transfer agent</strong>. <strong>U.S. Bank N.A.</strong> is custodian. Corgi Strategies (adviser) oversees providers; NAV is <em>calculated by the Administrator</em>.</p>
+
+      <h3>Target path — sequential, not parallel</h3>
+      <div class="mermaid">
+flowchart LR
+  USB[USBank\nsystem of record TODAY] -->|Wk 1-3 migrate| FG[FundGuard\nPILOT then production]
+  FG -->|Wk 4-6 cutover| IH[Corgi in-house\nsystem of record TARGET]
+  FG -.->|decommission| X[FundGuard off]
+      </div>
+      <p>One system of record at a time. Short <strong>validation window</strong> during each cutover (NAV match before switch) — not running FundGuard and in-house as dual production engines.</p>
+
+      <h3>Cost implications (indicative)</h3>
+      <table>
+        <tr><th>Phase</th><th>Cost driver</th><th>Notes</th></tr>
+        <tr><td><strong>USBank (today)</strong></td><td>Outsourced admin — typically bundled in adviser unitary fee or per-fund admin bps on AUM</td><td>Corgi filings: adviser bore provider costs initially. Industry range ~2–8 bps AUM for full admin — confirm contract.</td></tr>
+        <tr><td><strong>FundGuard (pilot)</strong></td><td>Enterprise SaaS — custom quote (AUM, fund count, modules, volume)</td><td>No public pricing. Positioned as TCO reduction vs multiple legacy vendors. Pilot = implementation + license; budget for onboarding consultants.</td></tr>
+        <tr><td><strong>In-house (target)</strong></td><td>Engineering headcount + infra + market data licenses − vendor admin fees</td><td>Upfront build cost; long-run saves outsourced admin margin. FundGuard may shorten build vs raw USBank APIs.</td></tr>
+      </table>
+    </section>
+
+    <section id="fund-accounting">
+      <h2>What is a fund accounting system?</h2>
+      <p>The <strong>system of record</strong> for the fund's official books: what it holds, what it's worth, how many shares exist, what flowed in/out, and what it owes. Not a reporting tool — reports are outputs. People and batch jobs <strong>change state</strong> inside it daily.</p>
+
+      <div class="mermaid">
+flowchart TB
+  subgraph actors["Actors"]
+    FA[Fund accountant]
+    EO[ETF ops / desk]
+    PM[Portfolio manager]
+    RC[Reconciliation]
+    FI[Finance]
+    SYS[Batch / system jobs]
+  end
+  subgraph actions["Actions in"]
+    A1[Post trades]
+    A2[Confirm settlements]
+    A3[Process corp actions]
+    A4[Record AP create/redeem]
+    A5[Ingest custodian/TA files]
+    A6[Ingest prices + FX]
+    A7[Approve pricing exceptions]
+    A8[Accrue fees + expenses]
+    A9[Run NAV batch]
+    A10[Review breaks + sign off]
+    A11[Publish PCF / basket]
+    A12[Manual journals]
+  end
+  subgraph books["Books + engines"]
+    B1[Holdings / portfolio]
+    B2[Cash ledger]
+    B3[Flow + shares ledger]
+    B4[Pricing store]
+    B5[NAV engine]
+    B6[Fee engine + GL]
+    B7[Reconciliation]
+  end
+  subgraph outputs["Outputs out"]
+    O1[Official NAV / share]
+    O2[AUM + shares outstanding]
+    O3[PCF to APs]
+    O4[Rec + break reports]
+    O5[Regulatory / audit packs]
+    O6[Daily Volume Report]
+  end
+  FA --> A6 & A7 & A9 & A10 & A12
+  EO --> A4 & A11
+  PM --> A1
+  RC --> A10
+  FI --> A8
+  SYS --> A5 & A9
+  A1 & A2 --> B1 & B2
+  A3 --> B1
+  A4 --> B3
+  A5 --> B1 & B3 & B7
+  A6 & A7 --> B4
+  A8 --> B6
+  A9 --> B5
+  A10 --> B7
+  B1 & B4 & B6 --> B5
+  B3 --> B5
+  B5 --> O1 & O2
+  A11 --> O3
+  B7 --> O4
+  B5 & B3 --> O6
+      </div>
+
+      <h3>Actions × actors (exhaustive)</h3>
+      <table>
+        <tr><th>Action</th><th>Actor</th><th>Updates</th><th>Why it matters</th></tr>
+        <tr><td>Launch fund / listing / ISIN map</td><td>Product + ops</td><td>Fund master</td><td>Foundation for all processing</td></tr>
+        <tr><td>Generate &amp; execute portfolio trades</td><td>PM / systematic</td><td>Trades → holdings</td><td>Fund buys/sells underlying securities</td></tr>
+        <tr><td>Post trade to books</td><td>Ops / batch</td><td>Trade capture</td><td>Pending → confirmed in ledger</td></tr>
+        <tr><td>Confirm settlement</td><td>Ops + custodian</td><td>Holdings, cash</td><td>Cash/securities actually moved</td></tr>
+        <tr><td>Apply corporate actions</td><td>Fund accountant</td><td>Holdings, cash</td><td>Splits, dividends, mergers</td></tr>
+        <tr><td>Publish PCF / basket</td><td>ETF ops</td><td>Primary market</td><td>APs know what to deliver</td></tr>
+        <tr><td>Receive &amp; settle AP create/redeem</td><td>ETF ops</td><td>Flows, shares out</td><td>Primary market — AUM change</td></tr>
+        <tr><td>Ingest custodian positions</td><td>Batch</td><td>Holdings rec</td><td>Truth check vs internal books</td></tr>
+        <tr><td>Ingest TA share register</td><td>Batch</td><td>Shares rec</td><td>Official shares outstanding</td></tr>
+        <tr><td>Ingest prices + FX</td><td>Batch</td><td>Pricing store</td><td>Inputs to NAV</td></tr>
+        <tr><td>Approve pricing exceptions</td><td>Fund accountant</td><td>Price overrides</td><td>Halted/illiquid names</td></tr>
+        <tr><td>Accrue mgmt fee &amp; expenses</td><td>Finance / batch</td><td>GL, liabilities</td><td>Reduces NAV over time</td></tr>
+        <tr><td>Run NAV calculation</td><td>Batch</td><td>NAV engine</td><td>Official value per share</td></tr>
+        <tr><td>Reconcile breaks</td><td>Fund accountant</td><td>Rec module</td><td>Block NAV if material mismatch</td></tr>
+        <tr><td>Approve &amp; publish NAV</td><td>Fund accountant</td><td>NAV published</td><td>Sent to TA, exchanges, APs</td></tr>
+        <tr><td>Month-end close</td><td>Finance</td><td>GL</td><td>Audit-ready financials</td></tr>
+        <tr><td>Generate desk reports</td><td>Batch</td><td>Reporting DWH</td><td>Daily Volume Report — read-only output</td></tr>
+      </table>
+    </section>
+
+    <section id="nav-market-value">
+      <h2>NAV &amp; market value</h2>
+      <p>Fund accounting answers one question every day: <strong>what is the fund worth, per share?</strong> That answer is the <strong>NAV</strong> (net asset value). Getting there means marking every holding to fair value, subtracting what the fund owes, and dividing by shares outstanding. The formulas are simple — getting the <em>inputs</em> right is the hard part.</p>
+
+      <h3>Three numbers — don't mix them up</h3>
+      <table>
+        <tr><th>Term</th><th>What it is</th><th>Who produces it</th><th>Where it shows up</th></tr>
+        <tr><td><strong>Holding market value</strong></td><td>Fair value of one position in the portfolio</td><td>Fund accountant — qty × mark price × FX</td><td>Internal books; rolls up into NAV</td></tr>
+        <tr><td><strong>NAV / share</strong></td><td>Official fair value of one ETF share</td><td>Fund accountant EOD batch (USBank → FG → in-house)</td><td>Published to TA, exchanges, APs; <strong>NAV</strong> columns in daily report</td></tr>
+        <tr><td><strong>ETF market price</strong></td><td>Price the share last traded at on an exchange</td><td>Investors — supply and demand on secondary market</td><td>Not in fund accounting; APs watch it vs NAV</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">"Market value" in fund accounting always means <em>holding</em> market value inside the portfolio — not the ETF's exchange price.</p>
+
+      <div class="mermaid">
+flowchart TB
+  subgraph calc["NAV calculation — fund accounting EOD"]
+    H[Holdings qty\ncustodian rec]
+    P[Mark price\npricing vendor]
+    MV[Market value\nqty × price × FX]
+    C[Cash + receivables]
+    L[Liabilities\naccrued fees + payables]
+    SO[Shares outstanding\nTA register]
+    NAV[NAV/share\nassets − liabilities ÷ shares]
+    H --> MV
+    P --> MV
+    MV --> NAV
+    C --> NAV
+    L --> NAV
+    SO --> NAV
+  end
+
+  subgraph publish["After publish"]
+    NAV --> OUT[Official NAV → TA · exchanges · APs]
+    OUT --> AP[APs arb vs exchange price]
+  end
+      </div>
+
+      <h3>Step 1 — Mark each holding</h3>
+      <p class="formula">
+        MV<sub>security</sub> = quantity × mark_price × FX_rate_to_base_currency
+      </p>
+      <p>The fund accountant picks the <strong>mark price</strong> from a hierarchy — not a markup formula:</p>
+      <table>
+        <tr><th>Priority</th><th>Source</th><th>When used</th></tr>
+        <tr><td class="num">1</td><td>Exchange official close</td><td>Liquid equities, standard bonds</td></tr>
+        <tr><td class="num">2</td><td>Consolidated vendor (Bloomberg, Refinitiv)</td><td>When exchange close unavailable</td></tr>
+        <tr><td class="num">3</td><td>Model / fair value</td><td>Illiquid bonds, halted names, private assets</td></tr>
+        <tr><td class="num">4</td><td>Manual override</td><td>Accountant-approved exception</td></tr>
+      </table>
+
+      <h3>Step 2 — Roll up to NAV</h3>
+      <p class="formula">
+        Total assets = Σ(holding MV) + cash + receivables<br>
+        Total liabilities = accrued management fee + custody + payables + …<br>
+        NAV/share = (Total assets − Total liabilities) ÷ Shares outstanding
+      </p>
+      <p>The management fee accrues daily as a liability and <strong>reduces NAV</strong>. That fee — a percentage of AUM — is Corgi's primary revenue from the fund. It is not a markup on exchange price.</p>
+
+      <h3>Step 3 — Publish and reconcile</h3>
+      <p>Official NAV goes out EOD to the transfer agent, listing venues, and APs. On the secondary market, the ETF can trade slightly above or below NAV (premium / discount). APs arbitrage that gap through the primary market — creating when price &gt; NAV, redeeming when price &lt; NAV. That keeps exchange price close to NAV; the arb profit goes to APs, not the issuer.</p>
+
+      <h3>What actually breaks NAV</h3>
+      <p>The arithmetic almost never fails. Wrong NAV comes from <strong>bad or stale inputs</strong>:</p>
+      <table>
+        <tr><th>Input</th><th>Source</th><th>Typical failure</th></tr>
+        <tr><td>Quantity</td><td>Custodian holdings file, rec'd internally</td><td>Break vs internal books — wrong qty</td></tr>
+        <tr><td>Mark price</td><td>Pricing vendor</td><td>Stale, missing, wrong security, halted</td></tr>
+        <tr><td>FX</td><td>FX vendor EOD</td><td>Wrong date, wrong currency pair</td></tr>
+        <tr><td>Shares outstanding</td><td>Transfer agent</td><td>Create/redeem not yet reflected</td></tr>
+        <tr><td>Corp actions</td><td>Ops / vendor alerts</td><td>Split, merger, dividend not applied</td></tr>
+        <tr><td>Cutoff</td><td>Batch schedule</td><td>Late file → wrong day's prices in NAV</td></tr>
+      </table>
+
+      <div class="mermaid">
+flowchart LR
+  D[Bad input data] --> R[Reconciliation catches break]
+  R -->|material| B[Block NAV publish]
+  R -->|cleared| P[Accountant sign-off → publish]
+  B --> F[Fix data → re-run batch]
+      </div>
+
+      <h3>Controls that matter for in-house build</h3>
+      <table>
+        <tr><th>Control</th><th>What it catches</th></tr>
+        <tr><td>Custodian rec</td><td>Holdings + cash qty breaks before NAV runs</td></tr>
+        <tr><td>TA rec</td><td>Shares outstanding out of sync with flow ledger</td></tr>
+        <tr><td>Price exception queue</td><td>Stale, missing, or halted marks</td></tr>
+        <tr><td>Day-over-day NAV alert</td><td>Outlier move vs market context</td></tr>
+        <tr><td>Block publish on break</td><td>Stops bad NAV reaching TA / exchanges</td></tr>
+        <tr><td>Accountant sign-off</td><td>Human gate before official publish</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Build priority: <strong style="color:var(--etf-white2)">ingestion, reconciliation, publish gates</strong> — not a fancier NAV formula.</p>
+    </section>
+
+    <section id="roadmap">
+      <h2>6-week execution plan</h2>
+      <p><strong>Sequential handoffs:</strong> USBank off → FundGuard pilot/production → in-house replaces FundGuard. <strong>Not</strong> dual production on FundGuard + in-house.</p>
+      <div class="callout warn">6 weeks for all three hops is extremely aggressive. Minimum validation at each cutover is non-negotiable. In-house owning official NAV may slip past week 6 — plan for it.</div>
+
+      <div class="mermaid">
+gantt
+    title Sequential migration (6 weeks)
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+
+    section Hop 1 USBank to FundGuard
+    Extract data from USBank                  :a1, 2026-07-08, 4d
+    FundGuard pilot config                    :a2, after a1, 5d
+    NAV validation USBank vs FG               :a3, after a2, 3d
+    FundGuard live USBank off                 :milestone, 2026-07-22, 0d
+
+    section Hop 2 Reporting on FundGuard
+    FG export to reporting DB                 :b1, 2026-07-15, 6d
+    Turnover ingest                           :b2, 2026-07-15, 6d
+    daily_volume_report automated             :b3, after b1, 4d
+
+    section Hop 3 FundGuard to In-house
+    In-house core build M1-M12                :c1, 2026-07-22, 10d
+    One-time migration from FundGuard         :c2, after c1, 3d
+    NAV validation FG vs in-house             :c3, after c2, 3d
+    In-house live FundGuard off               :milestone, 2026-08-19, 0d
+      </div>
+
+      <h3>Week-by-week</h3>
+      <div class="phase"><span class="phase-label">Wk 1</span><span>USBank data extract. FundGuard pilot tenant. Fund master + listing map loaded.</span></div>
+      <div class="phase"><span class="phase-label">Wk 2</span><span>FundGuard pilot live (subset or all funds). NAV validation vs USBank. <strong>Cutover: FundGuard = SoR.</strong> USBank off.</span></div>
+      <div class="phase"><span class="phase-label">Wk 3</span><span>FundGuard production stable. Reporting DB ETL from FundGuard. Turnover pipeline.</span></div>
+      <div class="phase"><span class="phase-label">Wk 4</span><span><strong>Daily Volume Report automated.</strong> Begin in-house module build (M1–M12) using FundGuard exports as spec.</span></div>
+      <div class="phase"><span class="phase-label">Wk 5</span><span>In-house holdings, pricing, NAV engine — core path. One-time data load from FundGuard.</span></div>
+      <div class="phase"><span class="phase-label">Wk 6</span><span>NAV validation in-house vs FundGuard. <strong>Cutover: in-house = SoR.</strong> FundGuard decommissioned. Daily report reads in-house.</span></div>
+    </section>
+
+    <section id="migration">
+      <h2>Migration — sequential handoffs</h2>
+
+      <div class="mermaid">
+flowchart TB
+  subgraph hop1["Hop 1"]
+    USB[(USBank)] -->|one-time load| FG[(FundGuard pilot)]
+  end
+  subgraph hop2["Hop 2 — reporting only"]
+    FG -->|daily export| DWH[(Reporting DB)]
+    MD[Market data] --> DWH
+  end
+  subgraph hop3["Hop 3"]
+    FG -->|one-time cutover load| IH[(Corgi in-house)]
+    IH -->|official NAV| OUT[NAV TA exchanges]
+    FG -.->|off| OFF[Decommission]
+  end
+      </div>
+
+      <h3>Data migration checklist</h3>
+      <table>
+        <tr><th>Data</th><th>USBank → FundGuard</th><th>FundGuard → In-house (cutover)</th></tr>
+        <tr><td>Fund master, listings, TER</td><td class="num">One-time load</td><td class="num">One-time replicate</td></tr>
+        <tr><td>Historical NAV / flows</td><td class="num">Backfill</td><td class="num">Backfill for 30D/YTD calcs</td></tr>
+        <tr><td>Holdings + cash at cutover</td><td class="num">Custodian rec snapshot</td><td class="num">FG export at cutover date</td></tr>
+        <tr><td>Shares outstanding</td><td class="num">TA file</td><td class="num">FG / TA at cutover</td></tr>
+        <tr><td>Turnover / desk feed</td><td class="num">Separate — unchanged</td><td class="num">Stays in reporting DB</td></tr>
+      </table>
+    </section>
+
+    <section id="architecture">
+      <h2>Target architecture</h2>
+      <p>After week 6: <strong>Corgi in-house</strong> is system of record. FundGuard decommissioned. Reporting DB + turnover feed remain Corgi-owned throughout.</p>
+
+      <div class="mermaid">
+flowchart TB
+  subgraph external["External parties"]
+    CUST[Custodian]
+    TA[Transfer Agent]
+    AP[Authorized Participants]
+    MD[Market data vendor]
+    BR[Brokers]
+  end
+
+  subgraph sor["System of record — Corgi in-house"]
+    IH[NAV engine + books M5-M15]
+  end
+
+  subgraph corgi["Corgi platform"]
+    M1[Fund master M1]
+    M2[Listing map M2]
+    M16[Turnover store M16]
+    M17[Reporting DWH M17]
+    RPT[daily_volume_report.py]
+  end
+
+  CUST --> IH
+  TA --> IH
+  AP --> IH
+  BR --> IH
+  MD --> M16
+
+  IH --> M17
+  M1 --> M17
+  M2 --> M16
+  M16 --> M17
+  M17 --> RPT
+      </div>
+
+      <h3>Core processing loop</h3>
+      <div class="mermaid">
+flowchart LR
+  A[Actions in] --> B[Fund accounting core]
+  B --> C[Outputs out]
+
+  subgraph A
+    A1[Trades]
+    A2[AP creates/redeems]
+    A3[Corp actions]
+    A4[Prices + FX]
+    A5[Fees]
+  end
+
+  subgraph B
+    B1[Holdings]
+    B2[Flow ledger]
+    B3[NAV engine]
+    B4[Reconciliation]
+  end
+
+  subgraph C
+    C1[Official NAV]
+    C2[PCF / basket]
+    C3[Rec reports]
+    C4[Daily Volume Report]
+  end
+
+  A1 --> B1
+  A2 --> B2
+  A4 --> B3
+  A5 --> B3
+  B1 --> B3
+  B2 --> B3
+  B4 --> B3
+  B3 --> C1
+  B2 --> C4
+  B3 --> C4
+      </div>
+    </section>
+
+    <section id="eod">
+      <h2>Daily EOD sequence</h2>
+      <p>During weeks 2–5 substitute <code>FundGuard</code> for <code>In-house</code>. Same workflow, different SoR.</p>
+      <div class="mermaid">
+sequenceDiagram
+  participant C as Custodian
+  participant FA as Fund accounting SoR
+  participant TA as Transfer Agent
+  participant MD as Market data
+  participant DWH as Reporting DB
+  participant RPT as daily_volume_report
+
+  C->>FA: Positions + cash file
+  TA->>FA: Shares + create/redeem confirms
+  FA->>FA: Ingest prices + FX
+  FA->>FA: Run NAV batch
+  Note over FA: Accountant reviews breaks + approves
+  FA->>TA: Publish official NAV
+  FA->>DWH: Export NAV, AUM, flows
+  MD->>DWH: Venue turnover ingest
+  DWH->>RPT: Build report snapshot
+  RPT->>RPT: Render HTML + distribute
+      </div>
+    </section>
+
+    <section id="report">
+      <h2>Daily Volume Report pipeline</h2>
+      <div class="mermaid">
+flowchart TD
+  START([Report date EOD]) --> P1{Prerequisites met?}
+  P1 -->|NAV published| P2[Pull fund universe M1]
+  P1 -->|Flows updated| P2
+  P1 -->|Turnover ingested| P2
+  P1 -->|Missing| FAIL[Hold + alert ops]
+
+  P2 --> P3[Join NAV/AUM from fund accounting SoR]
+  P3 --> P4[Join flows from flow ledger]
+  P4 --> P5[Join venue turnover M16]
+  P5 --> P6[Compute 30D flow, ADV, NAV deltas]
+  P6 --> P7[Build panels A, B, C, D]
+  P7 --> P8[Validate totals]
+  P8 --> P9[Render HTML]
+  P9 --> END([Distribute to desk])
+      </div>
+
+      <h3>Two data paths (why both exist)</h3>
+      <div class="mermaid">
+flowchart LR
+  subgraph primary["Primary market → Flow columns"]
+    AP2[AP create/redeem] --> FA2[Fund accounting flow ledger]
+    FA2 --> COL1[1D / 30D / YTD Flow]
+  end
+
+  subgraph secondary["Secondary market → Turnover columns"]
+    INV[Investors on exchange] --> MD2[Market data]
+    MD2 --> COL2[LSE / DE / FR / ...]
+  end
+
+  subgraph official["Fund accounting → NAV columns"]
+    FA3[NAV engine] --> COL3[NAV/share, AUM, NAV Δ]
+  end
+      </div>
+    </section>
+
+    <section id="modules">
+      <h2>Modules — build order for 6 weeks</h2>
+      <table>
+        <tr><th>Priority</th><th>Module</th><th>Week</th><th>Notes</th></tr>
+        <tr><td>P0</td><td>M1 Fund master, M2 Listing map</td><td class="num">1</td><td>Load from USBank → carry through FG → in-house</td></tr>
+        <tr><td>P0</td><td>M17 Reporting DWH</td><td class="num">3–4</td><td>Reads from SoR (FG then in-house)</td></tr>
+        <tr><td>P0</td><td>M16 Turnover store</td><td class="num">3–4</td><td>Market data — independent of SoR hop</td></tr>
+        <tr><td>P1</td><td>M9 Flow ledger, M12 NAV store</td><td class="num">4–5</td><td>Built in-house; validated against FG before cutover</td></tr>
+        <tr><td>P1</td><td>M5 Holdings, M11 Pricing, M12 NAV engine</td><td class="num">5–6</td><td>In-house SoR — replaces FundGuard at cutover</td></tr>
+        <tr><td>P2</td><td>M15 Reconciliation, M8 Primary market</td><td class="num">6+</td><td>Full ops post cutover</td></tr>
+      </table>
+    </section>
+
+    <section id="data">
+      <h2>Data catalog — Daily report fields (31 columns)</h2>
+      <table>
+        <tr><th>Column</th><th>Source</th><th>Formula</th></tr>
+        <tr><td>Ticker, Name, Inception, P/A, TER, Theme</td><td>M1 Fund master</td><td>Static</td></tr>
+        <tr><td>AUM ($mln)</td><td>Fund accounting SoR → M17</td><td>shares × NAV/share ÷ 1e6</td></tr>
+        <tr><td>1D / T-1 / 30D / YTD Flow</td><td>M9 flow ledger</td><td>creates − redeems; rollups for 30D/YTD</td></tr>
+        <tr><td>Total 1D ($k)</td><td>M16 or sum venues</td><td>Σ venue turnover ÷ 1000</td></tr>
+        <tr><td>30D ADV ($k)</td><td>M17 calculated</td><td>mean(Total 1D) over 30 BD</td></tr>
+        <tr><td>LSE / DE / FR / … 1D</td><td>M16 via M2 listing map</td><td>Market data per ISIN</td></tr>
+        <tr><td>NAV/share</td><td>M12 NAV engine</td><td>Official EOD</td></tr>
+        <tr><td>NAV Δ 1D/30D/180D/YTD %</td><td>M17 calculated</td><td>(NAV_t / NAV_ref) − 1</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <img src="assets/images/corgifunds-logo-light.webp" alt="Corgi Funds">
+    <div class="footer-meta">
+      <strong style="color:var(--etf-white2);font-weight:500;">Zack Nisbet</strong> · Work Trial · Full Stack Engineer - ETF Focus<br>
+      Corgi Strategies, LLC · Fund Administration Blueprint · <a href="https://corgifunds.com/">corgifunds.com</a>
+    </div>
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "dark",
+      themeVariables: {
+        primaryColor: "#1e1e1e",
+        primaryTextColor: "#f5f2ee",
+        primaryBorderColor: "#ff5500",
+        lineColor: "#9e9488",
+        secondaryColor: "#131313",
+        tertiaryColor: "#0a0a0a",
+        mainBkg: "#131313",
+        nodeBorder: "#ffffff21",
+        clusterBkg: "#1e1e1e",
+        titleColor: "#ff5500",
+        edgeLabelBackground: "#131313"
+      }
+    });
+  </script>
+</body>
+</html>
