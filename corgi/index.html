@@ -824,69 +824,69 @@ pie showData
       <h4>All ETFs — Cash</h4>
       <div class="dp-detail">
         <p>Settled and unsettled cash balances across all currencies, converted to fund base currency for the trial balance.</p>
-        <p><strong>Source:</strong> Dataset 4 (custodian cash file). <strong>Inputs:</strong> fund ID, currency, settled balance, unsettled balance, as-of date.</p>
+        <p><strong>Source:</strong> Dataset 4 — Operational truth.</p>
       </div>
 
       <h4>All ETFs — Investment receivable / payable</h4>
       <div class="dp-detail">
         <p>Amounts due from sales not yet settled (receivable) or owed on purchases not yet settled (payable). These bridge trade date and settlement date.</p>
-        <p><strong>Source:</strong> Computed from Dataset 4 trade history. <strong>Rule:</strong> For each open trade, principal ± fees where settle date &gt; NAV date.</p>
+        <p><strong>Source:</strong> Computed · Dataset 4 — Operational truth.</p>
       </div>
 
       <h4>All ETFs — Primary market (subscriptions / redemptions)</h4>
       <div class="dp-detail">
         <p>Pending AP creates (receivable), pending redeems (payable), and settled capital flow. Cash owed to the fund from creations not yet settled, or cash owed on pending redemptions.</p>
-        <p><strong>Source:</strong> D4. <strong>Inputs:</strong> order type, shares, NAV used, settle date, cash component. Settled flow recorded at shares × NAV per share ± cash in lieu ± fees.</p>
+        <p><strong>Source:</strong> Dataset 4 — Operational truth.</p>
       </div>
 
       <h4>Equity ETF — Cost of investments</h4>
       <div class="dp-detail">
         <p>Original purchase price of equity holdings, maintained per tax lot or aggregate, adjusted for stock splits, spin-offs, and mergers.</p>
-        <p><strong>Source:</strong> Computed · D4 + D2.</p>
+        <p><strong>Source:</strong> Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events.</p>
       </div>
 
       <h4>Equity ETF — Net unrealized appreciation/depreciation</h4>
       <div class="dp-detail">
         <p>Difference between current fair value of equity holdings and their cost basis. Positive = unrealized gain; negative = unrealized loss.</p>
-        <p><strong>Source:</strong> Computed · D1 + D3 + D4. <strong>Formula:</strong> qty × mark price × FX − cost basis.</p>
+        <p><strong>Source:</strong> Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth.</p>
       </div>
 
       <h4>Equity ETF — Dividends receivable &amp; dividend income</h4>
       <div class="dp-detail">
         <p>Receivable: dividend declared but not yet paid. Income: recognized when the fund is entitled to the dividend (typically ex-date).</p>
-        <p><strong>Source:</strong> Computed · D2 + D4. Withholding rates from D3.</p>
+        <p><strong>Source:</strong> Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth. Withholding rates from Dataset 3 — Security reference.</p>
       </div>
 
       <h4>Bond ETF — Interest, amortization &amp; accretion</h4>
       <div class="dp-detail">
         <p>Coupon accrual, interest income, premium amortization, and discount accretion on bond holdings.</p>
-        <p><strong>Source:</strong> Computed · D3 + D4 (accrual); D1 + D3 + D4 (amort/accret). Bond terms from D3; qty from D4; purchase marks from D1.</p>
+        <p><strong>Source:</strong> Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth (accrual); Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth (amort/accret).</p>
       </div>
 
       <h4>Equity ETF / Bond ETF — Realized gain/loss</h4>
       <div class="dp-detail">
         <p>Profit or loss recognized when a security is sold. Short-term if holding period &lt; 1 year.</p>
-        <p><strong>Source:</strong> Computed · D4.</p>
+        <p><strong>Source:</strong> Computed · Dataset 4 — Operational truth.</p>
       </div>
 
       <h4>All ETFs — Fees, tax &amp; settlement</h4>
       <div class="dp-detail">
-        <p>Unitary fee accrual, dividend withholding tax, and settlement breakage. Fee accrual uses AUM from D4-derived NAV × shares; withholding uses D2 + D3 + D4.</p>
-        <p><strong>Source:</strong> Computed · D4 (fees, breakage); D2 + D3 + D4 (withholding).</p>
+        <p>Unitary fee accrual, dividend withholding tax, and settlement breakage.</p>
+        <p><strong>Source:</strong> Computed · Dataset 4 — Operational truth (fees, breakage); Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth (withholding).</p>
       </div>
 
       <h4>All ETFs — NAV rollups</h4>
       <div class="dp-detail">
-        <p>Total assets, total liabilities, net assets, NAV per share, net income, total capital. Shares outstanding from D4; all other lines computed from D1–D4 inputs above.</p>
-        <p><strong>Source:</strong> Computed · D1 + D2 + D3 + D4; shares from D4.</p>
+        <p>Total assets, total liabilities, net assets, NAV per share, net income, total capital.</p>
+        <p><strong>Source:</strong> Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth. Shares outstanding from Dataset 4 — Operational truth.</p>
       </div>
 
       <h3>Manual overrides</h3>
       <table class="field-table">
         <tr><th>Exception</th><th>Trigger</th><th>Action</th></tr>
-        <tr><td>Pricing override</td><td>Stale, missing, or halted vendor mark (Dataset 1 quality flag)</td><td>Fund accountant selects replacement mark; audit trail required</td></tr>
-        <tr><td>Corp action confirm</td><td>Complex merger, spin, or contested terms (Dataset 2)</td><td>Human confirms before qty/cost/receivable adjustment</td></tr>
-        <tr><td>Reconciliation break</td><td>Custodian qty/cash ≠ internal books (Dataset 4)</td><td>Explain and clear before NAV publish</td></tr>
+        <tr><td>Pricing override</td><td>Stale, missing, or halted vendor mark (Dataset 1 — Pricing &amp; FX)</td><td>Fund accountant selects replacement mark; audit trail required</td></tr>
+        <tr><td>Corp action confirm</td><td>Complex merger, spin, or contested terms (Dataset 2 — Corporate actions &amp; FI events)</td><td>Human confirms before qty/cost/receivable adjustment</td></tr>
+        <tr><td>Reconciliation break</td><td>Custodian qty/cash ≠ internal books (Dataset 4 — Operational truth)</td><td>Explain and clear before NAV publish</td></tr>
         <tr><td>NAV sign-off</td><td>All recs and exceptions resolved</td><td>Authorizes publish to TA and external parties</td></tr>
         <tr><td>GL journal entry</td><td>Non-standard adjustment</td><td>Manual debit/credit to any GL line</td></tr>
       </table>
