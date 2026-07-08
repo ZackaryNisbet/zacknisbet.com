@@ -777,138 +777,108 @@ pie showData
     <section id="datapoints">
       <h2>Datapoints</h2>
       <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference GL: EUV thematic equity fund (211161). Bond funds (e.g. 211265) add fixed-income lines. Groups reflect Corgi product type — not GL sub-category codes.</p>
-      <p style="color:var(--etf-muted);font-size:13px;"><strong>D1</strong> Pricing &amp; FX · <strong>D2</strong> Corp actions · <strong>D3</strong> Security reference · <strong>D4</strong> Operational · <strong>D5</strong> Venue turnover. Computed rows list which datasets feed the calculation.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">Computed rows list the datasets that feed the calculation by number and name.</p>
 
       <h3>Summary</h3>
       <table class="summary-table">
         <tr><th>Group</th><th>Datapoint</th><th>Source</th></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Cash</td><td>D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Investment receivable</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Investment payable</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Dividend withholding tax payable</td><td>Computed · D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Accrued unitary fee expense</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Settlement breakage income</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Withholding tax — dividends (expense)</td><td>Computed · D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Unitary fee expense</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total assets</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total liabilities</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Net assets</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Shares outstanding</td><td>D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>NAV per share</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Net income</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total capital</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Accounts receivable — subscriptions</td><td>D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Accounts payable — redemptions</td><td>D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Subscriptions / redemptions (capital)</td><td>D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Cost of investments — equity</td><td>Computed · D4 + D2</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed · D1 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Dividends receivable</td><td>Computed · D2 + D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Dividend income</td><td>Computed · D2 + D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed · D1 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Cost of investments — fixed income</td><td>Computed · D4 + D2 + D3</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed · D1 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Investment interest receivable</td><td>Computed · D3 + D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Investment interest income</td><td>Computed · D3 + D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Amortization of premium</td><td>Computed · D1 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Accretion of discount</td><td>Computed · D1 + D3 + D4</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Cost of investments — short-term</td><td>Computed · D4 + D2</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest receivable</td><td>Computed · D3 + D4</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest income</td><td>Computed · D3 + D4</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Cash</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment receivable</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment payable</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Dividend withholding tax payable</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accrued unitary fee expense</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Settlement breakage income</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Withholding tax — dividends (expense)</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Unitary fee expense</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accounts receivable — subscriptions</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accounts payable — redemptions</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Subscriptions / redemptions (capital)</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total assets</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total liabilities</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net assets</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Shares outstanding</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>NAV per share</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net income</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total capital</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Cost of investments — equity</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividends receivable</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividend income</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Cost of investments — fixed income</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest receivable</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest income</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Amortization of premium</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Accretion of discount</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Cost of investments — short-term</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest receivable</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest income</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
       </table>
 
       <h3>Detail by datapoint</h3>
 
-      <h4>BASE — Cash</h4>
+      <h4>All ETFs — Cash</h4>
       <div class="dp-detail">
         <p>Settled and unsettled cash balances across all currencies, converted to fund base currency for the trial balance.</p>
         <p><strong>Source:</strong> Dataset 4 (custodian cash file). <strong>Inputs:</strong> fund ID, currency, settled balance, unsettled balance, as-of date.</p>
       </div>
 
-      <h4>BASE — Investment receivable / payable</h4>
+      <h4>All ETFs — Investment receivable / payable</h4>
       <div class="dp-detail">
         <p>Amounts due from sales not yet settled (receivable) or owed on purchases not yet settled (payable). These bridge trade date and settlement date.</p>
         <p><strong>Source:</strong> Computed from Dataset 4 trade history. <strong>Rule:</strong> For each open trade, principal ± fees where settle date &gt; NAV date.</p>
       </div>
 
-      <h4>ETF — Accounts receivable (subscriptions) / payable (redemptions)</h4>
+      <h4>All ETFs — Primary market (subscriptions / redemptions)</h4>
       <div class="dp-detail">
-        <p>Cash owed to the fund from AP share creations not yet settled, or cash the fund owes on pending redemptions.</p>
-        <p><strong>Source:</strong> Dataset 4 (TA confirms + AP flow ledger). <strong>Inputs:</strong> order type, shares, NAV used, settle date, cash component.</p>
+        <p>Pending AP creates (receivable), pending redeems (payable), and settled capital flow. Cash owed to the fund from creations not yet settled, or cash owed on pending redemptions.</p>
+        <p><strong>Source:</strong> D4. <strong>Inputs:</strong> order type, shares, NAV used, settle date, cash component. Settled flow recorded at shares × NAV per share ± cash in lieu ± fees.</p>
       </div>
 
-      <h4>ETF — Subscriptions / redemptions</h4>
-      <div class="dp-detail">
-        <p>Capital flow from settled primary market activity. Net creates increase shares outstanding and AUM; net redeems decrease both.</p>
-        <p><strong>Source:</strong> Dataset 4. <strong>Rule:</strong> Record at settlement — shares × NAV per share ± cash in lieu ± fees.</p>
-      </div>
-
-      <h4>EQ — Cost of investments</h4>
+      <h4>Equity ETF — Cost of investments</h4>
       <div class="dp-detail">
         <p>Original purchase price of equity holdings, maintained per tax lot or aggregate, adjusted for stock splits, spin-offs, and mergers.</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 4 trade history + Dataset 2 corp actions. <strong>Rule:</strong> Σ(buy qty × price + fees) − Σ(sell cost allocated) ± CA adjustments.</p>
+        <p><strong>Source:</strong> Computed · D4 + D2.</p>
       </div>
 
-      <h4>EQ — Net unrealized appreciation/depreciation</h4>
+      <h4>Equity ETF — Net unrealized appreciation/depreciation</h4>
       <div class="dp-detail">
         <p>Difference between current fair value of equity holdings and their cost basis. Positive = unrealized gain; negative = unrealized loss.</p>
-        <p><strong>Source:</strong> Computed. <strong>Formula:</strong> holding market value − cost basis, where market value = qty × mark price × FX (Dataset 1 + Dataset 4).</p>
+        <p><strong>Source:</strong> Computed · D1 + D3 + D4. <strong>Formula:</strong> qty × mark price × FX − cost basis.</p>
       </div>
 
-      <h4>EQ — Dividends receivable &amp; dividend income</h4>
+      <h4>Equity ETF — Dividends receivable &amp; dividend income</h4>
       <div class="dp-detail">
         <p>Receivable: dividend declared but not yet paid. Income: recognized when the fund is entitled to the dividend (typically ex-date).</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 2 (ex-date, gross rate) × Dataset 4 (shares held). Withholding applied per Dataset 3 tax rates.</p>
+        <p><strong>Source:</strong> Computed · D2 + D4. Withholding rates from D3.</p>
       </div>
 
-      <h4>ST / FI — Interest receivable &amp; interest income</h4>
+      <h4>Bond ETF — Interest, amortization &amp; accretion</h4>
       <div class="dp-detail">
-        <p>Coupon accrued on bonds and short-term instruments from last payment date to NAV date.</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 3 (coupon, day-count, par) + Dataset 4 (face value held). <strong>Formula:</strong> f(coupon rate, day-count convention, par, days accrued).</p>
+        <p>Coupon accrual, interest income, premium amortization, and discount accretion on bond holdings.</p>
+        <p><strong>Source:</strong> Computed · D3 + D4 (accrual); D1 + D3 + D4 (amort/accret). Bond terms from D3; qty from D4; purchase marks from D1.</p>
       </div>
 
-      <h4>FI — Amortization &amp; accretion</h4>
-      <div class="dp-detail">
-        <p>Premium bonds: cost reduced over life (amortization expense). Discount bonds: cost increased over life (accretion income). Both use effective interest method.</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 3 (issue date, maturity, coupon, OID/premium) + Dataset 1 (evaluated price at purchase) + Dataset 4 (qty).</p>
-      </div>
-
-      <h4>ST — Realized gain/loss</h4>
+      <h4>Equity ETF / Bond ETF — Realized gain/loss</h4>
       <div class="dp-detail">
         <p>Profit or loss recognized when a security is sold. Short-term if holding period &lt; 1 year.</p>
-        <p><strong>Source:</strong> Computed. <strong>Rule:</strong> sale proceeds − allocated cost basis (lot matching policy).</p>
+        <p><strong>Source:</strong> Computed · D4.</p>
       </div>
 
-      <h4>BASE — Accrued unitary fee expense</h4>
+      <h4>All ETFs — Fees, tax &amp; settlement</h4>
       <div class="dp-detail">
-        <p>Daily accrual of the fund's unitary management fee. Reduces NAV each day; settles periodically per advisory agreement.</p>
-        <p><strong>Source:</strong> Computed. <strong>Formula:</strong> AUM × TER (bps) × (days ÷ 365). <strong>Inputs:</strong> shares outstanding × NAV/share, fee schedule from fund master.</p>
+        <p>Unitary fee accrual, dividend withholding tax, and settlement breakage. Fee accrual uses AUM from D4-derived NAV × shares; withholding uses D2 + D3 + D4.</p>
+        <p><strong>Source:</strong> Computed · D4 (fees, breakage); D2 + D3 + D4 (withholding).</p>
       </div>
 
-      <h4>BASE — Dividend withholding tax payable</h4>
+      <h4>All ETFs — NAV rollups</h4>
       <div class="dp-detail">
-        <p>Tax withheld on foreign dividends, owed to the relevant tax authority. Paired with withholding tax expense on the P&amp;L.</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> dividend income × withholding rate from Dataset 3 / tax policy.</p>
-      </div>
-
-      <h4>BASE — Settlement breakage income</h4>
-      <div class="dp-detail">
-        <p>Small gain when actual settlement cash differs from expected (e.g. FX rounding, fractional shares). Common on ETF basket settlements.</p>
-        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> expected settlement (trade terms) vs actual (custodian cash movement).</p>
-      </div>
-
-      <h4>NAV — Net assets &amp; NAV per share</h4>
-      <div class="dp-detail">
-        <p>Net assets = total assets − total liabilities. NAV per share = net assets ÷ shares outstanding. Published EOD to transfer agent, listing venues, and APs.</p>
-        <p><strong>Source:</strong> Computed (net assets); Dataset 4 (shares outstanding). <strong>Formula:</strong> (Σ assets − Σ liabilities) ÷ shares.</p>
-      </div>
-
-      <h4>NAV — Net income &amp; total capital</h4>
-      <div class="dp-detail">
-        <p>Net income = total income − total expense for the period. Total capital = subscriptions/redemptions + accumulated unrealized G/L + realized G/L + retained earnings. Net assets must equal total capital + net income (trial balance check).</p>
-        <p><strong>Source:</strong> Computed — rollup of all P&amp;L and capital lines above.</p>
+        <p>Total assets, total liabilities, net assets, NAV per share, net income, total capital. Shares outstanding from D4; all other lines computed from D1–D4 inputs above.</p>
+        <p><strong>Source:</strong> Computed · D1 + D2 + D3 + D4; shares from D4.</p>
       </div>
 
       <h3>Manual overrides</h3>
