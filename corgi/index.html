@@ -707,34 +707,30 @@ pie showData
 
     <section id="data-sourcing">
       <h2>Data sourcing</h2>
-      <p>Fund accounting requires <strong>five consolidated input datasets</strong>. Vendor redundancy (2–3 sources per market-data pipeline) provides failover and cross-check — not because two vendor feeds alone are sufficient. Holdings quantity, cash balances, shares outstanding, and trade history come from operational feeds; trial balance and NAV lines are computed from these inputs.</p>
-      <p style="color:var(--etf-muted);font-size:13px;"><span class="src-vendor">Vendor</span> · <span class="src-ops">Operational</span> · <span class="src-computed">Computed</span> · <span class="src-manual">Manual</span> — GL sub-categories used throughout: <strong>BASE</strong> (cash/settlement), <strong>ETF</strong> (primary market flows), <strong>EQ</strong> (equity), <strong>FI</strong> (fixed income), <strong>ST</strong> (short-term).</p>
+      <p>Fund accounting requires <strong>six input datasets</strong> — five core plus product-specific add-ons. Market data (datasets 1–3, 5–6) typically comes from <strong>one vendor contract</strong> (Bloomberg below); operational data (dataset 4) comes from the fund administrator. One backup vendor per pipeline for failover — not a separate cross-check feed.</p>
 
       <table>
-        <tr><th>#</th><th>Dataset</th><th>What it provides</th><th class="col-vendor">Primary</th><th class="col-vendor">Backup</th><th class="col-vendor">Cross-check</th></tr>
+        <tr><th>#</th><th>Dataset</th><th>What it provides</th><th class="col-vendor">Primary</th><th class="col-vendor">Backup</th></tr>
         <tr>
           <td class="five-ds-num">1</td>
           <td><strong>Pricing &amp; FX</strong></td>
           <td>Equity EOD marks, fixed income clean/dirty prices, FX spot rates, price quality flags</td>
           <td class="vendor-cell"><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Bloomberg</a></td>
-          <td class="vendor-cell"><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">Refinitiv / LSEG</a></td>
           <td class="vendor-cell"><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing/evaluated-pricing">ICE</a></td>
         </tr>
         <tr>
           <td class="five-ds-num">2</td>
           <td><strong>Corporate actions &amp; FI events</strong></td>
           <td>Dividends, splits, mergers, bond calls, maturities, coupon changes, partial redemptions</td>
-          <td class="vendor-cell"><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">ICE</a></td>
           <td class="vendor-cell"><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">Bloomberg</a></td>
-          <td class="vendor-cell"><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">Refinitiv / LSEG</a></td>
+          <td class="vendor-cell"><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">ICE</a></td>
         </tr>
         <tr>
           <td class="five-ds-num">3</td>
           <td><strong>Security reference</strong></td>
           <td>ISIN/CUSIP/SEDOL, bond coupon/maturity/day-count, asset class, withholding rates</td>
-          <td class="vendor-cell"><a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">ICE Ref Data</a></td>
           <td class="vendor-cell"><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">Bloomberg SECF</a></td>
-          <td class="vendor-cell"><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">Refinitiv / LSEG</a><br><span class="no-link">+ internal master</span></td>
+          <td class="vendor-cell"><a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">ICE Ref Data</a></td>
         </tr>
         <tr>
           <td class="five-ds-num">4</td>
@@ -742,23 +738,28 @@ pie showData
           <td>Custodian holdings &amp; cash, trade history, shares outstanding, AP create/redeem confirms</td>
           <td class="vendor-cell"><span class="no-link">U.S. Bank GFS</span></td>
           <td class="vendor-cell"><a href="https://www.fundguard.com/">FundGuard</a></td>
-          <td class="vendor-cell"><span class="no-link">In-house ledger</span></td>
         </tr>
         <tr>
           <td class="five-ds-num">5</td>
           <td><strong>Venue turnover</strong></td>
           <td>Per-ISIN secondary-market turnover by listing venue (LSE, Xetra, Euronext…)</td>
-          <td class="vendor-cell"><span class="no-link">Desk feed</span></td>
           <td class="vendor-cell"><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Bloomberg ECP</a></td>
           <td class="vendor-cell"><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/etf-pricing-data">Refinitiv / LSEG</a></td>
         </tr>
+        <tr>
+          <td class="five-ds-num">6</td>
+          <td><strong>Crypto spot</strong></td>
+          <td>Spot bid/ask/last for direct crypto holdings — only if fund holds crypto</td>
+          <td class="vendor-cell"><a href="https://www.kraken.com/features/trading-api">Kraken</a></td>
+          <td class="vendor-cell"><a href="https://docs.cdp.coinbase.com/coinbase-app/advanced-trade-apis/websocket/websocket-channels">Coinbase</a></td>
+        </tr>
       </table>
 
-      <p style="color:var(--etf-muted);font-size:13px;">Product-specific add-ons outside the five: derivatives marks (2×/buffer funds), crypto spot (<a href="https://www.kraken.com/features/trading-api">Kraken</a> · <a href="https://docs.cdp.coinbase.com/coinbase-app/advanced-trade-apis/websocket/websocket-channels">Coinbase</a>), index/benchmark levels (buffer funds). Internal fund master and fee schedules are configuration, not vendor pipelines.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">Other product-specific add-ons: derivatives marks (2×/buffer funds), index/benchmark levels (buffer funds). Internal fund master and fee schedules are configuration — enriched on top of dataset 3, not a separate vendor pipeline.</p>
 
       <h3>Procurement paths</h3>
       <div class="cost-path">
-        <strong>Direct enterprise feeds</strong> — required to own the system of record. Bloomberg Data License, LSEG/Refinitiv, and ICE are custom-quoted; typical range <strong>~$50K–$150K/year</strong> at ETF-issuer scale for pricing + corp actions + reference. Redundancy adds cost for failover, not 3× data volume.
+        <strong>Two providers in practice</strong> — (1) one market data contract (Bloomberg Data License covers datasets 1–3 and 5; ICE as backup); (2) fund administrator / custodian for dataset 4. Vendor choice is procurement — confirm existing Corgi contracts before assigning primaries.
       </div>
       <div class="cost-path">
         <strong>Administrator pass-through</strong> — published per-security rates when market data is sourced through the fund administrator. Source: <a href="https://www.sec.gov/Archives/edgar/data/1520738/000121390026008805/ea0271271-01_ex99h14.htm">U.S. Bank fund servicing fee schedule (SEC filing, 2025)</a>. Thematic equity fund (~100 holdings): <strong>~$5K–$6K/year</strong> market data. Fixed-income fund (~200 bonds): <strong>~$28K–$40K/year</strong> — FI pricing dominates.
@@ -769,7 +770,7 @@ pie showData
         <tr><th>Pipeline</th><th>Reconciliation rule</th></tr>
         <tr><td>Equity price</td><td>Block NAV if primary vs backup differ by more than tolerance (bps)</td></tr>
         <tr><td>FI price</td><td>Evaluated marks — wider tolerance; flag illiquid names</td></tr>
-        <tr><td>Corp actions</td><td>Do not apply until 2-of-3 vendors agree on ex-date and rate</td></tr>
+        <tr><td>Corp actions</td><td>Do not apply until primary and backup agree on ex-date and rate</td></tr>
         <tr><td>FX</td><td>Exact match expected on WM/Reuters fix</td></tr>
       </table>
     </section>
