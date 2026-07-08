@@ -475,6 +475,24 @@
     .field-table { font-size: 12px; }
     .field-table td:first-child { font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
 
+    .five-ds-num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--etf-orange);
+    }
+
+    .cost-path {
+      border-left: 3px solid var(--etf-orange);
+      padding: 12px 16px;
+      margin: 16px 0;
+      background: rgba(255, 85, 0, 0.05);
+      font-size: 13px;
+      color: var(--etf-muted);
+    }
+
+    .cost-path strong { color: var(--etf-white2); }
+
     @media (max-width: 768px) {
       .foundations-grid { grid-template-columns: 1fr; }
       .market-columns { grid-template-columns: 1fr; }
@@ -539,6 +557,7 @@
       <a href="#report">Daily report</a>
       <a href="#modules">Modules</a>
       <a href="#data-sourcing">Data sourcing</a>
+      <a href="#five-datasets">5 datasets</a>
       <a href="#data">Report fields</a>
     </div>
   </nav>
@@ -1134,7 +1153,77 @@ flowchart LR
       <p>Carl’s “two datasets” (pricing + corporate actions) are the <strong>market-data core</strong> for NAV — not the full system. Operational feeds (custodian, TA, trades) and internal masters are equally required. Use <strong>2–3 vendors per market-data pipeline</strong> for failover and cross-check, not because two datasets are sufficient alone.</p>
       <p style="color:var(--etf-muted);font-size:13px;">Legend: <span class="src-vendor">Vendor</span> · <span class="src-ops">Operational</span> · <span class="src-computed">Computed</span> · <span class="src-manual">Manual</span> — maps to GL sub-categories from Carl’s walkthrough: <strong>EQ</strong> (equity), <strong>FI</strong> (fixed income), <strong>ETF</strong> (flows), <strong>ST</strong> (short-term).</p>
 
-      <h3>Master index</h3>
+      <h3 id="five-datasets">Five datasets + costs (simplified)</h3>
+      <p>Carl’s two vendor datasets (pricing + corporate actions) expand to <strong>five consolidated inputs</strong> for a full fund accounting system. The vendor redundancy table below is pipelines <strong>within dataset 1–3</strong> — not the whole picture. Everything else (PCF, NAV, trial balance, daily report) is <span class="src-computed">computed</span> or <span class="src-manual">manual</span> on top of these five.</p>
+
+      <table>
+        <tr><th>#</th><th>Dataset</th><th>Rolls up (detail IDs)</th><th>2–3 sources</th><th>NAV</th><th>Report</th></tr>
+        <tr><td class="five-ds-num">1</td><td><strong>Pricing &amp; FX</strong></td><td>DS-01 EQ marks · DS-02 FI marks · DS-03 FX</td><td>Bloomberg · Refinitiv/LSEG · ICE</td><td class="num">✓</td><td class="num">—</td></tr>
+        <tr><td class="five-ds-num">2</td><td><strong>Corporate actions &amp; FI events</strong></td><td>DS-04 equity CAs · DS-05 bond events</td><td>ICE · Bloomberg · Refinitiv</td><td class="num">✓</td><td class="num">—</td></tr>
+        <tr><td class="five-ds-num">3</td><td><strong>Security reference</strong></td><td>DS-06 master · DS-19 tax/withholding</td><td>ICE Ref Data · Bloomberg SECF · Refinitiv + M1</td><td class="num">✓</td><td class="num">partial</td></tr>
+        <tr><td class="five-ds-num">4</td><td><strong>Operational truth</strong></td><td>DS-07 holdings · DS-08 cash · DS-09 trades · DS-10 TA · DS-11 AP flows</td><td>USBank · FundGuard · in-house</td><td class="num">✓</td><td class="num">✓ flow</td></tr>
+        <tr><td class="five-ds-num">5</td><td><strong>Venue turnover</strong></td><td>DS-20 per-ISIN turnover · DS-17 listing map</td><td>Desk feed · Bloomberg · Refinitiv</td><td class="num">—</td><td class="num">✓</td></tr>
+      </table>
+
+      <p style="color:var(--etf-muted);font-size:13px;margin-top:12px;">Product-specific add-ons (not in the five): DS-13 derivatives marks (2x/buffer) · DS-14 crypto (Kraken/Coinbase) · DS-15 index/benchmark (buffer funds). Internal masters DS-16 fund static · DS-18 fee schedules feed computed outputs but aren’t vendor pipelines.</p>
+
+      <h4>Vendor links by dataset</h4>
+      <table class="field-table">
+        <tr><th>Dataset</th><th>Vendor</th><th>Product / API</th></tr>
+        <tr><td rowspan="3">1 · Pricing &amp; FX</td><td>Bloomberg</td><td><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Pricing data</a> · <a href="https://professional.bloomberg.com/products/data/data-management/dms/">Data License Plus</a></td></tr>
+        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">Instrument pricing</a> · <a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">FI evaluated pricing</a></td></tr>
+        <tr><td>ICE</td><td><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing/evaluated-pricing">Evaluated pricing</a> · <a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">ICE Data API</a></td></tr>
+        <tr><td rowspan="3">2 · Corp actions</td><td>ICE</td><td><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">Corporate Actions service</a></td></tr>
+        <tr><td>Bloomberg</td><td><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">Reference data bulk subs (PDF)</a> — Corp Actions Global</td></tr>
+        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">DataScope</a> — corp actions in cross-asset feed</td></tr>
+        <tr><td rowspan="3">3 · Security ref</td><td>ICE</td><td><a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">Reference data — funds &amp; securities</a></td></tr>
+        <tr><td>Bloomberg</td><td><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">SECF / reference bulk subs</a></td></tr>
+        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">DataScope Plus</a></td></tr>
+        <tr><td rowspan="2">4 · Operational</td><td>USBank GFS</td><td>Custodian holdings, cash, trade history, TA — via fund admin agreement (no public API catalog)</td></tr>
+        <tr><td>FundGuard</td><td>Ingest + normalize during USBank → in-house migration</td></tr>
+        <tr><td rowspan="2">5 · Venue turnover</td><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/etf-pricing-data">ETF pricing data</a> · Tick History</td></tr>
+        <tr><td>Bloomberg</td><td><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Exchange &amp; contributed pricing (ECP)</a></td></tr>
+        <tr><td>Crypto add-on</td><td>Kraken · Coinbase</td><td><a href="https://www.kraken.com/features/trading-api">Kraken API</a> (free public data) · <a href="https://docs.cdp.coinbase.com/coinbase-app/advanced-trade-apis/websocket/websocket-channels">Coinbase Advanced Trade WS</a> (free; paid tiers for high-volume WS)</td></tr>
+      </table>
+
+      <h4>Costs — two procurement paths</h4>
+      <p>Institutional market data rarely has public list prices. Corgi is likely on <strong>Path B</strong> today (USBank pass-through). Path A is what you need if building an in-house system of record.</p>
+
+      <div class="cost-path">
+        <strong>Path A — Direct enterprise feeds</strong> (own the SoR; 2–3 vendors for redundancy)<br>
+        Bloomberg Data License · LSEG/Refinitiv · ICE — all custom-quoted. Typical institutional range <strong>~$50K–$150K/year</strong> for pricing + corp actions + reference at ETF-issuer scale; larger deployments <strong>$150K–$400K+</strong>. Redundancy adds cost — you pay for failover, not 3× the data.<br>
+        <span style="font-size:12px;">Refs: <a href="https://www.ice.com/publicdocs/data/ICE_Data_Pricing_and_Reference_Data_LLC_Part_2a.pdf">ICE fee structures (PDF)</a> · <a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Bloomberg enterprise</a></span>
+      </div>
+
+      <div class="cost-path">
+        <strong>Path B — Via fund administrator pass-through</strong> (USBank model — published rates)<br>
+        Source: <a href="https://www.sec.gov/Archives/edgar/data/1520738/000121390026008805/ea0271271-01_ex99h14.htm">USBank fund servicing fee schedule (SEC filing, 2025)</a>
+      </div>
+
+      <table class="field-table">
+        <tr><th>Service</th><th>Rate</th><th>Maps to dataset</th><th>Example (1 fund)</th></tr>
+        <tr><td>EQ / FX / ETF pricing</td><td><strong>$0.08</strong> / security / fund / pricing day</td><td>Dataset 1</td><td>100 holdings × 252 days ≈ <strong>$2,016/yr</strong></td></tr>
+        <tr><td>IG FI pricing</td><td><strong>$0.50</strong> / security / fund / day</td><td>Dataset 1</td><td>200 bonds × 252 days ≈ <strong>$25,200/yr</strong></td></tr>
+        <tr><td>HY / structured FI</td><td><strong>$0.80</strong> / security / fund / day</td><td>Dataset 1</td><td>Scales with portfolio size</td></tr>
+        <tr><td>Corp actions (domestic EQ)</td><td><strong>$1.38</strong> / security / month</td><td>Dataset 2</td><td>100 holdings ≈ <strong>$1,656/yr</strong></td></tr>
+        <tr><td>Corp actions (foreign EQ)</td><td><strong>$2.38</strong> / security / month</td><td>Dataset 2</td><td>Per holding in foreign names</td></tr>
+        <tr><td>Admin reference data</td><td><strong>$1.25</strong> / security / month</td><td>Dataset 3</td><td>100 holdings ≈ <strong>$1,500/yr</strong></td></tr>
+        <tr><td>Index data (Tier 1)</td><td><strong>$75</strong> / fund / month</td><td>DS-15 add-on</td><td>Bloomberg, ICE, S&amp;P, Dow Jones indexes</td></tr>
+        <tr><td>Manual pricing (&gt;25/day)</td><td><strong>$500</strong> / month</td><td>MP-01</td><td>Exception queue overhead</td></tr>
+        <tr><td>Crypto EOD marks</td><td><strong>$0</strong></td><td>DS-14</td><td>Kraken / Coinbase public APIs (no redistribution rights)</td></tr>
+      </table>
+
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Per-fund ballpark (Path B):</strong> thematic equity fund (~100 names) ≈ <strong>$5K–$6K/yr</strong> market data. FI corp-bond fund (211265, ~200 bonds) ≈ <strong>$28K–$40K/yr</strong> — FI pricing dominates. Operational dataset 4 is bundled in base admin/TA fees, not per-security. Venue turnover (dataset 5) is a separate contract — confirm with team.</p>
+
+      <h4>What the five datasets don’t include (computed + manual)</h4>
+      <table class="field-table">
+        <tr><th>Type</th><th>Outputs</th><th>Built from</th></tr>
+        <tr><td class="src-computed">Computed</td><td>MV, cost basis, unrealized G/L, bond accrual/amort, dividends receivable, NAV/share, AUM, flows, PCF, 30D ADV</td><td>Datasets 1–4 → CP-01 through CP-18</td></tr>
+        <tr><td class="src-manual">Manual</td><td>Pricing override, corp action confirm, rec break resolution, NAV sign-off, GL adjustments</td><td>Exception queue → MP-01 through MP-05</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">The trial balance Carl walked through is almost entirely the <span class="src-computed">computed</span> layer — vendor data is the input, not the GL line itself.</p>
+
+      <h3>Master index (full field catalog)</h3>
       <table>
         <tr><th>ID</th><th>Dataset</th><th>Type</th><th>Vendor options (2–3)</th><th>NAV?</th><th>Report?</th><th>GL tie-in</th></tr>
         <tr><td class="ds-id">DS-01</td><td>Equity EOD pricing</td><td class="src-vendor">Vendor</td><td>Bloomberg · Refinitiv · ICE Evaluated</td><td class="num">✓</td><td class="num">—</td><td>Cost of investments EQ; unrealized G/L</td></tr>
