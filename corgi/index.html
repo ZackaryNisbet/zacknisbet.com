@@ -541,8 +541,7 @@
     }
 
     .dp-group {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--etf-orange);
       white-space: nowrap;
@@ -777,42 +776,47 @@ pie showData
 
     <section id="datapoints">
       <h2>Datapoints</h2>
-      <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference structure: EUV thematic equity fund GL (fund 211161, 06/18/2026). Fixed-income funds add <strong>FI</strong> lines (amortization, accretion, bond interest). Grouping uses Corgi GL sub-categories: <strong>BASE</strong>, <strong>ETF</strong>, <strong>EQ</strong>, <strong>FI</strong>, <strong>ST</strong>.</p>
+      <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference GL: EUV thematic equity fund (211161). Bond funds (e.g. 211265) add fixed-income lines. Groups reflect Corgi product type — not GL sub-category codes.</p>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>D1</strong> Pricing &amp; FX · <strong>D2</strong> Corp actions · <strong>D3</strong> Security reference · <strong>D4</strong> Operational · <strong>D5</strong> Venue turnover. Computed rows list which datasets feed the calculation.</p>
 
       <h3>Summary</h3>
       <table class="summary-table">
         <tr><th>Group</th><th>Datapoint</th><th>Source</th></tr>
-        <tr><td class="dp-group">BASE</td><td>Cash</td><td>Dataset 4 — custodian cash balance</td></tr>
-        <tr><td class="dp-group">BASE</td><td>Investment receivable</td><td>Computed — unsettled sale proceeds (trade date ≠ settle date)</td></tr>
-        <tr><td class="dp-group">BASE</td><td>Investment payable</td><td>Computed — unsettled purchase obligations</td></tr>
-        <tr><td class="dp-group">ETF</td><td>Accounts receivable — subscriptions</td><td>Dataset 4 — pending AP create, not yet settled</td></tr>
-        <tr><td class="dp-group">ETF</td><td>Accounts payable — redemptions</td><td>Dataset 4 — pending AP redeem, not yet settled</td></tr>
-        <tr><td class="dp-group">ETF</td><td>Subscriptions / redemptions (capital)</td><td>Dataset 4 — settled primary market share flow</td></tr>
-        <tr><td class="dp-group">EQ</td><td>Cost of investments — equity</td><td>Computed — sum of trade cost basis, adjusted for corp actions</td></tr>
-        <tr><td class="dp-group">EQ</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed — holding market value minus cost basis</td></tr>
-        <tr><td class="dp-group">EQ</td><td>Dividends receivable</td><td>Computed — shares held × gross dividend rate on ex-date</td></tr>
-        <tr><td class="dp-group">EQ</td><td>Dividend income</td><td>Computed — accrued on ex-date, recognized on pay-date</td></tr>
-        <tr><td class="dp-group">EQ</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed — cumulative unrealized since inception</td></tr>
-        <tr><td class="dp-group">ST</td><td>Cost of investments — short-term</td><td>Computed — T-bills, money market, &lt;1yr paper cost basis</td></tr>
-        <tr><td class="dp-group">ST</td><td>Investment interest receivable</td><td>Computed — accrued coupon on short-term holdings</td></tr>
-        <tr><td class="dp-group">ST</td><td>Investment interest income</td><td>Computed — earned interest on ST/FI positions</td></tr>
-        <tr><td class="dp-group">ST</td><td>Realized gain/loss — short term</td><td>Computed — proceeds minus cost on sale, held &lt;1 year</td></tr>
-        <tr><td class="dp-group">FI</td><td>Cost of investments — fixed income</td><td>Computed — trade cost + amortized premium/discount adj</td></tr>
-        <tr><td class="dp-group">FI</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed — evaluated mark × qty minus adjusted cost</td></tr>
-        <tr><td class="dp-group">FI</td><td>Amortization of premium</td><td>Computed — effective interest method, reduces cost over life</td></tr>
-        <tr><td class="dp-group">FI</td><td>Accretion of discount</td><td>Computed — effective interest method, increases cost over life</td></tr>
-        <tr><td class="dp-group">BASE</td><td>Dividend withholding tax payable</td><td>Computed — withheld amount on foreign dividends owed to tax authority</td></tr>
-        <tr><td class="dp-group">BASE</td><td>Accrued unitary fee expense</td><td>Computed — AUM × TER × (days ÷ 365)</td></tr>
-        <tr><td class="dp-group">BASE</td><td>Settlement breakage income</td><td>Computed — difference between expected and actual settlement cash</td></tr>
-        <tr><td class="dp-group">P&amp;L</td><td>Withholding tax — dividends (expense)</td><td>Computed — tax expense paired with withholding payable</td></tr>
-        <tr><td class="dp-group">P&amp;L</td><td>Unitary fee expense</td><td>Computed — daily accrual of management/admin fee</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Total assets</td><td>Computed — sum of all asset GL lines</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Total liabilities</td><td>Computed — sum of all liability GL lines</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Net assets</td><td>Computed — total assets minus total liabilities</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Shares outstanding</td><td>Dataset 4 — transfer agent share register</td></tr>
-        <tr><td class="dp-group">NAV</td><td>NAV per share</td><td>Computed — net assets ÷ shares outstanding</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Net income</td><td>Computed — total income minus total expense</td></tr>
-        <tr><td class="dp-group">NAV</td><td>Total capital</td><td>Computed — subscriptions/redemptions + accumulated G/L + retained</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Cash</td><td>D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment receivable</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment payable</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Dividend withholding tax payable</td><td>Computed · D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accrued unitary fee expense</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Settlement breakage income</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Withholding tax — dividends (expense)</td><td>Computed · D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Unitary fee expense</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total assets</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total liabilities</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net assets</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Shares outstanding</td><td>D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>NAV per share</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net income</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total capital</td><td>Computed · D1 + D2 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Accounts receivable — subscriptions</td><td>D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Accounts payable — redemptions</td><td>D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Subscriptions / redemptions (capital)</td><td>D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Cost of investments — equity</td><td>Computed · D4 + D2</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed · D1 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividends receivable</td><td>Computed · D2 + D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividend income</td><td>Computed · D2 + D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed · D1 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Cost of investments — fixed income</td><td>Computed · D4 + D2 + D3</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed · D1 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest receivable</td><td>Computed · D3 + D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest income</td><td>Computed · D3 + D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Amortization of premium</td><td>Computed · D1 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Accretion of discount</td><td>Computed · D1 + D3 + D4</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Cost of investments — short-term</td><td>Computed · D4 + D2</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest receivable</td><td>Computed · D3 + D4</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest income</td><td>Computed · D3 + D4</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Realized gain/loss — short term</td><td>Computed · D4</td></tr>
       </table>
 
       <h3>Detail by datapoint</h3>
