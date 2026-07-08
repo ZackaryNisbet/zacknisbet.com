@@ -584,6 +584,9 @@
 
     .dp-detail:last-child { border-bottom: none; }
 
+    .dp-method-pulled { color: #7eeea0; }
+    .dp-method-computed { color: #ffd966; }
+
     .summary-table td:nth-child(2) { font-weight: 500; color: var(--etf-white); }
 
     p a, .cost-path a, table a, .vendor-cell a {
@@ -784,46 +787,46 @@ pie showData
     <section id="datapoints">
       <h2>Datapoints</h2>
       <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference GL: EUV thematic equity fund (211161). Bond funds (e.g. 211265) add fixed-income lines. Groups reflect Corgi product type — not GL sub-category codes.</p>
-      <p style="color:var(--etf-muted);font-size:13px;">Computed rows list the datasets that feed the calculation by number and name.</p>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Pulled</strong> = received directly from a dataset. <strong>Computed</strong> = derived from one or more datasets.</p>
 
       <h3>Summary</h3>
       <table class="summary-table">
-        <tr><th>Group</th><th>Datapoint</th><th>Source</th></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Cash</td><td>Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Investment receivable</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Investment payable</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Dividend withholding tax payable</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Accrued unitary fee expense</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Settlement breakage income</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Withholding tax — dividends (expense)</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Unitary fee expense</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Accounts receivable — subscriptions</td><td>Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Accounts payable — redemptions</td><td>Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Subscriptions / redemptions (capital)</td><td>Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total assets</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total liabilities</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Net assets</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Shares outstanding</td><td>Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>NAV per share</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Net income</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td>Total capital</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Cost of investments — equity</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Dividends receivable</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Dividend income</td><td>Computed · Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Cost of investments — fixed income</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Investment interest receivable</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Investment interest income</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Amortization of premium</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Accretion of discount</td><td>Computed · Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Cost of investments — short-term</td><td>Computed · Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest receivable</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest income</td><td>Computed · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td>Realized gain/loss — short term</td><td>Computed · Dataset 4 — Operational truth</td></tr>
+        <tr><th>Group</th><th>Datapoint</th><th>Method</th><th>Source</th></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Cash</td><td class="dp-method-pulled">Pulled</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment receivable</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Investment payable</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Dividend withholding tax payable</td><td class="dp-method-computed">Computed</td><td>Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accrued unitary fee expense</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Settlement breakage income</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Withholding tax — dividends (expense)</td><td class="dp-method-computed">Computed</td><td>Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Unitary fee expense</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accounts receivable — subscriptions</td><td class="dp-method-pulled">Pulled</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Accounts payable — redemptions</td><td class="dp-method-pulled">Pulled</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Subscriptions / redemptions (capital)</td><td class="dp-method-pulled">Pulled</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total assets</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total liabilities</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net assets</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Shares outstanding</td><td class="dp-method-pulled">Pulled</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>NAV per share</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Net income</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">All ETFs</td><td>Total capital</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Cost of investments — equity</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Net unrealized appreciation/depreciation — equity</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividends receivable</td><td class="dp-method-computed">Computed</td><td>Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Dividend income</td><td class="dp-method-computed">Computed</td><td>Dataset 2 — Corporate actions &amp; FI events · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Accumulated net unrealized G/L (capital)</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Equity ETF</td><td>Realized gain/loss — short term</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Cost of investments — fixed income</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events · Dataset 3 — Security reference</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Net unrealized appreciation/depreciation — FI</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest receivable</td><td class="dp-method-computed">Computed</td><td>Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Investment interest income</td><td class="dp-method-computed">Computed</td><td>Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Amortization of premium</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Accretion of discount</td><td class="dp-method-computed">Computed</td><td>Dataset 1 — Pricing &amp; FX · Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Bond ETF</td><td>Realized gain/loss — short term</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Cost of investments — short-term</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth · Dataset 2 — Corporate actions &amp; FI events</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest receivable</td><td class="dp-method-computed">Computed</td><td>Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Investment interest income</td><td class="dp-method-computed">Computed</td><td>Dataset 3 — Security reference · Dataset 4 — Operational truth</td></tr>
+        <tr><td class="dp-group">Treasury ETF</td><td>Realized gain/loss — short term</td><td class="dp-method-computed">Computed</td><td>Dataset 4 — Operational truth</td></tr>
       </table>
 
       <h3>Detail by datapoint</h3>
