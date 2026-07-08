@@ -709,45 +709,6 @@ pie showData
         <tr><td><strong>In daily report</strong></td><td><strong>Flow</strong> — 1D / 30D / YTD</td><td><strong>Turnover</strong> — LSE, DE, FR…</td></tr>
         <tr><td><strong>Typical day</strong></td><td colspan="2" style="text-align:center;color:var(--etf-white3);">~75% of fund-days have <em>no</em> primary activity (ICI) — turnover only</td></tr>
       </table>
-
-      <h3 id="primary-market">Primary market — creates, redeems &amp; flows</h3>
-      <p>The primary market is how ETF share count actually changes. Retail investors never touch it — only <strong>Authorized Participants</strong> can create new shares (deliver a basket of securities + cash) or redeem them (receive the basket back). Corgi does not profit on the spread; APs earn arbitrage when ETF price drifts from NAV.</p>
-
-      <div class="mermaid">
-sequenceDiagram
-  participant AP as Authorized Participant
-  participant TA as Transfer Agent
-  participant FA as Fund accounting
-  participant CU as Custodian
-
-  AP->>TA: Submit create / redeem order
-  TA->>FA: Confirm shares + flow
-  FA->>FA: Update flow ledger + shares outstanding
-  FA->>CU: Reconcile basket vs holdings
-  Note over FA: Flow columns in Daily Volume Report
-      </div>
-
-      <table>
-        <tr><th>Concept</th><th>What it is</th><th>Why fund accounting cares</th></tr>
-        <tr><td><strong>Creation unit</strong></td><td>Standard block of shares (e.g. 25k–600k) per create/redeem</td><td>One order can move AUM materially</td></tr>
-        <tr><td><strong>Basket / PCF</strong></td><td>List of securities (± cash) AP must deliver or receive</td><td>Published EOD; must match holdings + NAV</td></tr>
-        <tr><td><strong>Flow</strong></td><td>Net creates minus redeems over a period</td><td>Drives shares outstanding → AUM = shares × NAV</td></tr>
-        <tr><td><strong>Create/redeem fee</strong></td><td class="num">Typically $250–$3,000/order (Corgi: up to $300 + variable to 2%)</td><td>AP cost, not Corgi revenue</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;">Primary market data comes from the <strong>transfer agent + fund accounting flow ledger</strong> — not from exchange market data.</p>
-
-      <h3>Secondary market — where ETFs trade</h3>
-      <p>All exchange activity is <strong>secondary market</strong>. When the Daily Volume Report shows turnover on LSE, Xetra, or Euronext, that is investors trading existing shares — the fund's portfolio does not change. Europe is fragmented across venues; no single exchange dominates.</p>
-
-      <table>
-        <tr><th>Venue</th><th>Region</th><th>~EU on-venue share</th><th>What you pay (indicative)</th></tr>
-        <tr><td><strong>Xetra</strong></td><td>Europe</td><td class="num">Largest single venue</td><td class="num">Listing fees + ~0.48 bp/trade</td></tr>
-        <tr><td><strong>LSE</strong></td><td>UK / Europe</td><td class="num">~11%</td><td class="num">Per-fund listing fee schedule</td></tr>
-        <tr><td><strong>Euronext</strong></td><td>Paris, Amsterdam, Milan…</td><td class="num">Fragmented</td><td class="num">0.15 bp AUM/yr listing (min €1.5k, max €12k)</td></tr>
-        <tr><td><strong>SIX</strong></td><td>Switzerland</td><td class="num">Smaller</td><td class="num">Issuer-specific</td></tr>
-        <tr><td><strong>NYSE Arca</strong></td><td>US</td><td class="num">~80% of US ETF listings</td><td class="num">Listing + SEC sale fee ~0.00278%</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;">Sources: Deutsche Börse 2025, LSE ETP report 2025, Euronext listing fees Jan 2026, iShares global ETF facts Q4 2023. Turnover columns in the report = secondary only.</p>
     </section>
 
     <section id="data-sourcing">
