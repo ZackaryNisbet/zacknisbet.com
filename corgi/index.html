@@ -531,6 +531,65 @@
       nav.doc-nav { padding: 0 16px; }
       .doc-badge { display: none; }
     }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--etf-white);
+      margin: 24px 0 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .dp-group {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--etf-orange);
+      white-space: nowrap;
+    }
+
+    .vendor-ref {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    .vendor-ref li {
+      margin: 8px 0;
+      padding: 10px 14px;
+      background: var(--etf-black2);
+      border: 1px solid var(--etf-border2);
+    }
+
+    .vendor-ref a {
+      color: var(--etf-white);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .vendor-ref a:hover { color: var(--etf-orange); }
+
+    .vendor-ref .ref-meta {
+      display: block;
+      font-size: 12px;
+      color: var(--etf-muted);
+      margin-top: 4px;
+    }
+
+    .dp-detail {
+      margin: 0 0 20px;
+      padding: 0 0 20px;
+      border-bottom: 1px solid var(--etf-border2);
+    }
+
+    .dp-detail:last-child { border-bottom: none; }
+
+    .summary-table td:nth-child(2) { font-weight: 500; color: var(--etf-white); }
+
+    table a { color: var(--etf-white2); }
+    table a:hover { color: var(--etf-orange); }
+
   </style>
 </head>
 <body>
@@ -546,19 +605,8 @@
   <nav class="doc-nav" aria-label="Document sections">
     <div class="nav-inner">
       <a href="#foundations">Foundations</a>
-      <a href="#corgi-path">Corgi path</a>
-      <a href="#fund-accounting">Fund accounting</a>
-      <a href="#nav-market-value">NAV &amp; market value</a>
-      <a href="#nav-data-quality">NAV data quality</a>
-      <a href="#roadmap">6-week plan</a>
-      <a href="#migration">Migration</a>
-      <a href="#architecture">Architecture</a>
-      <a href="#eod">Daily EOD</a>
-      <a href="#report">Daily report</a>
-      <a href="#modules">Modules</a>
       <a href="#data-sourcing">Data sourcing</a>
-      <a href="#five-datasets">5 datasets</a>
-      <a href="#data">Report fields</a>
+      <a href="#datapoints">Datapoints</a>
     </div>
   </nav>
 
@@ -566,15 +614,10 @@
     <section id="overview" class="hero">
       <span class="eyebrow">Corgi Strategies</span>
       <h1>ETF Fund Administration Blueprint</h1>
-      <p class="subtitle">Full in-house fund accounting · Daily Volume Report automated · Sequential migration in 6 weeks</p>
-      <div class="author-byline">
-        <div class="author-name">Zack Nisbet</div>
-        <div class="author-future">Work Trial<span class="sep">|</span><span class="role">Full Stack Engineer - ETF Focus</span></div>
-        <div class="author-date">July 8–9, 2026</div>
-      </div>
+      <p class="subtitle">Required inputs, datapoints, and sourcing for in-house fund accounting.</p>
     </section>
 
-    <section id="foundations">
+<section id="foundations">
       <h2>Foundational knowledge</h2>
 
       <h3>What is an ETF?</h3>
@@ -670,7 +713,7 @@ sequenceDiagram
       <p style="color:var(--etf-muted);font-size:13px;">Primary market data comes from the <strong>transfer agent + fund accounting flow ledger</strong> — not from exchange market data.</p>
 
       <h3>Secondary market — where ETFs trade</h3>
-      <p>All exchange activity is <strong>secondary market</strong>. When your daily report shows turnover on LSE, Xetra, or Euronext, that is investors trading existing shares — the fund's portfolio does not change. Europe is fragmented across venues; no single exchange dominates.</p>
+      <p>All exchange activity is <strong>secondary market</strong>. When the Daily Volume Report shows turnover on LSE, Xetra, or Euronext, that is investors trading existing shares — the fund's portfolio does not change. Europe is fragmented across venues; no single exchange dominates.</p>
 
       <table>
         <tr><th>Venue</th><th>Region</th><th>~EU on-venue share</th><th>What you pay (indicative)</th></tr>
@@ -683,818 +726,223 @@ sequenceDiagram
       <p style="color:var(--etf-muted);font-size:13px;">Sources: Deutsche Börse 2025, LSE ETP report 2025, Euronext listing fees Jan 2026, iShares global ETF facts Q4 2023. Turnover columns in the report = secondary only.</p>
     </section>
 
-    <section id="corgi-path">
-      <h2>Corgi today &amp; migration path</h2>
-
-      <h3>Current state — U.S. Bank Global Fund Services</h3>
-      <p>Per SEC filings (Corgi ETF Trust I): <strong>U.S. Bancorp Fund Services</strong> (dba U.S. Bank Global Fund Services) is <strong>fund administrator, fund accountant, and transfer agent</strong>. <strong>U.S. Bank N.A.</strong> is custodian. Corgi Strategies (adviser) oversees providers; NAV is <em>calculated by the Administrator</em>.</p>
-
-      <h3>Target path — sequential, not parallel</h3>
-      <div class="mermaid">
-flowchart LR
-  USB[USBank\nsystem of record TODAY] -->|Wk 1-3 migrate| FG[FundGuard\nPILOT then production]
-  FG -->|Wk 4-6 cutover| IH[Corgi in-house\nsystem of record TARGET]
-  FG -.->|decommission| X[FundGuard off]
-      </div>
-      <p>One system of record at a time. Short <strong>validation window</strong> during each cutover (NAV match before switch) — not running FundGuard and in-house as dual production engines.</p>
-
-      <h3>Cost implications (indicative)</h3>
-      <table>
-        <tr><th>Phase</th><th>Cost driver</th><th>Notes</th></tr>
-        <tr><td><strong>USBank (today)</strong></td><td>Outsourced admin — typically bundled in adviser unitary fee or per-fund admin bps on AUM</td><td>Corgi filings: adviser bore provider costs initially. Industry range ~2–8 bps AUM for full admin — confirm contract.</td></tr>
-        <tr><td><strong>FundGuard (pilot)</strong></td><td>Enterprise SaaS — custom quote (AUM, fund count, modules, volume)</td><td>No public pricing. Positioned as TCO reduction vs multiple legacy vendors. Pilot = implementation + license; budget for onboarding consultants.</td></tr>
-        <tr><td><strong>In-house (target)</strong></td><td>Engineering headcount + infra + market data licenses − vendor admin fees</td><td>Upfront build cost; long-run saves outsourced admin margin. FundGuard may shorten build vs raw USBank APIs.</td></tr>
-      </table>
-    </section>
-
-    <section id="fund-accounting">
-      <h2>What is a fund accounting system?</h2>
-      <p>The <strong>system of record</strong> for the fund's official books: what it holds, what it's worth, how many shares exist, what flowed in/out, and what it owes. Not a reporting tool — reports are outputs. People and batch jobs <strong>change state</strong> inside it daily.</p>
-
-      <div class="mermaid">
-flowchart TB
-  subgraph actors["Actors"]
-    FA[Fund accountant]
-    EO[ETF ops / desk]
-    PM[Portfolio manager]
-    RC[Reconciliation]
-    FI[Finance]
-    SYS[Batch / system jobs]
-  end
-  subgraph actions["Actions in"]
-    A1[Post trades]
-    A2[Confirm settlements]
-    A3[Process corp actions]
-    A4[Record AP create/redeem]
-    A5[Ingest custodian/TA files]
-    A6[Ingest prices + FX]
-    A7[Approve pricing exceptions]
-    A8[Accrue fees + expenses]
-    A9[Run NAV batch]
-    A10[Review breaks + sign off]
-    A11[Publish PCF / basket]
-    A12[Manual journals]
-  end
-  subgraph books["Books + engines"]
-    B1[Holdings / portfolio]
-    B2[Cash ledger]
-    B3[Flow + shares ledger]
-    B4[Pricing store]
-    B5[NAV engine]
-    B6[Fee engine + GL]
-    B7[Reconciliation]
-  end
-  subgraph outputs["Outputs out"]
-    O1[Official NAV / share]
-    O2[AUM + shares outstanding]
-    O3[PCF to APs]
-    O4[Rec + break reports]
-    O5[Regulatory / audit packs]
-    O6[Daily Volume Report]
-  end
-  FA --> A6 & A7 & A9 & A10 & A12
-  EO --> A4 & A11
-  PM --> A1
-  RC --> A10
-  FI --> A8
-  SYS --> A5 & A9
-  A1 & A2 --> B1 & B2
-  A3 --> B1
-  A4 --> B3
-  A5 --> B1 & B3 & B7
-  A6 & A7 --> B4
-  A8 --> B6
-  A9 --> B5
-  A10 --> B7
-  B1 & B4 & B6 --> B5
-  B3 --> B5
-  B5 --> O1 & O2
-  A11 --> O3
-  B7 --> O4
-  B5 & B3 --> O6
-      </div>
-
-      <h3>Actions × actors (exhaustive)</h3>
-      <table>
-        <tr><th>Action</th><th>Actor</th><th>Updates</th><th>Why it matters</th></tr>
-        <tr><td>Launch fund / listing / ISIN map</td><td>Product + ops</td><td>Fund master</td><td>Foundation for all processing</td></tr>
-        <tr><td>Generate &amp; execute portfolio trades</td><td>PM / systematic</td><td>Trades → holdings</td><td>Fund buys/sells underlying securities</td></tr>
-        <tr><td>Post trade to books</td><td>Ops / batch</td><td>Trade capture</td><td>Pending → confirmed in ledger</td></tr>
-        <tr><td>Confirm settlement</td><td>Ops + custodian</td><td>Holdings, cash</td><td>Cash/securities actually moved</td></tr>
-        <tr><td>Apply corporate actions</td><td>Fund accountant</td><td>Holdings, cash</td><td>Splits, dividends, mergers</td></tr>
-        <tr><td>Publish PCF / basket</td><td>ETF ops</td><td>Primary market</td><td>APs know what to deliver</td></tr>
-        <tr><td>Receive &amp; settle AP create/redeem</td><td>ETF ops</td><td>Flows, shares out</td><td>Primary market — AUM change</td></tr>
-        <tr><td>Ingest custodian positions</td><td>Batch</td><td>Holdings rec</td><td>Truth check vs internal books</td></tr>
-        <tr><td>Ingest TA share register</td><td>Batch</td><td>Shares rec</td><td>Official shares outstanding</td></tr>
-        <tr><td>Ingest prices + FX</td><td>Batch</td><td>Pricing store</td><td>Inputs to NAV</td></tr>
-        <tr><td>Approve pricing exceptions</td><td>Fund accountant</td><td>Price overrides</td><td>Halted/illiquid names</td></tr>
-        <tr><td>Accrue mgmt fee &amp; expenses</td><td>Finance / batch</td><td>GL, liabilities</td><td>Reduces NAV over time</td></tr>
-        <tr><td>Run NAV calculation</td><td>Batch</td><td>NAV engine</td><td>Official value per share</td></tr>
-        <tr><td>Reconcile breaks</td><td>Fund accountant</td><td>Rec module</td><td>Block NAV if material mismatch</td></tr>
-        <tr><td>Approve &amp; publish NAV</td><td>Fund accountant</td><td>NAV published</td><td>Sent to TA, exchanges, APs</td></tr>
-        <tr><td>Month-end close</td><td>Finance</td><td>GL</td><td>Audit-ready financials</td></tr>
-        <tr><td>Generate desk reports</td><td>Batch</td><td>Reporting DWH</td><td>Daily Volume Report — read-only output</td></tr>
-      </table>
-    </section>
-
-    <section id="nav-market-value">
-      <h2>NAV &amp; market value</h2>
-      <p>Fund accounting answers one question every day: <strong>what is the fund worth, per share?</strong> That answer is the <strong>NAV</strong> (net asset value). Getting there means marking every holding to fair value, subtracting what the fund owes, and dividing by shares outstanding. The formulas are simple — getting the <em>inputs</em> right is the hard part.</p>
-
-      <h3>Three numbers — don't mix them up</h3>
-      <table>
-        <tr><th>Term</th><th>What it is</th><th>Who produces it</th><th>Where it shows up</th></tr>
-        <tr><td><strong>Holding market value</strong></td><td>Fair value of one position in the portfolio</td><td>Fund accountant — qty × mark price × FX</td><td>Internal books; rolls up into NAV</td></tr>
-        <tr><td><strong>NAV / share</strong></td><td>Official fair value of one ETF share</td><td>Fund accountant EOD batch (USBank → FG → in-house)</td><td>Published to TA, exchanges, APs; <strong>NAV</strong> columns in daily report</td></tr>
-        <tr><td><strong>ETF market price</strong></td><td>Price the share last traded at on an exchange</td><td>Investors — supply and demand on secondary market</td><td>Not in fund accounting; APs watch it vs NAV</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;">"Market value" in fund accounting always means <em>holding</em> market value inside the portfolio — not the ETF's exchange price.</p>
-
-      <div class="mermaid">
-flowchart TB
-  subgraph calc["NAV calculation — fund accounting EOD"]
-    H[Holdings qty\ncustodian rec]
-    P[Mark price\npricing vendor]
-    MV[Market value\nqty × price × FX]
-    C[Cash + receivables]
-    L[Liabilities\naccrued fees + payables]
-    SO[Shares outstanding\nTA register]
-    NAV[NAV/share\nassets − liabilities ÷ shares]
-    H --> MV
-    P --> MV
-    MV --> NAV
-    C --> NAV
-    L --> NAV
-    SO --> NAV
-  end
-
-  subgraph publish["After publish"]
-    NAV --> OUT[Official NAV → TA · exchanges · APs]
-    OUT --> AP[APs arb vs exchange price]
-  end
-      </div>
-
-      <h3>Step 1 — Mark each holding</h3>
-      <p class="formula">
-        MV<sub>security</sub> = quantity × mark_price × FX_rate_to_base_currency
-      </p>
-      <p>The fund accountant picks the <strong>mark price</strong> from a hierarchy — not a markup formula:</p>
-      <table>
-        <tr><th>Priority</th><th>Source</th><th>When used</th></tr>
-        <tr><td class="num">1</td><td>Exchange official close</td><td>Liquid equities, standard bonds</td></tr>
-        <tr><td class="num">2</td><td>Consolidated vendor (Bloomberg, Refinitiv)</td><td>When exchange close unavailable</td></tr>
-        <tr><td class="num">3</td><td>Model / fair value</td><td>Illiquid bonds, halted names, private assets</td></tr>
-        <tr><td class="num">4</td><td>Manual override</td><td>Accountant-approved exception</td></tr>
-      </table>
-
-      <h3>Step 2 — Roll up to NAV</h3>
-      <p class="formula">
-        Total assets = Σ(holding MV) + cash + receivables<br>
-        Total liabilities = accrued management fee + custody + payables + …<br>
-        NAV/share = (Total assets − Total liabilities) ÷ Shares outstanding
-      </p>
-      <p>The management fee accrues daily as a liability and <strong>reduces NAV</strong>. That fee — a percentage of AUM — is Corgi's primary revenue from the fund. It is not a markup on exchange price.</p>
-
-      <h3>Step 3 — Publish and reconcile</h3>
-      <p>Official NAV goes out EOD to the transfer agent, listing venues, and APs. On the secondary market, the ETF can trade slightly above or below NAV (premium / discount). APs arbitrage that gap through the primary market — creating when price &gt; NAV, redeeming when price &lt; NAV. That keeps exchange price close to NAV; the arb profit goes to APs, not the issuer.</p>
-
-      <h3 id="nav-data-quality">The real problem is inputs, not the formula</h3>
-      <p>NAV arithmetic is third-grade math. When official NAV is wrong, the root cause is almost always <strong>bad, stale, or missing input data</strong> that slipped through before publish — not a bug in the division.</p>
-
-      <div class="mermaid">
-flowchart LR
-  subgraph inputs["Inputs that feed NAV"]
-    I1[Holdings qty]
-    I2[Mark price]
-    I3[FX rate]
-    I4[Shares outstanding]
-    I5[Liabilities / fees]
-    I6[Corp actions]
-  end
-  subgraph failures["How each one fails"]
-    F1[Stale / missing price]
-    F2[Wrong FX date or pair]
-    F3[Custodian qty break]
-    F4[Flow not in share count]
-    F5[Late file / wrong cutoff]
-    F6[Split or dividend not applied]
-  end
-  subgraph outcome["If not caught"]
-    BAD[Wrong NAV published]
-  end
-  I2 --> F1
-  I3 --> F2
-  I1 --> F3
-  I4 --> F4
-  I1 & I2 & I3 --> F5
-  I1 --> F6
-  F1 & F2 & F3 & F4 & F5 & F6 --> BAD
-      </div>
-
-      <table>
-        <tr><th>Input</th><th>Source</th><th>Stale / bad data failure</th><th>Effect on NAV</th></tr>
-        <tr><td><strong>Mark price</strong></td><td>Pricing vendor (Bloomberg, Refinitiv…)</td><td>Stale close, missing security, halted name, wrong identifier</td><td>Holding MV wrong → entire NAV skewed</td></tr>
-        <tr><td><strong>FX rate</strong></td><td>FX vendor EOD</td><td>Wrong date, wrong pair, rate not updated</td><td>Non-USD holdings mispriced</td></tr>
-        <tr><td><strong>Quantity</strong></td><td>Custodian file, rec'd to internal books</td><td>Break vs internal holdings — trade settled, corp action missed</td><td>MV wrong even if price is right</td></tr>
-        <tr><td><strong>Shares outstanding</strong></td><td>Transfer agent register</td><td>Create/redeem confirmed but not yet in NAV batch</td><td>NAV/share wrong — denominator error</td></tr>
-        <tr><td><strong>Liabilities</strong></td><td>Fee accrual engine / GL</td><td>Fee not accrued, double-counted, wrong rate</td><td>NAV systematically high or low</td></tr>
-        <tr><td><strong>Corp actions</strong></td><td>Ops alerts, vendor feeds</td><td>Split, merger, spin-off, special dividend not applied</td><td>Qty and price both wrong</td></tr>
-        <tr><td><strong>Cutoff timing</strong></td><td>Batch schedule + file arrival</td><td>Late custodian or price file → prior day's data in today's NAV</td><td>Whole portfolio marked to wrong day</td></tr>
-      </table>
-
-      <div class="mermaid">
-flowchart LR
-  D[Bad or stale input] --> R[Reconciliation catches break]
-  R -->|material| B[Block NAV publish]
-  R -->|cleared| P[Accountant sign-off → publish]
-  B --> F[Fix source data → re-run batch]
-      </div>
-
-      <h3>Controls — guard the publish, not the formula</h3>
-      <table>
-        <tr><th>Control</th><th>What it catches</th></tr>
-        <tr><td>Custodian rec</td><td>Holdings + cash qty breaks before NAV runs</td></tr>
-        <tr><td>TA rec</td><td>Shares outstanding out of sync with flow ledger</td></tr>
-        <tr><td>Price exception queue</td><td>Stale, missing, or halted marks</td></tr>
-        <tr><td>Day-over-day NAV alert</td><td>Outlier move vs market context</td></tr>
-        <tr><td>Block publish on break</td><td>Stops bad NAV reaching TA / exchanges</td></tr>
-        <tr><td>Accountant sign-off</td><td>Human gate before official publish</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;">Build priority: <strong style="color:var(--etf-white2)">ingestion, reconciliation, publish gates</strong> — not a fancier NAV formula.</p>
-    </section>
-
-    <section id="roadmap">
-      <h2>6-week execution plan</h2>
-      <p><strong>Sequential handoffs:</strong> USBank off → FundGuard pilot/production → in-house replaces FundGuard. <strong>Not</strong> dual production on FundGuard + in-house.</p>
-      <div class="callout warn">6 weeks for all three hops is extremely aggressive. Minimum validation at each cutover is non-negotiable. In-house owning official NAV may slip past week 6 — plan for it.</div>
-
-      <div class="mermaid">
-gantt
-    title Sequential migration (6 weeks)
-    dateFormat YYYY-MM-DD
-    axisFormat %b %d
-
-    section Hop 1 USBank to FundGuard
-    Extract data from USBank                  :a1, 2026-07-08, 4d
-    FundGuard pilot config                    :a2, after a1, 5d
-    NAV validation USBank vs FG               :a3, after a2, 3d
-    FundGuard live USBank off                 :milestone, 2026-07-22, 0d
-
-    section Hop 2 Reporting on FundGuard
-    FG export to reporting DB                 :b1, 2026-07-15, 6d
-    Turnover ingest                           :b2, 2026-07-15, 6d
-    daily_volume_report automated             :b3, after b1, 4d
-
-    section Hop 3 FundGuard to In-house
-    In-house core build M1-M12                :c1, 2026-07-22, 10d
-    One-time migration from FundGuard         :c2, after c1, 3d
-    NAV validation FG vs in-house             :c3, after c2, 3d
-    In-house live FundGuard off               :milestone, 2026-08-19, 0d
-      </div>
-
-      <h3>Week-by-week</h3>
-      <div class="phase"><span class="phase-label">Wk 1</span><span>USBank data extract. FundGuard pilot tenant. Fund master + listing map loaded.</span></div>
-      <div class="phase"><span class="phase-label">Wk 2</span><span>FundGuard pilot live (subset or all funds). NAV validation vs USBank. <strong>Cutover: FundGuard = SoR.</strong> USBank off.</span></div>
-      <div class="phase"><span class="phase-label">Wk 3</span><span>FundGuard production stable. Reporting DB ETL from FundGuard. Turnover pipeline.</span></div>
-      <div class="phase"><span class="phase-label">Wk 4</span><span><strong>Daily Volume Report automated.</strong> Begin in-house module build (M1–M12) using FundGuard exports as spec.</span></div>
-      <div class="phase"><span class="phase-label">Wk 5</span><span>In-house holdings, pricing, NAV engine — core path. One-time data load from FundGuard.</span></div>
-      <div class="phase"><span class="phase-label">Wk 6</span><span>NAV validation in-house vs FundGuard. <strong>Cutover: in-house = SoR.</strong> FundGuard decommissioned. Daily report reads in-house.</span></div>
-    </section>
-
-    <section id="migration">
-      <h2>Migration — sequential handoffs</h2>
-
-      <div class="mermaid">
-flowchart TB
-  subgraph hop1["Hop 1"]
-    USB[(USBank)] -->|one-time load| FG[(FundGuard pilot)]
-  end
-  subgraph hop2["Hop 2 — reporting only"]
-    FG -->|daily export| DWH[(Reporting DB)]
-    MD[Market data] --> DWH
-  end
-  subgraph hop3["Hop 3"]
-    FG -->|one-time cutover load| IH[(Corgi in-house)]
-    IH -->|official NAV| OUT[NAV TA exchanges]
-    FG -.->|off| OFF[Decommission]
-  end
-      </div>
-
-      <h3>Data migration checklist</h3>
-      <table>
-        <tr><th>Data</th><th>USBank → FundGuard</th><th>FundGuard → In-house (cutover)</th></tr>
-        <tr><td>Fund master, listings, TER</td><td class="num">One-time load</td><td class="num">One-time replicate</td></tr>
-        <tr><td>Historical NAV / flows</td><td class="num">Backfill</td><td class="num">Backfill for 30D/YTD calcs</td></tr>
-        <tr><td>Holdings + cash at cutover</td><td class="num">Custodian rec snapshot</td><td class="num">FG export at cutover date</td></tr>
-        <tr><td>Shares outstanding</td><td class="num">TA file</td><td class="num">FG / TA at cutover</td></tr>
-        <tr><td>Turnover / desk feed</td><td class="num">Separate — unchanged</td><td class="num">Stays in reporting DB</td></tr>
-      </table>
-    </section>
-
-    <section id="architecture">
-      <h2>Target architecture</h2>
-      <p>After week 6: <strong>Corgi in-house</strong> is system of record. FundGuard decommissioned. Reporting DB + turnover feed remain Corgi-owned throughout.</p>
-
-      <div class="mermaid">
-flowchart TB
-  subgraph external["External parties"]
-    CUST[Custodian]
-    TA[Transfer Agent]
-    AP[Authorized Participants]
-    MD[Market data vendor]
-    BR[Brokers]
-  end
-
-  subgraph sor["System of record — Corgi in-house"]
-    IH[NAV engine + books M5-M15]
-  end
-
-  subgraph corgi["Corgi platform"]
-    M1[Fund master M1]
-    M2[Listing map M2]
-    M16[Turnover store M16]
-    M17[Reporting DWH M17]
-    RPT[daily_volume_report.py]
-  end
-
-  CUST --> IH
-  TA --> IH
-  AP --> IH
-  BR --> IH
-  MD --> M16
-
-  IH --> M17
-  M1 --> M17
-  M2 --> M16
-  M16 --> M17
-  M17 --> RPT
-      </div>
-
-      <h3>Core processing loop</h3>
-      <div class="mermaid">
-flowchart LR
-  A[Actions in] --> B[Fund accounting core]
-  B --> C[Outputs out]
-
-  subgraph A
-    A1[Trades]
-    A2[AP creates/redeems]
-    A3[Corp actions]
-    A4[Prices + FX]
-    A5[Fees]
-  end
-
-  subgraph B
-    B1[Holdings]
-    B2[Flow ledger]
-    B3[NAV engine]
-    B4[Reconciliation]
-  end
-
-  subgraph C
-    C1[Official NAV]
-    C2[PCF / basket]
-    C3[Rec reports]
-    C4[Daily Volume Report]
-  end
-
-  A1 --> B1
-  A2 --> B2
-  A4 --> B3
-  A5 --> B3
-  B1 --> B3
-  B2 --> B3
-  B4 --> B3
-  B3 --> C1
-  B2 --> C4
-  B3 --> C4
-      </div>
-    </section>
-
-    <section id="eod">
-      <h2>Daily EOD sequence</h2>
-      <p>During weeks 2–5 substitute <code>FundGuard</code> for <code>In-house</code>. Same workflow, different SoR.</p>
-      <div class="mermaid">
-sequenceDiagram
-  participant C as Custodian
-  participant FA as Fund accounting SoR
-  participant TA as Transfer Agent
-  participant MD as Market data
-  participant DWH as Reporting DB
-  participant RPT as daily_volume_report
-
-  C->>FA: Positions + cash file
-  TA->>FA: Shares + create/redeem confirms
-  FA->>FA: Ingest prices + FX
-  FA->>FA: Run NAV batch
-  Note over FA: Accountant reviews breaks + approves
-  FA->>TA: Publish official NAV
-  FA->>DWH: Export NAV, AUM, flows
-  MD->>DWH: Venue turnover ingest
-  DWH->>RPT: Build report snapshot
-  RPT->>RPT: Render HTML + distribute
-      </div>
-    </section>
-
-    <section id="report">
-      <h2>Daily Volume Report pipeline</h2>
-      <div class="mermaid">
-flowchart TD
-  START([Report date EOD]) --> P1{Prerequisites met?}
-  P1 -->|NAV published| P2[Pull fund universe M1]
-  P1 -->|Flows updated| P2
-  P1 -->|Turnover ingested| P2
-  P1 -->|Missing| FAIL[Hold + alert ops]
-
-  P2 --> P3[Join NAV/AUM from fund accounting SoR]
-  P3 --> P4[Join flows from flow ledger]
-  P4 --> P5[Join venue turnover M16]
-  P5 --> P6[Compute 30D flow, ADV, NAV deltas]
-  P6 --> P7[Build panels A, B, C, D]
-  P7 --> P8[Validate totals]
-  P8 --> P9[Render HTML]
-  P9 --> END([Distribute to desk])
-      </div>
-
-      <h3>Two data paths (why both exist)</h3>
-      <div class="mermaid">
-flowchart LR
-  subgraph primary["Primary market → Flow columns"]
-    AP2[AP create/redeem] --> FA2[Fund accounting flow ledger]
-    FA2 --> COL1[1D / 30D / YTD Flow]
-  end
-
-  subgraph secondary["Secondary market → Turnover columns"]
-    INV[Investors on exchange] --> MD2[Market data]
-    MD2 --> COL2[LSE / DE / FR / ...]
-  end
-
-  subgraph official["Fund accounting → NAV columns"]
-    FA3[NAV engine] --> COL3[NAV/share, AUM, NAV Δ]
-  end
-      </div>
-    </section>
-
-    <section id="modules">
-      <h2>Modules — build order for 6 weeks</h2>
-      <table>
-        <tr><th>Priority</th><th>Module</th><th>Week</th><th>Notes</th></tr>
-        <tr><td>P0</td><td>M1 Fund master, M2 Listing map</td><td class="num">1</td><td>Load from USBank → carry through FG → in-house</td></tr>
-        <tr><td>P0</td><td>M17 Reporting DWH</td><td class="num">3–4</td><td>Reads from SoR (FG then in-house)</td></tr>
-        <tr><td>P0</td><td>M16 Turnover store</td><td class="num">3–4</td><td>Market data — independent of SoR hop</td></tr>
-        <tr><td>P1</td><td>M9 Flow ledger, M12 NAV store</td><td class="num">4–5</td><td>Built in-house; validated against FG before cutover</td></tr>
-        <tr><td>P1</td><td>M5 Holdings, M11 Pricing, M12 NAV engine</td><td class="num">5–6</td><td>In-house SoR — replaces FundGuard at cutover</td></tr>
-        <tr><td>P2</td><td>M15 Reconciliation, M8 Primary market</td><td class="num">6+</td><td>Full ops post cutover</td></tr>
-      </table>
-    </section>
-
     <section id="data-sourcing">
-      <h2>Master data sourcing</h2>
-      <p>Carl’s “two datasets” (pricing + corporate actions) are the <strong>market-data core</strong> for NAV — not the full system. Operational feeds (custodian, TA, trades) and internal masters are equally required. Use <strong>2–3 vendors per market-data pipeline</strong> for failover and cross-check, not because two datasets are sufficient alone.</p>
-      <p style="color:var(--etf-muted);font-size:13px;">Legend: <span class="src-vendor">Vendor</span> · <span class="src-ops">Operational</span> · <span class="src-computed">Computed</span> · <span class="src-manual">Manual</span> — maps to GL sub-categories from Carl’s walkthrough: <strong>EQ</strong> (equity), <strong>FI</strong> (fixed income), <strong>ETF</strong> (flows), <strong>ST</strong> (short-term).</p>
-
-      <h3 id="five-datasets">Five datasets + costs (simplified)</h3>
-      <p>Carl’s two vendor datasets (pricing + corporate actions) expand to <strong>five consolidated inputs</strong> for a full fund accounting system. The vendor redundancy table below is pipelines <strong>within dataset 1–3</strong> — not the whole picture. Everything else (PCF, NAV, trial balance, daily report) is <span class="src-computed">computed</span> or <span class="src-manual">manual</span> on top of these five.</p>
+      <h2>Data sourcing</h2>
+      <p>Fund accounting requires <strong>five consolidated input datasets</strong>. Vendor redundancy (2–3 sources per market-data pipeline) provides failover and cross-check — not because two vendor feeds alone are sufficient. Holdings quantity, cash balances, shares outstanding, and trade history come from operational feeds; trial balance and NAV lines are computed from these inputs.</p>
+      <p style="color:var(--etf-muted);font-size:13px;"><span class="src-vendor">Vendor</span> · <span class="src-ops">Operational</span> · <span class="src-computed">Computed</span> · <span class="src-manual">Manual</span> — GL sub-categories used throughout: <strong>BASE</strong> (cash/settlement), <strong>ETF</strong> (primary market flows), <strong>EQ</strong> (equity), <strong>FI</strong> (fixed income), <strong>ST</strong> (short-term).</p>
 
       <table>
-        <tr><th>#</th><th>Dataset</th><th>Rolls up (detail IDs)</th><th>2–3 sources</th><th>NAV</th><th>Report</th></tr>
-        <tr><td class="five-ds-num">1</td><td><strong>Pricing &amp; FX</strong></td><td>DS-01 EQ marks · DS-02 FI marks · DS-03 FX</td><td>Bloomberg · Refinitiv/LSEG · ICE</td><td class="num">✓</td><td class="num">—</td></tr>
-        <tr><td class="five-ds-num">2</td><td><strong>Corporate actions &amp; FI events</strong></td><td>DS-04 equity CAs · DS-05 bond events</td><td>ICE · Bloomberg · Refinitiv</td><td class="num">✓</td><td class="num">—</td></tr>
-        <tr><td class="five-ds-num">3</td><td><strong>Security reference</strong></td><td>DS-06 master · DS-19 tax/withholding</td><td>ICE Ref Data · Bloomberg SECF · Refinitiv + M1</td><td class="num">✓</td><td class="num">partial</td></tr>
-        <tr><td class="five-ds-num">4</td><td><strong>Operational truth</strong></td><td>DS-07 holdings · DS-08 cash · DS-09 trades · DS-10 TA · DS-11 AP flows</td><td>USBank · FundGuard · in-house</td><td class="num">✓</td><td class="num">✓ flow</td></tr>
-        <tr><td class="five-ds-num">5</td><td><strong>Venue turnover</strong></td><td>DS-20 per-ISIN turnover · DS-17 listing map</td><td>Desk feed · Bloomberg · Refinitiv</td><td class="num">—</td><td class="num">✓</td></tr>
+        <tr><th>#</th><th>Dataset</th><th>What it provides</th><th>Primary · backup · cross-check</th><th>Typical cost</th></tr>
+        <tr>
+          <td class="five-ds-num">1</td>
+          <td><strong>Pricing &amp; FX</strong></td>
+          <td>Equity EOD marks, fixed income clean/dirty prices, FX spot rates, price quality flags</td>
+          <td>Bloomberg · Refinitiv/LSEG · ICE</td>
+          <td>$0.08/security/day (EQ, FX) · $0.50–$0.80/security/day (FI) via administrator pass-through</td>
+        </tr>
+        <tr>
+          <td class="five-ds-num">2</td>
+          <td><strong>Corporate actions &amp; FI events</strong></td>
+          <td>Dividends, splits, mergers, bond calls, maturities, coupon changes, partial redemptions</td>
+          <td>ICE · Bloomberg · Refinitiv</td>
+          <td>$1.38–$2.38/security/month (EQ corp actions) via administrator</td>
+        </tr>
+        <tr>
+          <td class="five-ds-num">3</td>
+          <td><strong>Security reference</strong></td>
+          <td>ISIN/CUSIP/SEDOL, bond coupon/maturity/day-count, asset class, withholding rates</td>
+          <td>ICE Ref Data · Bloomberg SECF · Refinitiv + internal master</td>
+          <td>$1.25/security/month (admin reference data)</td>
+        </tr>
+        <tr>
+          <td class="five-ds-num">4</td>
+          <td><strong>Operational truth</strong></td>
+          <td>Custodian holdings &amp; cash, trade history, shares outstanding, AP create/redeem confirms</td>
+          <td>U.S. Bank GFS · FundGuard ingest · in-house ledger</td>
+          <td>Bundled in fund admin/TA base fees — not per-security</td>
+        </tr>
+        <tr>
+          <td class="five-ds-num">5</td>
+          <td><strong>Venue turnover</strong></td>
+          <td>Per-ISIN secondary-market turnover by listing venue (LSE, Xetra, Euronext…)</td>
+          <td>Desk feed · Bloomberg ECP · Refinitiv Tick History</td>
+          <td>Separate contract — reporting only, not required for NAV</td>
+        </tr>
       </table>
 
-      <p style="color:var(--etf-muted);font-size:13px;margin-top:12px;">Product-specific add-ons (not in the five): DS-13 derivatives marks (2x/buffer) · DS-14 crypto (Kraken/Coinbase) · DS-15 index/benchmark (buffer funds). Internal masters DS-16 fund static · DS-18 fee schedules feed computed outputs but aren’t vendor pipelines.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">Product-specific add-ons outside the five: derivatives marks (2×/buffer funds), crypto spot (Kraken/Coinbase — free public APIs), index/benchmark levels (buffer funds). Internal fund master and fee schedules are configuration, not vendor pipelines.</p>
 
-      <h4>Vendor links by dataset</h4>
-      <table class="field-table">
-        <tr><th>Dataset</th><th>Vendor</th><th>Product / API</th></tr>
-        <tr><td rowspan="3">1 · Pricing &amp; FX</td><td>Bloomberg</td><td><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Pricing data</a> · <a href="https://professional.bloomberg.com/products/data/data-management/dms/">Data License Plus</a></td></tr>
-        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">Instrument pricing</a> · <a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">FI evaluated pricing</a></td></tr>
-        <tr><td>ICE</td><td><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing/evaluated-pricing">Evaluated pricing</a> · <a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">ICE Data API</a></td></tr>
-        <tr><td rowspan="3">2 · Corp actions</td><td>ICE</td><td><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">Corporate Actions service</a></td></tr>
-        <tr><td>Bloomberg</td><td><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">Reference data bulk subs (PDF)</a> — Corp Actions Global</td></tr>
-        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">DataScope</a> — corp actions in cross-asset feed</td></tr>
-        <tr><td rowspan="3">3 · Security ref</td><td>ICE</td><td><a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">Reference data — funds &amp; securities</a></td></tr>
-        <tr><td>Bloomberg</td><td><a href="https://data.bloomberglp.com/professional/sites/10/691956379_REFD_Reference_Data_Table_SFCT_US_DIG.pdf">SECF / reference bulk subs</a></td></tr>
-        <tr><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">DataScope Plus</a></td></tr>
-        <tr><td rowspan="2">4 · Operational</td><td>USBank GFS</td><td>Custodian holdings, cash, trade history, TA — via fund admin agreement (no public API catalog)</td></tr>
-        <tr><td>FundGuard</td><td>Ingest + normalize during USBank → in-house migration</td></tr>
-        <tr><td rowspan="2">5 · Venue turnover</td><td>LSEG / Refinitiv</td><td><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/etf-pricing-data">ETF pricing data</a> · Tick History</td></tr>
-        <tr><td>Bloomberg</td><td><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Exchange &amp; contributed pricing (ECP)</a></td></tr>
-        <tr><td>Crypto add-on</td><td>Kraken · Coinbase</td><td><a href="https://www.kraken.com/features/trading-api">Kraken API</a> (free public data) · <a href="https://docs.cdp.coinbase.com/coinbase-app/advanced-trade-apis/websocket/websocket-channels">Coinbase Advanced Trade WS</a> (free; paid tiers for high-volume WS)</td></tr>
-      </table>
-
-      <h4>Costs — two procurement paths</h4>
-      <p>Institutional market data rarely has public list prices. Corgi is likely on <strong>Path B</strong> today (USBank pass-through). Path A is what you need if building an in-house system of record.</p>
-
+      <h3>Procurement paths</h3>
       <div class="cost-path">
-        <strong>Path A — Direct enterprise feeds</strong> (own the SoR; 2–3 vendors for redundancy)<br>
-        Bloomberg Data License · LSEG/Refinitiv · ICE — all custom-quoted. Typical institutional range <strong>~$50K–$150K/year</strong> for pricing + corp actions + reference at ETF-issuer scale; larger deployments <strong>$150K–$400K+</strong>. Redundancy adds cost — you pay for failover, not 3× the data.<br>
-        <span style="font-size:12px;">Refs: <a href="https://www.ice.com/publicdocs/data/ICE_Data_Pricing_and_Reference_Data_LLC_Part_2a.pdf">ICE fee structures (PDF)</a> · <a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Bloomberg enterprise</a></span>
+        <strong>Direct enterprise feeds</strong> — required to own the system of record. Bloomberg Data License, LSEG/Refinitiv, and ICE are custom-quoted; typical range <strong>~$50K–$150K/year</strong> at ETF-issuer scale for pricing + corp actions + reference. Redundancy adds cost for failover, not 3× data volume.
+      </div>
+      <div class="cost-path">
+        <strong>Administrator pass-through</strong> — published per-security rates when market data is sourced through the fund administrator. Source: <a href="https://www.sec.gov/Archives/edgar/data/1520738/000121390026008805/ea0271271-01_ex99h14.htm">U.S. Bank fund servicing fee schedule (SEC filing, 2025)</a>. Thematic equity fund (~100 holdings): <strong>~$5K–$6K/year</strong> market data. Fixed-income fund (~200 bonds): <strong>~$28K–$40K/year</strong> — FI pricing dominates.
       </div>
 
-      <div class="cost-path">
-        <strong>Path B — Via fund administrator pass-through</strong> (USBank model — published rates)<br>
-        Source: <a href="https://www.sec.gov/Archives/edgar/data/1520738/000121390026008805/ea0271271-01_ex99h14.htm">USBank fund servicing fee schedule (SEC filing, 2025)</a>
-      </div>
+      <h3>Vendor reference links</h3>
+      <ul class="vendor-ref">
+        <li><a href="https://professional.bloomberg.com/products/data/enterprise-catalog/pricing/">Bloomberg</a><span class="ref-meta">Pricing data · enterprise catalog</span></li>
+        <li><a href="https://professional.bloomberg.com/products/data/data-management/dms/">Bloomberg Data License Plus</a><span class="ref-meta">Managed cloud delivery for enterprise feeds</span></li>
+        <li><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/instrument-pricing-data">LSEG / Refinitiv — instrument pricing</a><span class="ref-meta">Cross-asset EOD and intraday marks</span></li>
+        <li><a href="https://www.lseg.com/en/data-analytics/financial-data/pricing-and-market-data/fixed-income-pricing-data/pricing-data-service">LSEG / Refinitiv — FI evaluated pricing</a><span class="ref-meta">OTC bond evaluations</span></li>
+        <li><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing/evaluated-pricing">ICE — evaluated pricing</a><span class="ref-meta">BVAL end-of-day and continuous evaluated pricing</span></li>
+        <li><a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">ICE — corporate actions</a><span class="ref-meta">Equity and FI events, ISO 15022 delivery</span></li>
+        <li><a href="https://developer.ice.com/fixed-income-data-services/catalog/ice-reference-data-funds">ICE Data API</a><span class="ref-meta">Reference data and pricing API</span></li>
+        <li><a href="https://www.kraken.com/features/trading-api">Kraken API</a><span class="ref-meta">Free public crypto market data</span></li>
+        <li><a href="https://docs.cdp.coinbase.com/coinbase-app/advanced-trade-apis/websocket/websocket-channels">Coinbase Advanced Trade WebSocket</a><span class="ref-meta">Free public crypto feeds</span></li>
+      </ul>
 
+      <h3>Redundancy rules (market-data pipelines)</h3>
       <table class="field-table">
-        <tr><th>Service</th><th>Rate</th><th>Maps to dataset</th><th>Example (1 fund)</th></tr>
-        <tr><td>EQ / FX / ETF pricing</td><td><strong>$0.08</strong> / security / fund / pricing day</td><td>Dataset 1</td><td>100 holdings × 252 days ≈ <strong>$2,016/yr</strong></td></tr>
-        <tr><td>IG FI pricing</td><td><strong>$0.50</strong> / security / fund / day</td><td>Dataset 1</td><td>200 bonds × 252 days ≈ <strong>$25,200/yr</strong></td></tr>
-        <tr><td>HY / structured FI</td><td><strong>$0.80</strong> / security / fund / day</td><td>Dataset 1</td><td>Scales with portfolio size</td></tr>
-        <tr><td>Corp actions (domestic EQ)</td><td><strong>$1.38</strong> / security / month</td><td>Dataset 2</td><td>100 holdings ≈ <strong>$1,656/yr</strong></td></tr>
-        <tr><td>Corp actions (foreign EQ)</td><td><strong>$2.38</strong> / security / month</td><td>Dataset 2</td><td>Per holding in foreign names</td></tr>
-        <tr><td>Admin reference data</td><td><strong>$1.25</strong> / security / month</td><td>Dataset 3</td><td>100 holdings ≈ <strong>$1,500/yr</strong></td></tr>
-        <tr><td>Index data (Tier 1)</td><td><strong>$75</strong> / fund / month</td><td>DS-15 add-on</td><td>Bloomberg, ICE, S&amp;P, Dow Jones indexes</td></tr>
-        <tr><td>Manual pricing (&gt;25/day)</td><td><strong>$500</strong> / month</td><td>MP-01</td><td>Exception queue overhead</td></tr>
-        <tr><td>Crypto EOD marks</td><td><strong>$0</strong></td><td>DS-14</td><td>Kraken / Coinbase public APIs (no redistribution rights)</td></tr>
+        <tr><th>Pipeline</th><th>Reconciliation rule</th></tr>
+        <tr><td>Equity price</td><td>Block NAV if primary vs backup differ by more than tolerance (bps)</td></tr>
+        <tr><td>FI price</td><td>Evaluated marks — wider tolerance; flag illiquid names</td></tr>
+        <tr><td>Corp actions</td><td>Do not apply until 2-of-3 vendors agree on ex-date and rate</td></tr>
+        <tr><td>FX</td><td>Exact match expected on WM/Reuters fix</td></tr>
       </table>
-
-      <p style="color:var(--etf-muted);font-size:13px;"><strong>Per-fund ballpark (Path B):</strong> thematic equity fund (~100 names) ≈ <strong>$5K–$6K/yr</strong> market data. FI corp-bond fund (211265, ~200 bonds) ≈ <strong>$28K–$40K/yr</strong> — FI pricing dominates. Operational dataset 4 is bundled in base admin/TA fees, not per-security. Venue turnover (dataset 5) is a separate contract — confirm with team.</p>
-
-      <h4>What the five datasets don’t include (computed + manual)</h4>
-      <table class="field-table">
-        <tr><th>Type</th><th>Outputs</th><th>Built from</th></tr>
-        <tr><td class="src-computed">Computed</td><td>MV, cost basis, unrealized G/L, bond accrual/amort, dividends receivable, NAV/share, AUM, flows, PCF, 30D ADV</td><td>Datasets 1–4 → CP-01 through CP-18</td></tr>
-        <tr><td class="src-manual">Manual</td><td>Pricing override, corp action confirm, rec break resolution, NAV sign-off, GL adjustments</td><td>Exception queue → MP-01 through MP-05</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;">The trial balance Carl walked through is almost entirely the <span class="src-computed">computed</span> layer — vendor data is the input, not the GL line itself.</p>
-
-      <h3>Master index (full field catalog)</h3>
-      <table>
-        <tr><th>ID</th><th>Dataset</th><th>Type</th><th>Vendor options (2–3)</th><th>NAV?</th><th>Report?</th><th>GL tie-in</th></tr>
-        <tr><td class="ds-id">DS-01</td><td>Equity EOD pricing</td><td class="src-vendor">Vendor</td><td>Bloomberg · Refinitiv · ICE Evaluated</td><td class="num">✓</td><td class="num">—</td><td>Cost of investments EQ; unrealized G/L</td></tr>
-        <tr><td class="ds-id">DS-02</td><td>Fixed income pricing</td><td class="src-vendor">Vendor</td><td>ICE BVAL · Bloomberg BVAL · Refinitiv Evaluate</td><td class="num">✓</td><td class="num">—</td><td>Cost of investments FI; unrealized G/L</td></tr>
-        <tr><td class="ds-id">DS-03</td><td>FX rates</td><td class="src-vendor">Vendor</td><td>Refinitiv WM/FX · Bloomberg FX · ICE FX</td><td class="num">✓</td><td class="num">—</td><td>Translates non-USD holdings to base</td></tr>
-        <tr><td class="ds-id">DS-04</td><td>Equity corporate actions</td><td class="src-vendor">Vendor</td><td>ICE · Bloomberg CORP · Refinitiv</td><td class="num">✓</td><td class="num">—</td><td>Dividends receivable; splits; cost basis adj</td></tr>
-        <tr><td class="ds-id">DS-05</td><td>FI events / corp actions</td><td class="src-vendor">Vendor</td><td>ICE · Bloomberg · Refinitiv</td><td class="num">✓</td><td class="num">—</td><td>Calls, maturity, defaults; amort triggers</td></tr>
-        <tr><td class="ds-id">DS-06</td><td>Security master / reference</td><td class="src-vendor">Vendor + internal</td><td>ICE Ref Data · Bloomberg SECF · Refinitiv + M1</td><td class="num">✓</td><td class="num">partial</td><td>Identifiers; bond terms for accrual/amort</td></tr>
-        <tr><td class="ds-id">DS-07</td><td>Custodian holdings</td><td class="src-ops">Operational</td><td>USBank · FundGuard ingest · in-house rec</td><td class="num">✓</td><td class="num">—</td><td>Qty for MV; rec vs internal books</td></tr>
-        <tr><td class="ds-id">DS-08</td><td>Custodian cash</td><td class="src-ops">Operational</td><td>USBank · FundGuard · in-house</td><td class="num">✓</td><td class="num">—</td><td>Cash asset line</td></tr>
-        <tr><td class="ds-id">DS-09</td><td>Custodian transactions</td><td class="src-ops">Operational</td><td>USBank · OMS blotter · trade history export</td><td class="num">✓</td><td class="num">—</td><td>Trade history; settlement; cost basis</td></tr>
-        <tr><td class="ds-id">DS-10</td><td>Transfer agent / share register</td><td class="src-ops">Operational</td><td>USBank TA · FundGuard · in-house M9</td><td class="num">✓</td><td class="num">✓ flow</td><td>Shares outstanding; subscriptions/redemptions</td></tr>
-        <tr><td class="ds-id">DS-11</td><td>Primary market / AP flows</td><td class="src-ops">Operational</td><td>TA confirms · AP portal · internal flow ledger</td><td class="num">✓</td><td class="num">✓</td><td>ETF subs/redemptions; flow columns</td></tr>
-        <tr><td class="ds-id">DS-12</td><td>ETF basket / PCF</td><td class="src-computed">Computed + publish</td><td>In-house from holdings + DS-01/02/03</td><td class="num">partial</td><td class="num">—</td><td>AP create/redeem basket</td></tr>
-        <tr><td class="ds-id">DS-13</td><td>Derivatives marks (2x / buffer)</td><td class="src-vendor">Vendor</td><td>Swap counterparty · Bloomberg OVML · internal model</td><td class="num">✓</td><td class="num">—</td><td>Leveraged &amp; buffer funds only</td></tr>
-        <tr><td class="ds-id">DS-14</td><td>Crypto spot pricing</td><td class="src-vendor">Vendor</td><td>Kraken API · Coinbase · Bloomberg crypto</td><td class="num">if held</td><td class="num">—</td><td>Only if fund holds crypto directly</td></tr>
-        <tr><td class="ds-id">DS-15</td><td>Index / benchmark</td><td class="src-vendor">Vendor</td><td>Bloomberg · Refinitiv · index provider</td><td class="num">partial</td><td class="num">—</td><td>Buffer targets; index rebalance</td></tr>
-        <tr><td class="ds-id">DS-16</td><td>Fund static master</td><td class="src-ops">Internal</td><td>Corgi M1 · SEC filings · listing docs</td><td class="num">partial</td><td class="num">✓</td><td>Fund # (e.g. 211161 EUV, 211265 FI)</td></tr>
-        <tr><td class="ds-id">DS-17</td><td>Listing / venue map</td><td class="src-ops">Internal</td><td>Corgi M2 · exchange listing files</td><td class="num">—</td><td class="num">✓</td><td>ISIN → LSE/DE/FR turnover columns</td></tr>
-        <tr><td class="ds-id">DS-18</td><td>Fee &amp; expense schedules</td><td class="src-ops">Internal</td><td>Advisory agreement · admin contract</td><td class="num">✓</td><td class="num">✓ TER</td><td>Unitary fee expense; mgmt fee accrual</td></tr>
-        <tr><td class="ds-id">DS-19</td><td>Tax / withholding reference</td><td class="src-vendor">Vendor + internal</td><td>ICE/Bloomberg tax · internal tax policy</td><td class="num">✓</td><td class="num">—</td><td>Div/int withholding payable &amp; expense</td></tr>
-        <tr><td class="ds-id">DS-20</td><td>Venue turnover</td><td class="src-vendor">Vendor</td><td>Desk feed · Bloomberg · Refinitiv</td><td class="num">—</td><td class="num">✓</td><td>M16; secondary market only</td></tr>
-      </table>
-
-      <h3>DS-01 — Equity EOD pricing</h3>
-      <p><strong>Coverage:</strong> All EQ holdings in thematic &amp; leveraged equity funds. <strong>Vendors:</strong> Bloomberg (primary) · Refinitiv (backup) · ICE Evaluated (cross-check / illiquid).</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th><th>Notes</th></tr>
-        <tr><td>security_id</td><td>Internal key → ISIN/CUSIP/SEDOL</td><td>✓</td><td>Join to DS-06</td></tr>
-        <tr><td>ticker</td><td>Exchange ticker + MIC</td><td>✓</td><td>e.g. AAOI US Equity</td></tr>
-        <tr><td>price_date</td><td>As-of date for mark</td><td>✓</td><td>Must match NAV batch date</td></tr>
-        <tr><td>price</td><td>EOD mark value</td><td>✓</td><td>Usually official close</td></tr>
-        <tr><td>price_type</td><td>Close / last / evaluated / model</td><td>✓</td><td>Drives exception queue</td></tr>
-        <tr><td>currency</td><td>Quote currency</td><td>✓</td><td>Convert via DS-03</td></tr>
-        <tr><td>exchange</td><td>Primary exchange</td><td>✓</td><td>For hierarchy rules</td></tr>
-        <tr><td>corp_action_adj_factor</td><td>Cumulative CA adjustment</td><td>if split</td><td>From DS-04</td></tr>
-        <tr><td>volume</td><td>Day volume</td><td>optional</td><td>Liquidity / halt detection</td></tr>
-        <tr><td>source_vendor</td><td>Which feed supplied mark</td><td>✓</td><td>Audit trail</td></tr>
-        <tr><td>source_timestamp</td><td>When vendor published</td><td>✓</td><td>Staleness detection</td></tr>
-        <tr><td>quality_flag</td><td>OK / stale / missing / halted</td><td>✓</td><td>→ manual override path</td></tr>
-      </table>
-
-      <h3>DS-02 — Fixed income pricing</h3>
-      <p><strong>Coverage:</strong> CGOV, CUST, CIEI, CIVG, CHYG, CBIL funds. <strong>Vendors:</strong> ICE BVAL · Bloomberg BVAL · Refinitiv Evaluate.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th><th>Notes</th></tr>
-        <tr><td>security_id</td><td>CUSIP / ISIN</td><td>✓</td><td></td></tr>
-        <tr><td>price_date</td><td>As-of</td><td>✓</td><td></td></tr>
-        <tr><td>clean_price</td><td>Ex-accrued price</td><td>✓</td><td>Standard for IG/HY</td></tr>
-        <tr><td>dirty_price</td><td>With accrued interest</td><td>✓</td><td>Some admins use dirty for MV</td></tr>
-        <tr><td>accrued_interest</td><td>AI per 100 face</td><td>✓</td><td>Or compute from DS-06 terms</td></tr>
-        <tr><td>yield</td><td>YTM / yield to worst</td><td>optional</td><td>Sanity check</td></tr>
-        <tr><td>spread</td><td>OAS / Z-spread</td><td>optional</td><td></td></tr>
-        <tr><td>duration</td><td>Modified / effective</td><td>optional</td><td>Risk reporting</td></tr>
-        <tr><td>price_type</td><td>Traded / evaluated / model</td><td>✓</td><td>Illiquid bonds → model</td></tr>
-        <tr><td>currency</td><td>Issue currency</td><td>✓</td><td></td></tr>
-        <tr><td>source_vendor</td><td>Feed identity</td><td>✓</td><td></td></tr>
-        <tr><td>quality_flag</td><td>OK / stale / missing</td><td>✓</td><td></td></tr>
-      </table>
-
-      <h3>DS-03 — FX rates</h3>
-      <p><strong>Vendors:</strong> Refinitiv WM/Reuters (4pm fix) · Bloomberg FX · ICE FX.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th><th>Notes</th></tr>
-        <tr><td>base_currency</td><td>Fund base (usually USD)</td><td>✓</td><td></td></tr>
-        <tr><td>quote_currency</td><td>Foreign ccy</td><td>✓</td><td>EUR, GBP, JPY…</td></tr>
-        <tr><td>rate_date</td><td>Fix date</td><td>✓</td><td>Must align with price_date</td></tr>
-        <tr><td>spot_rate</td><td>Base per quote or vice versa — define convention</td><td>✓</td><td>Document convention once</td></tr>
-        <tr><td>rate_type</td><td>WM/Reuters / ECB / Fed / mid</td><td>✓</td><td>Policy per fund</td></tr>
-        <tr><td>inverse_rate</td><td>Reciprocal</td><td>optional</td><td>Can compute</td></tr>
-        <tr><td>source_vendor</td><td>Feed identity</td><td>✓</td><td></td></tr>
-      </table>
-
-      <h3>DS-04 — Equity corporate actions</h3>
-      <p><strong>Vendors:</strong> <a href="https://www.ice.com/fixed-income-data-services/data-and-analytics/pricing-and-analytics/reference-data/corporate-actions">ICE</a> · Bloomberg CORP · Refinitiv.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th><th>Notes</th></tr>
-        <tr><td>action_id</td><td>Vendor unique ID</td><td>✓</td><td>Dedup key</td></tr>
-        <tr><td>security_id</td><td>ISIN/CUSIP</td><td>✓</td><td></td></tr>
-        <tr><td>action_type</td><td>Dividend / split / merger / spin / rights / tender</td><td>✓</td><td></td></tr>
-        <tr><td>announcement_date</td><td>When disclosed</td><td>✓</td><td></td></tr>
-        <tr><td>ex_date</td><td>Ex-div / ex-split</td><td>✓</td><td>Triggers position adj</td></tr>
-        <tr><td>record_date</td><td>Holder of record</td><td>✓</td><td></td></tr>
-        <tr><td>pay_date</td><td>Cash settlement</td><td>✓</td><td>→ dividends receivable</td></tr>
-        <tr><td>gross_rate</td><td>Gross dividend per share</td><td>if div</td><td></td></tr>
-        <tr><td>net_rate</td><td>After withholding</td><td>if div</td><td>Or apply DS-19</td></tr>
-        <tr><td>currency</td><td>Payment currency</td><td>✓</td><td></td></tr>
-        <tr><td>split_ratio</td><td>New:old shares</td><td>if split</td><td>Adj qty &amp; cost</td></tr>
-        <tr><td>terms</td><td>Merger/spin terms JSON</td><td>if complex</td><td>Often needs manual review</td></tr>
-        <tr><td>status</td><td>Announced / confirmed / cancelled</td><td>✓</td><td>Don't apply announced-only</td></tr>
-        <tr><td>source_vendor</td><td>ICE / Bloomberg / Refinitiv</td><td>✓</td><td>Cross-vendor rec</td></tr>
-      </table>
-
-      <h3>DS-05 — Fixed income events</h3>
-      <p><strong>Vendors:</strong> ICE · Bloomberg · Refinitiv. Often same contract as DS-04.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th><th>Notes</th></tr>
-        <tr><td>event_id</td><td>Vendor ID</td><td>✓</td><td></td></tr>
-        <tr><td>security_id</td><td>CUSIP/ISIN</td><td>✓</td><td></td></tr>
-        <tr><td>event_type</td><td>Coupon / call / put / maturity / default / restructuring</td><td>✓</td><td></td></tr>
-        <tr><td>event_date</td><td>Effective date</td><td>✓</td><td></td></tr>
-        <tr><td>call_price</td><td>Call redemption price</td><td>if call</td><td></td></tr>
-        <tr><td>redemption_pct</td><td>Partial redemption %</td><td>if partial</td><td></td></tr>
-        <tr><td>coupon_rate_new</td><td>Post-restructure coupon</td><td>if restruct</td><td></td></tr>
-        <tr><td>status</td><td>Confirmed / pending</td><td>✓</td><td></td></tr>
-      </table>
-
-      <h3>DS-06 — Security master / reference</h3>
-      <p><strong>Vendors:</strong> ICE Reference Data · Bloomberg SECF · Refinitiv + Corgi M1 enrich.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Asset class</th><th>Notes</th></tr>
-        <tr><td>isin</td><td>ISIN</td><td>all</td><td>Primary EU identifier</td></tr>
-        <tr><td>cusip</td><td>CUSIP</td><td>all</td><td>US</td></tr>
-        <tr><td>sedol</td><td>SEDOL</td><td>all</td><td>UK</td></tr>
-        <tr><td>ticker</td><td>Primary ticker</td><td>EQ</td><td></td></tr>
-        <tr><td>name</td><td>Security description</td><td>all</td><td></td></tr>
-        <tr><td>asset_class</td><td>EQ / FI / ST / DERIV / CASH</td><td>all</td><td>Maps to GL sub-cat</td></tr>
-        <tr><td>country</td><td>Country of issue</td><td>all</td><td>Tax</td></tr>
-        <tr><td>currency</td><td>Trading / issue ccy</td><td>all</td><td></td></tr>
-        <tr><td>exchange_mic</td><td>Primary MIC</td><td>EQ</td><td>Pricing hierarchy</td></tr>
-        <tr><td>coupon</td><td>Annual coupon rate</td><td>FI</td><td>Accrual input</td></tr>
-        <tr><td>maturity_date</td><td>Legal maturity</td><td>FI</td><td></td></tr>
-        <tr><td>issue_date</td><td>Original issue</td><td>FI</td><td>OID/amort</td></tr>
-        <tr><td>par_value</td><td>Face / par</td><td>FI</td><td>Qty usually in face</td></tr>
-        <tr><td>day_count</td><td>30/360, ACT/ACT…</td><td>FI</td><td>Interest accrual</td></tr>
-        <tr><td>pay_frequency</td><td>Annual / semi / quarterly</td><td>FI</td><td></td></tr>
-        <tr><td>first_coupon_date</td><td>First coupon</td><td>FI</td><td></td></tr>
-        <tr><td>bond_type</td><td>IG / HY / govt / T-bill</td><td>FI</td><td>Pricing model selection</td></tr>
-        <tr><td>adr_ratio</td><td>ADR conversion</td><td>EQ</td><td>If ADR</td></tr>
-        <tr><td>lot_size</td><td>Trading lot</td><td>EQ</td><td></td></tr>
-        <tr><td>inactive_flag</td><td>Delisted / matured</td><td>all</td><td>Stop pricing</td></tr>
-      </table>
-
-      <h3>DS-07 — Custodian holdings</h3>
-      <p><strong>Sources:</strong> USBank (today) · FundGuard · in-house post-cutover. <strong>Not</strong> a Bloomberg/ICE substitute — this is qty truth.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th></tr>
-        <tr><td>fund_id</td><td>Fund number (211161, 211265…)</td><td>✓</td></tr>
-        <tr><td>custodian_acct</td><td>Custody account (e.g. 21-1161)</td><td>✓</td></tr>
-        <tr><td>security_id</td><td>ISIN/CUSIP</td><td>✓</td></tr>
-        <tr><td>quantity_settled</td><td>Settled position</td><td>✓</td></tr>
-        <tr><td>quantity_unsettled</td><td>Pending settlement</td><td>✓</td></tr>
-        <tr><td>position_type</td><td>Long / short</td><td>✓</td></tr>
-        <tr><td>as_of_date</td><td>Position date</td><td>✓</td></tr>
-        <tr><td>market_value_custodian</td><td>Custodian's MV calc</td><td>optional</td></tr>
-        <tr><td>source_file_id</td><td>Ingest batch ID</td><td>✓</td></tr>
-      </table>
-
-      <h3>DS-08 — Custodian cash</h3>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th></tr>
-        <tr><td>fund_id</td><td>Fund number</td><td>✓</td></tr>
-        <tr><td>currency</td><td>Cash currency</td><td>✓</td></tr>
-        <tr><td>cash_settled</td><td>Settled cash balance</td><td>✓</td></tr>
-        <tr><td>cash_unsettled</td><td>Pending settlements</td><td>✓</td></tr>
-        <tr><td>as_of_date</td><td>Date</td><td>✓</td></tr>
-      </table>
-
-      <h3>DS-09 — Custodian transactions (trade history)</h3>
-      <p>From Carl’s <em>Trade History for Mark</em> export — ~11k rows, equity buys/sells.</p>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th></tr>
-        <tr><td>trade_id</td><td>Unique trade ID</td><td>✓</td></tr>
-        <tr><td>fund_id / custodian_acct</td><td>Fund / account</td><td>✓</td></tr>
-        <tr><td>instrument_type</td><td>Equity / FI / …</td><td>✓</td></tr>
-        <tr><td>security_id / ticker</td><td>AAOI US Equity</td><td>✓</td></tr>
-        <tr><td>description</td><td>Security name</td><td>✓</td></tr>
-        <tr><td>trade_date</td><td>Trade date</td><td>✓</td></tr>
-        <tr><td>settle_date</td><td>Settlement date</td><td>✓</td></tr>
-        <tr><td>txn_type</td><td>Buy / Sell / Create / Redeem</td><td>✓</td></tr>
-        <tr><td>quantity</td><td>Shares or face (+ buy / − sell)</td><td>✓</td></tr>
-        <tr><td>price</td><td>Execution price</td><td>✓</td></tr>
-        <tr><td>gross_amount</td><td>Principal</td><td>✓</td></tr>
-        <tr><td>commission_fees</td><td>Broker fees</td><td>optional</td></tr>
-        <tr><td>net_amount</td><td>Total cash impact</td><td>✓</td></tr>
-        <tr><td>currency</td><td>Trade currency</td><td>✓</td></tr>
-        <tr><td>broker</td><td>Executing broker</td><td>optional</td></tr>
-      </table>
-
-      <h3>DS-10 — Transfer agent / share register</h3>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th></tr>
-        <tr><td>fund_id</td><td>Fund</td><td>✓</td></tr>
-        <tr><td>as_of_date</td><td>NAV date</td><td>✓</td></tr>
-        <tr><td>shares_outstanding</td><td>Total shares</td><td>✓</td><td>NAV denominator</td></tr>
-        <tr><td>creation_units</td><td>CU count</td><td>optional</td></tr>
-        <tr><td>shares_created_today</td><td>Primary inflow</td><td>✓</td></tr>
-        <tr><td>shares_redeemed_today</td><td>Primary outflow</td><td>✓</td></tr>
-        <tr><td>confirm_id</td><td>TA confirmation ref</td><td>✓</td></tr>
-      </table>
-
-      <h3>DS-11 — Primary market / AP flows</h3>
-      <table class="field-table">
-        <tr><th>Field</th><th>Description</th><th>Required</th></tr>
-        <tr><td>order_id</td><td>AP order ref</td><td>✓</td></tr>
-        <tr><td>ap_name</td><td>Authorized participant</td><td>✓</td></tr>
-        <tr><td>fund_id</td><td>ETF</td><td>✓</td></tr>
-        <tr><td>order_type</td><td>Create / redeem</td><td>✓</td></tr>
-        <tr><td>creation_units</td><td>CU count</td><td>✓</td></tr>
-        <tr><td>shares</td><td>Share count (= CU × shares/CU)</td><td>✓</td></tr>
-        <tr><td>cash_component</td><td>Cash in lieu</td><td>optional</td></tr>
-        <tr><td>order_date</td><td>Trade date</td><td>✓</td></tr>
-        <tr><td>settle_date</td><td>Settlement</td><td>✓</td></tr>
-        <tr><td>fee</td><td>Create/redeem fee</td><td>optional</td></tr>
-        <tr><td>nav_per_share_used</td><td>NAV at order</td><td>✓</td></tr>
-      </table>
-
-      <h3>DS-13 / DS-14 / DS-20 — Product-specific &amp; reporting (summary)</h3>
-      <table class="field-table">
-        <tr><th>ID</th><th>Key fields</th><th>Vendors</th><th>When needed</th></tr>
-        <tr><td>DS-13</td><td>swap_notional, swap_mark, option_mark, counterparty, reset_level, collateral</td><td>Counterparty · Bloomberg OVML · internal</td><td>2x daily &amp; buffer funds</td></tr>
-        <tr><td>DS-14</td><td>pair, bid, ask, last, volume, timestamp</td><td><a href="https://docs.kraken.com/">Kraken API</a> · Coinbase · Bloomberg</td><td>Only direct crypto holdings</td></tr>
-        <tr><td>DS-15</td><td>index_id, level, date, constituent_weights</td><td>Bloomberg · Refinitiv · provider</td><td>Buffer reference index</td></tr>
-        <tr><td>DS-20</td><td>isin, venue_mic, turnover_value, turnover_volume, currency, date</td><td>Desk feed · Bloomberg · Refinitiv</td><td>Daily Volume Report M16</td></tr>
-      </table>
-
-      <h3 id="computed-manual">Computed &amp; manual datapoints</h3>
-      <p>These are <strong>not sourced from vendors</strong> — derived from inputs above or entered by fund accounting. This is where the GL/trial balance numbers actually come from.</p>
-
-      <table>
-        <tr><th>ID</th><th>Output</th><th>Type</th><th>Formula / rule</th><th>Primary inputs</th><th>GL account (from Carl)</th></tr>
-        <tr><td class="ds-id">CP-01</td><td>Holding market value</td><td class="src-computed">Computed</td><td>qty × mark_price × FX</td><td>DS-07, DS-01/02, DS-03</td><td>Feeds cost/unrealized</td></tr>
-        <tr><td class="ds-id">CP-02</td><td>Cost basis (tax/lot)</td><td class="src-computed">Computed</td><td>Σ trades from DS-09; adj for DS-04/05</td><td>DS-09, DS-04</td><td>Cost of investments EQ/FI</td></tr>
-        <tr><td class="ds-id">CP-03</td><td>Unrealized gain/loss</td><td class="src-computed">Computed</td><td>MV − cost basis (per lot or aggregate)</td><td>CP-01, CP-02</td><td>Net unreal appr/depr on investments</td></tr>
-        <tr><td class="ds-id">CP-04</td><td>Bond interest accrual</td><td class="src-computed">Computed</td><td>f(coupon, day_count, par, days_accrued)</td><td>DS-06, DS-07</td><td>Investment interest receivable</td></tr>
-        <tr><td class="ds-id">CP-05</td><td>Amortization / accretion</td><td class="src-computed">Computed</td><td>Effective interest method; premium/OID schedule</td><td>DS-06, DS-02, DS-09</td><td>Amort premium; accretion discount</td></tr>
-        <tr><td class="ds-id">CP-06</td><td>Dividends receivable</td><td class="src-computed">Computed</td><td>qty × gross_div_rate on ex-date</td><td>DS-04, DS-07</td><td>Dividends receivable</td></tr>
-        <tr><td class="ds-id">CP-07</td><td>Dividend income</td><td class="src-computed">Computed</td><td>Accrue on ex-date; recognize on pay-date</td><td>DS-04, CP-06</td><td>Dividend income</td></tr>
-        <tr><td class="ds-id">CP-08</td><td>Withholding tax</td><td class="src-computed">Computed</td><td>income × withholding_rate</td><td>CP-07, DS-19</td><td>Withholding tax payable/expense</td></tr>
-        <tr><td class="ds-id">CP-09</td><td>Unitary / mgmt fee accrual</td><td class="src-computed">Computed</td><td>AUM × TER_bps × (days/365)</td><td>CP-12, DS-18</td><td>Accrued unitary fee expense</td></tr>
-        <tr><td class="ds-id">CP-10</td><td>Total assets</td><td class="src-computed">Computed</td><td>Σ MV + cash + receivables</td><td>CP-01, DS-08, receivables</td><td>Asset section total</td></tr>
-        <tr><td class="ds-id">CP-11</td><td>Total liabilities</td><td class="src-computed">Computed</td><td>Σ accruals + payables</td><td>CP-09, payables</td><td>Liability section total</td></tr>
-        <tr><td class="ds-id">CP-12</td><td>NAV / share</td><td class="src-computed">Computed</td><td>(assets − liabilities) ÷ shares</td><td>CP-10, CP-11, DS-10</td><td>Net assets ÷ shares</td></tr>
-        <tr><td class="ds-id">CP-13</td><td>AUM</td><td class="src-computed">Computed</td><td>shares × NAV/share</td><td>DS-10, CP-12</td><td>Daily report; fee base</td></tr>
-        <tr><td class="ds-id">CP-14</td><td>Flow (1D/30D/YTD)</td><td class="src-computed">Computed</td><td>Σ creates − redeems over window</td><td>DS-11, DS-10</td><td>Subscriptions / redemptions</td></tr>
-        <tr><td class="ds-id">CP-15</td><td>Settlement breakage</td><td class="src-computed">Computed</td><td>Expected vs actual settlement cash</td><td>DS-09, DS-08</td><td>Settlement breakage income</td></tr>
-        <tr><td class="ds-id">CP-16</td><td>PCF / basket</td><td class="src-computed">Computed</td><td>Holdings scaled to 1 CU + cash</td><td>DS-07, DS-01/02</td><td>Published to APs</td></tr>
-        <tr><td class="ds-id">CP-17</td><td>30D ADV</td><td class="src-computed">Computed</td><td>mean(turnover_1D) over 30 BD</td><td>DS-20</td><td>Daily report M17</td></tr>
-        <tr><td class="ds-id">CP-18</td><td>NAV Δ %</td><td class="src-computed">Computed</td><td>(NAV_t / NAV_ref) − 1</td><td>CP-12 history</td><td>Daily report</td></tr>
-        <tr><td class="ds-id">MP-01</td><td>Pricing exception override</td><td class="src-manual">Manual</td><td>Accountant picks mark when vendor stale/halted</td><td>DS-01/02 quality_flag</td><td>Overrides pricing store</td></tr>
-        <tr><td class="ds-id">MP-02</td><td>Corp action override</td><td class="src-manual">Manual</td><td>Complex merger/spin — human confirms terms</td><td>DS-04/05</td><td>Adj qty, cost, receivables</td></tr>
-        <tr><td class="ds-id">MP-03</td><td>Rec break resolution</td><td class="src-manual">Manual</td><td>Accountant explains &amp; clears custodian/TA break</td><td>DS-07 vs internal</td><td>Unblocks NAV publish</td></tr>
-        <tr><td class="ds-id">MP-04</td><td>NAV sign-off</td><td class="src-manual">Manual</td><td>Human gate after recs clear</td><td>All CP-* for date</td><td>Authorizes publish to TA</td></tr>
-        <tr><td class="ds-id">MP-05</td><td>GL journal entry</td><td class="src-manual">Manual</td><td>Non-standard adjustments</td><td>Accountant</td><td>Any GL line</td></tr>
-      </table>
-
-      <h3>Vendor redundancy pattern (2–3 per pipeline)</h3>
-      <table>
-        <tr><th>Pipeline</th><th>Primary</th><th>Backup</th><th>Cross-check</th><th>Reconciliation rule</th></tr>
-        <tr><td>Equity price</td><td>Bloomberg</td><td>Refinitiv</td><td>ICE / exchange direct</td><td>Block if primary vs backup &gt; X bps apart</td></tr>
-        <tr><td>FI price</td><td>ICE BVAL</td><td>Bloomberg BVAL</td><td>Refinitiv</td><td>Evaluated marks — wider tolerance</td></tr>
-        <tr><td>Corp actions</td><td>ICE</td><td>Bloomberg</td><td>Refinitiv</td><td>Don't apply until 2-of-3 agree on ex-date + rate</td></tr>
-        <tr><td>FX</td><td>Refinitiv WM</td><td>Bloomberg</td><td>ICE</td><td>Exact match expected on fix</td></tr>
-        <tr><td>Crypto</td><td>Kraken</td><td>Coinbase</td><td>—</td><td>Only if crypto held; wide tolerance</td></tr>
-      </table>
-
-      <p style="color:var(--etf-muted);font-size:13px;">TBD with team: which vendor contracts exist today vs net-new; whether USBank bundles any market data; whether FundGuard normalizes vendor feeds on ingest.</p>
     </section>
 
-    <section id="data">
-      <h2>Data catalog — Daily report fields (31 columns)</h2>
-      <table>
-        <tr><th>Column</th><th>Source</th><th>Formula</th></tr>
-        <tr><td>Ticker, Name, Inception, P/A, TER, Theme</td><td>M1 Fund master</td><td>Static</td></tr>
-        <tr><td>AUM ($mln)</td><td>Fund accounting SoR → M17</td><td>shares × NAV/share ÷ 1e6</td></tr>
-        <tr><td>1D / T-1 / 30D / YTD Flow</td><td>M9 flow ledger</td><td>creates − redeems; rollups for 30D/YTD</td></tr>
-        <tr><td>Total 1D ($k)</td><td>M16 or sum venues</td><td>Σ venue turnover ÷ 1000</td></tr>
-        <tr><td>30D ADV ($k)</td><td>M17 calculated</td><td>mean(Total 1D) over 30 BD</td></tr>
-        <tr><td>LSE / DE / FR / … 1D</td><td>M16 via M2 listing map</td><td>Market data per ISIN</td></tr>
-        <tr><td>NAV/share</td><td>M12 NAV engine</td><td>Official EOD</td></tr>
-        <tr><td>NAV Δ 1D/30D/180D/YTD %</td><td>M17 calculated</td><td>(NAV_t / NAV_ref) − 1</td></tr>
+    <section id="datapoints">
+      <h2>Datapoints</h2>
+      <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference structure: EUV thematic equity fund GL (fund 211161, 06/18/2026). Fixed-income funds add <strong>FI</strong> lines (amortization, accretion, bond interest). Grouping uses Corgi GL sub-categories: <strong>BASE</strong>, <strong>ETF</strong>, <strong>EQ</strong>, <strong>FI</strong>, <strong>ST</strong>.</p>
+
+      <h3>Summary</h3>
+      <table class="summary-table">
+        <tr><th>Group</th><th>Datapoint</th><th>Source</th></tr>
+        <tr><td class="dp-group">BASE</td><td>Cash</td><td>Dataset 4 — custodian cash balance</td></tr>
+        <tr><td class="dp-group">BASE</td><td>Investment receivable</td><td>Computed — unsettled sale proceeds (trade date ≠ settle date)</td></tr>
+        <tr><td class="dp-group">BASE</td><td>Investment payable</td><td>Computed — unsettled purchase obligations</td></tr>
+        <tr><td class="dp-group">ETF</td><td>Accounts receivable — subscriptions</td><td>Dataset 4 — pending AP create, not yet settled</td></tr>
+        <tr><td class="dp-group">ETF</td><td>Accounts payable — redemptions</td><td>Dataset 4 — pending AP redeem, not yet settled</td></tr>
+        <tr><td class="dp-group">ETF</td><td>Subscriptions / redemptions (capital)</td><td>Dataset 4 — settled primary market share flow</td></tr>
+        <tr><td class="dp-group">EQ</td><td>Cost of investments — equity</td><td>Computed — sum of trade cost basis, adjusted for corp actions</td></tr>
+        <tr><td class="dp-group">EQ</td><td>Net unrealized appreciation/depreciation — equity</td><td>Computed — holding market value minus cost basis</td></tr>
+        <tr><td class="dp-group">EQ</td><td>Dividends receivable</td><td>Computed — shares held × gross dividend rate on ex-date</td></tr>
+        <tr><td class="dp-group">EQ</td><td>Dividend income</td><td>Computed — accrued on ex-date, recognized on pay-date</td></tr>
+        <tr><td class="dp-group">EQ</td><td>Accumulated net unrealized G/L (capital)</td><td>Computed — cumulative unrealized since inception</td></tr>
+        <tr><td class="dp-group">ST</td><td>Cost of investments — short-term</td><td>Computed — T-bills, money market, &lt;1yr paper cost basis</td></tr>
+        <tr><td class="dp-group">ST</td><td>Investment interest receivable</td><td>Computed — accrued coupon on short-term holdings</td></tr>
+        <tr><td class="dp-group">ST</td><td>Investment interest income</td><td>Computed — earned interest on ST/FI positions</td></tr>
+        <tr><td class="dp-group">ST</td><td>Realized gain/loss — short term</td><td>Computed — proceeds minus cost on sale, held &lt;1 year</td></tr>
+        <tr><td class="dp-group">FI</td><td>Cost of investments — fixed income</td><td>Computed — trade cost + amortized premium/discount adj</td></tr>
+        <tr><td class="dp-group">FI</td><td>Net unrealized appreciation/depreciation — FI</td><td>Computed — evaluated mark × qty minus adjusted cost</td></tr>
+        <tr><td class="dp-group">FI</td><td>Amortization of premium</td><td>Computed — effective interest method, reduces cost over life</td></tr>
+        <tr><td class="dp-group">FI</td><td>Accretion of discount</td><td>Computed — effective interest method, increases cost over life</td></tr>
+        <tr><td class="dp-group">BASE</td><td>Dividend withholding tax payable</td><td>Computed — withheld amount on foreign dividends owed to tax authority</td></tr>
+        <tr><td class="dp-group">BASE</td><td>Accrued unitary fee expense</td><td>Computed — AUM × TER × (days ÷ 365)</td></tr>
+        <tr><td class="dp-group">BASE</td><td>Settlement breakage income</td><td>Computed — difference between expected and actual settlement cash</td></tr>
+        <tr><td class="dp-group">P&amp;L</td><td>Withholding tax — dividends (expense)</td><td>Computed — tax expense paired with withholding payable</td></tr>
+        <tr><td class="dp-group">P&amp;L</td><td>Unitary fee expense</td><td>Computed — daily accrual of management/admin fee</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Total assets</td><td>Computed — sum of all asset GL lines</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Total liabilities</td><td>Computed — sum of all liability GL lines</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Net assets</td><td>Computed — total assets minus total liabilities</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Shares outstanding</td><td>Dataset 4 — transfer agent share register</td></tr>
+        <tr><td class="dp-group">NAV</td><td>NAV per share</td><td>Computed — net assets ÷ shares outstanding</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Net income</td><td>Computed — total income minus total expense</td></tr>
+        <tr><td class="dp-group">NAV</td><td>Total capital</td><td>Computed — subscriptions/redemptions + accumulated G/L + retained</td></tr>
+      </table>
+
+      <h3>Detail by datapoint</h3>
+
+      <h4>BASE — Cash</h4>
+      <div class="dp-detail">
+        <p>Settled and unsettled cash balances across all currencies, converted to fund base currency for the trial balance.</p>
+        <p><strong>Source:</strong> Dataset 4 (custodian cash file). <strong>Inputs:</strong> fund ID, currency, settled balance, unsettled balance, as-of date.</p>
+      </div>
+
+      <h4>BASE — Investment receivable / payable</h4>
+      <div class="dp-detail">
+        <p>Amounts due from sales not yet settled (receivable) or owed on purchases not yet settled (payable). These bridge trade date and settlement date.</p>
+        <p><strong>Source:</strong> Computed from Dataset 4 trade history. <strong>Rule:</strong> For each open trade, principal ± fees where settle date &gt; NAV date.</p>
+      </div>
+
+      <h4>ETF — Accounts receivable (subscriptions) / payable (redemptions)</h4>
+      <div class="dp-detail">
+        <p>Cash owed to the fund from AP share creations not yet settled, or cash the fund owes on pending redemptions.</p>
+        <p><strong>Source:</strong> Dataset 4 (TA confirms + AP flow ledger). <strong>Inputs:</strong> order type, shares, NAV used, settle date, cash component.</p>
+      </div>
+
+      <h4>ETF — Subscriptions / redemptions</h4>
+      <div class="dp-detail">
+        <p>Capital flow from settled primary market activity. Net creates increase shares outstanding and AUM; net redeems decrease both.</p>
+        <p><strong>Source:</strong> Dataset 4. <strong>Rule:</strong> Record at settlement — shares × NAV per share ± cash in lieu ± fees.</p>
+      </div>
+
+      <h4>EQ — Cost of investments</h4>
+      <div class="dp-detail">
+        <p>Original purchase price of equity holdings, maintained per tax lot or aggregate, adjusted for stock splits, spin-offs, and mergers.</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 4 trade history + Dataset 2 corp actions. <strong>Rule:</strong> Σ(buy qty × price + fees) − Σ(sell cost allocated) ± CA adjustments.</p>
+      </div>
+
+      <h4>EQ — Net unrealized appreciation/depreciation</h4>
+      <div class="dp-detail">
+        <p>Difference between current fair value of equity holdings and their cost basis. Positive = unrealized gain; negative = unrealized loss.</p>
+        <p><strong>Source:</strong> Computed. <strong>Formula:</strong> holding market value − cost basis, where market value = qty × mark price × FX (Dataset 1 + Dataset 4).</p>
+      </div>
+
+      <h4>EQ — Dividends receivable &amp; dividend income</h4>
+      <div class="dp-detail">
+        <p>Receivable: dividend declared but not yet paid. Income: recognized when the fund is entitled to the dividend (typically ex-date).</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 2 (ex-date, gross rate) × Dataset 4 (shares held). Withholding applied per Dataset 3 tax rates.</p>
+      </div>
+
+      <h4>ST / FI — Interest receivable &amp; interest income</h4>
+      <div class="dp-detail">
+        <p>Coupon accrued on bonds and short-term instruments from last payment date to NAV date.</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 3 (coupon, day-count, par) + Dataset 4 (face value held). <strong>Formula:</strong> f(coupon rate, day-count convention, par, days accrued).</p>
+      </div>
+
+      <h4>FI — Amortization &amp; accretion</h4>
+      <div class="dp-detail">
+        <p>Premium bonds: cost reduced over life (amortization expense). Discount bonds: cost increased over life (accretion income). Both use effective interest method.</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> Dataset 3 (issue date, maturity, coupon, OID/premium) + Dataset 1 (evaluated price at purchase) + Dataset 4 (qty).</p>
+      </div>
+
+      <h4>ST — Realized gain/loss</h4>
+      <div class="dp-detail">
+        <p>Profit or loss recognized when a security is sold. Short-term if holding period &lt; 1 year.</p>
+        <p><strong>Source:</strong> Computed. <strong>Rule:</strong> sale proceeds − allocated cost basis (lot matching policy).</p>
+      </div>
+
+      <h4>BASE — Accrued unitary fee expense</h4>
+      <div class="dp-detail">
+        <p>Daily accrual of the fund's unitary management fee. Reduces NAV each day; settles periodically per advisory agreement.</p>
+        <p><strong>Source:</strong> Computed. <strong>Formula:</strong> AUM × TER (bps) × (days ÷ 365). <strong>Inputs:</strong> shares outstanding × NAV/share, fee schedule from fund master.</p>
+      </div>
+
+      <h4>BASE — Dividend withholding tax payable</h4>
+      <div class="dp-detail">
+        <p>Tax withheld on foreign dividends, owed to the relevant tax authority. Paired with withholding tax expense on the P&amp;L.</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> dividend income × withholding rate from Dataset 3 / tax policy.</p>
+      </div>
+
+      <h4>BASE — Settlement breakage income</h4>
+      <div class="dp-detail">
+        <p>Small gain when actual settlement cash differs from expected (e.g. FX rounding, fractional shares). Common on ETF basket settlements.</p>
+        <p><strong>Source:</strong> Computed. <strong>Inputs:</strong> expected settlement (trade terms) vs actual (custodian cash movement).</p>
+      </div>
+
+      <h4>NAV — Net assets &amp; NAV per share</h4>
+      <div class="dp-detail">
+        <p>Net assets = total assets − total liabilities. NAV per share = net assets ÷ shares outstanding. Published EOD to transfer agent, listing venues, and APs.</p>
+        <p><strong>Source:</strong> Computed (net assets); Dataset 4 (shares outstanding). <strong>Formula:</strong> (Σ assets − Σ liabilities) ÷ shares.</p>
+      </div>
+
+      <h4>NAV — Net income &amp; total capital</h4>
+      <div class="dp-detail">
+        <p>Net income = total income − total expense for the period. Total capital = subscriptions/redemptions + accumulated unrealized G/L + realized G/L + retained earnings. Net assets must equal total capital + net income (trial balance check).</p>
+        <p><strong>Source:</strong> Computed — rollup of all P&amp;L and capital lines above.</p>
+      </div>
+
+      <h3>Manual overrides</h3>
+      <table class="field-table">
+        <tr><th>Exception</th><th>Trigger</th><th>Action</th></tr>
+        <tr><td>Pricing override</td><td>Stale, missing, or halted vendor mark (Dataset 1 quality flag)</td><td>Fund accountant selects replacement mark; audit trail required</td></tr>
+        <tr><td>Corp action confirm</td><td>Complex merger, spin, or contested terms (Dataset 2)</td><td>Human confirms before qty/cost/receivable adjustment</td></tr>
+        <tr><td>Reconciliation break</td><td>Custodian qty/cash ≠ internal books (Dataset 4)</td><td>Explain and clear before NAV publish</td></tr>
+        <tr><td>NAV sign-off</td><td>All recs and exceptions resolved</td><td>Authorizes publish to TA and external parties</td></tr>
+        <tr><td>GL journal entry</td><td>Non-standard adjustment</td><td>Manual debit/credit to any GL line</td></tr>
       </table>
     </section>
 
@@ -1503,7 +951,6 @@ flowchart LR
   <footer class="site-footer">
     <img src="/corgi/assets/images/corgifunds-logo-light.webp" alt="Corgi Funds">
     <div class="footer-meta">
-      <strong style="color:var(--etf-white2);font-weight:500;">Zack Nisbet</strong> · Work Trial · Full Stack Engineer - ETF Focus<br>
       Corgi Strategies, LLC · Fund Administration Blueprint · <a href="https://corgifunds.com/">corgifunds.com</a>
     </div>
   </footer>
