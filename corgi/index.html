@@ -1735,13 +1735,21 @@ flowchart LR
       <p>After several days of this loop, calculations should match on all standard paths. Remaining gaps are edge cases — corp-action quirks, FI amortization corners — where domain review (operations team) closes the last mile before we hit them in production.</p>
 
       <div class="mermaid">
-flowchart LR
-  IN["Same D1-D4 inputs"] --> US["U.S. Bank reference output"]
-  IN --> CI["Corgi in-house compute"]
-  US --> DIFF{"Line-by-line diff"}
+flowchart TB
+  IN["Same D1-D4 inputs"]
+
+  subgraph parallel["Parallel compute · same as_of"]
+    direction LR
+    USB["U.S. Bank compute<br>trial balance / NAV"]
+    CI["Corgi compute<br>datapoint formulas"]
+  end
+
+  IN --> USB
+  IN --> CI
+  USB --> DIFF{"Line-by-line diff"}
   CI --> DIFF
-  DIFF -->|Match| OK["Calibration pass"]
-  DIFF -->|Break| FIX["Trace · fix · rerun"]
+  DIFF -->|Congruent| OK["Calibration pass"]
+  DIFF -->|Mismatch| FIX["Trace · tweak formulas · rerun"]
   FIX --> CI
       </div>
 
