@@ -935,7 +935,6 @@
     <nav class="doc-nav" aria-label="Document sections">
       <div class="nav-inner">
         <a href="#foundations">Foundations</a>
-        <a href="#implementation">Plan</a>
         <a href="#architecture">Architecture</a>
         <a href="#data-sourcing">Sourcing</a>
         <a href="#internal-fields">Internal fields</a>
@@ -944,6 +943,7 @@
         <a href="#workflows">Workflows</a>
         <a href="#outputs">Outputs</a>
         <a href="#daily-report">Daily report</a>
+        <a href="#implementation">Plan</a>
       </div>
     </nav>
   </header>
@@ -1012,17 +1012,6 @@ pie showData
           </div>
         </div>
       </div>
-    </section>
-
-    <section id="implementation">
-      <h2>Implementation plan</h2>
-      <ul>
-        <li>Get access to the current accounting system and backend — learn how it works, view the data</li>
-        <li>Stand up ingest for the new pipelines; build datapoint calculations from the catalog above</li>
-        <li>Each EOD: diff our output vs U.S. Bank reference; backsolve breaks until congruent</li>
-        <li>Once calibrated: S3, tables, EventBridge, and Lambda for automated EOD batch — keep diffing</li>
-        <li>Build front-end UI in parallel once the numbers are trustworthy</li>
-      </ul>
     </section>
 
     <section id="architecture">
@@ -1869,6 +1858,17 @@ flowchart LR
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Distribution groups</strong> stored in fund config — not hardcoded. Example: <code>daily_volume_report</code> → desk, issuer, distribution list. AWS SES identity and suppressions managed in-console; recipient lists live in our DB so ops can update without redeploying Lambda.</p>
       <p>Sophisticated report packs (monthly performance, audit extracts) follow the same pattern: Lambda render → S3 archive → SES to a different distribution group. Detail deferred — same infrastructure.</p>
+    </section>
+
+    <section id="implementation">
+      <h2>Implementation plan</h2>
+      <ul>
+        <li>Get access to the current accounting system and backend — learn how it works, view the data</li>
+        <li>Stand up ingest for the new pipelines; build datapoint calculations from the catalog above</li>
+        <li>Each EOD: diff our output vs U.S. Bank reference; backsolve breaks until congruent</li>
+        <li>Once calibrated: S3, tables, EventBridge, and Lambda for automated EOD batch — keep diffing</li>
+        <li>Build front-end UI in parallel once the numbers are trustworthy</li>
+      </ul>
     </section>
 
   </main>
