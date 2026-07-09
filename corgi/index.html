@@ -84,83 +84,89 @@
     }
 
     .header-inner {
-      max-width: 1100px;
+      width: 100%;
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 20px 40px;
       display: flex;
-      align-items: center;
-      gap: 20px;
+      align-items: flex-start;
+      gap: 24px;
     }
 
     .logo-link {
       display: flex;
       align-items: center;
-      gap: 10px;
       text-decoration: none;
       color: inherit;
       flex-shrink: 0;
+      padding-top: 4px;
     }
 
     .logo-link img {
-      height: 28px;
+      height: 26px;
       width: auto;
     }
 
-    .logo-wordmark {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--etf-white);
-    }
-
-    .header-divider {
-      width: 1px;
-      height: 28px;
-      background: var(--etf-border);
-      flex-shrink: 0;
-    }
-
-    .header-doc {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
+    .header-hero {
       flex: 1;
+      min-width: 0;
     }
 
-    .header-doc-title {
-      font-size: 13px;
-      font-weight: 500;
+    .header-hero .eyebrow {
+      margin-bottom: 8px;
+    }
+
+    .header-hero .header-title {
+      font-size: clamp(22px, 2.5vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin: 0 0 8px;
       color: var(--etf-white);
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .header-doc-meta {
+    .header-hero .header-subtitle {
+      color: var(--etf-white2);
+      font-size: 14px;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.5;
+      margin: 0 0 12px;
+      max-width: 720px;
+    }
+
+    .header-byline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
       font-size: 11px;
       color: var(--etf-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .header-byline .author-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--etf-white2);
       letter-spacing: 0.02em;
     }
 
-    .doc-badge {
-      font-size: 10px;
+    .header-byline .author-role {
+      font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--etf-white3);
-      border: 1px solid var(--etf-border);
-      padding: 6px 12px;
-      background: var(--etf-black2);
-      flex-shrink: 0;
-      white-space: nowrap;
+      color: var(--etf-orange);
+    }
+
+    .header-byline .sep {
+      color: var(--etf-border);
     }
 
     nav.doc-nav {
       background: var(--etf-black);
-      border-bottom: none;
-      padding: 0 24px;
+      border-bottom: 1px solid var(--etf-border2);
+      padding: 0 40px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -168,7 +174,7 @@
     nav.doc-nav::-webkit-scrollbar { display: none; }
 
     .nav-inner {
-      max-width: 1100px;
+      width: 100%;
       margin: 0 auto;
       display: flex;
       gap: 0;
@@ -200,15 +206,9 @@
     }
 
     main {
-      max-width: 1100px;
+      width: 100%;
       margin: 0 auto;
-      padding: 48px 24px 80px;
-    }
-
-    .hero {
-      margin-bottom: 48px;
-      padding-bottom: 40px;
-      border-bottom: 1px solid var(--etf-border2);
+      padding: 40px 40px 80px;
     }
 
     .eyebrow {
@@ -594,9 +594,9 @@
     }
 
     .site-footer {
-      max-width: 1100px;
+      width: 100%;
       margin: 0 auto;
-      padding: 32px 24px 48px;
+      padding: 32px 40px 48px;
       border-top: 1px solid var(--etf-border2);
       display: flex;
       align-items: center;
@@ -622,9 +622,10 @@
     .footer-meta a:hover { color: var(--etf-orange); }
 
     @media (max-width: 640px) {
+      .header-inner { padding: 16px; gap: 16px; flex-direction: column; }
       .header-inner, main, .site-footer { padding-left: 16px; padding-right: 16px; }
       nav.doc-nav { padding: 0 16px; }
-      .doc-badge { display: none; }
+      .header-hero .header-title { font-size: 20px; }
     }
 
     h4 {
@@ -684,7 +685,7 @@
       padding: 18px 20px;
       background: var(--etf-black2);
       border: 1px solid var(--etf-border2);
-      scroll-margin-top: 100px;
+      scroll-margin-top: 160px;
     }
 
     .dp-card-head {
@@ -796,15 +797,22 @@
     <div class="header-top">
       <div class="header-inner">
         <a href="https://corgifunds.com/" class="logo-link" target="_blank" rel="noopener noreferrer">
-          <img src="/corgi/assets/images/corgifunds-logo-light.webp" alt="Corgi Funds">
-          <span class="logo-wordmark">CorgiFunds</span>
+          <img src="/corgi/assets/images/corgifunds-logo-light.webp" alt="CorgiFunds">
         </a>
-        <div class="header-divider" aria-hidden="true"></div>
-        <div class="header-doc">
-          <span class="header-doc-title">Fund Administration Blueprint</span>
-          <span class="header-doc-meta">Corgi Strategies · Internal document</span>
+        <div class="header-hero" id="overview">
+          <span class="eyebrow">Corgi Strategies</span>
+          <h1 class="header-title">ETF Fund Administration Blueprint</h1>
+          <p class="header-subtitle">Required inputs, datapoints, and sourcing for in-house fund accounting.</p>
+          <div class="header-byline">
+            <span class="author-name">Zack Nisbet</span>
+            <span class="sep">·</span>
+            <span>Work Trial</span>
+            <span class="sep">·</span>
+            <span class="author-role">Full Stack Engineer - ETF Focus</span>
+            <span class="sep">·</span>
+            <span>July 8–9, 2026</span>
+          </div>
         </div>
-        <span class="doc-badge">Work Trial · Jul 2026</span>
       </div>
     </div>
     <nav class="doc-nav" aria-label="Document sections">
@@ -818,17 +826,6 @@
   </header>
 
   <main>
-    <section id="overview" class="hero">
-      <span class="eyebrow">Corgi Strategies</span>
-      <h1>ETF Fund Administration Blueprint</h1>
-      <p class="subtitle">Required inputs, datapoints, and sourcing for in-house fund accounting.</p>
-      <div class="author-byline">
-        <div class="author-name">Zack Nisbet</div>
-        <div class="author-future">Work Trial<span class="sep">|</span><span class="role">Full Stack Engineer - ETF Focus</span></div>
-        <div class="author-date">July 8–9, 2026</div>
-      </div>
-    </section>
-
     <section id="foundations">
       <h2>Foundational knowledge</h2>
 
