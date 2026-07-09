@@ -1674,7 +1674,7 @@ flowchart TB
 
     <section id="pipelines">
       <h2>Data pipelines</h2>
-      <p>Receiving data is the easy part — a scheduled API pull or file drop. The hard part is <strong>when</strong> you pull, <strong>what</strong> you store, <strong>how</strong> you validate, and <strong>how</strong> you prove it later. Everything below assumes we persist data; we do not compute NAV from live API calls at publish time.</p>
+      <p>Receiving data is the easy part — a vendor <strong>CSV drop over SFTP/FTP</strong>. The hard part is <strong>when</strong> files arrive, <strong>what</strong> you store, <strong>how</strong> you validate before normalization, and <strong>how</strong> you prove it later. Everything below assumes we persist data; we do not compute NAV from live API calls at publish time.</p>
 
       <h3>Why end-of-day?</h3>
       <p>Fund accounting runs on an <strong>as-of date</strong>, not in real time. A trade executed today does not settle today — US equities are <strong>T+1</strong> (next business day); EU markets are typically <strong>T+2</strong>. Until settlement, the position is in investment receivable/payable, not cash. Market data vendors publish <strong>official EOD marks</strong> only after the close. Running the batch intraday would mean marking on incomplete prices and booking unsettled trades as settled.</p>
@@ -1703,20 +1703,83 @@ flowchart LR
       </div>
 
       <h3>Ingest &amp; compute (AWS)</h3>
-      <p>Each feed runs on a schedule after vendor publication window. Ingest writes an immutable row — never overwrite the vendor payload. Corgi uses <strong>AWS</strong> (not Supabase edge functions): <strong>EventBridge</strong> schedules EOD triggers, <strong>Lambda</strong> runs transforms and report generation, <strong>S3</strong> stores raw payloads and rendered HTML, <strong>SES</strong> emails stakeholders.</p>
-      <div class="formula">vendor API / SFTP → Lambda ingest → raw_ingest.{feed} (as_of_date, vendor, received_at, payload JSONB on S3 + Postgres)</div>
-      <p>Pipeline stages chain via EventBridge or S3 event notifications: <strong>raw → normalized → ledger</strong>. CloudFront Functions are for lightweight edge HTTP only; batch accounting and report rendering run on <strong>Lambda</strong> in-region. Lambda@Edge is optional for serving cached historical reports at the CDN — not for EOD compute.</p>
-      <p>One JSONB column per feed preserves <strong>exactly what the vendor sent</strong>. If a computed NAV is wrong six months later, we replay from raw without guessing whether the vendor or our transform was at fault.</p>
+      <p>Feeds arrive as <strong>CSV exports</strong> pushed by vendors (and U.S. Bank GFS during calibration) over <strong>SFTP or FTP</strong>. AWS pattern: <strong>Transfer Family</strong> exposes the endpoint → files land in an S3 <strong>landing</strong> prefix → <strong>Lambda</strong> fires on <code>ObjectCreated</code>.</p>
+
+      <div class="arch-card target" style="margin: 20px 0; max-width: 520px;">
+        <div class="arch-card-header">CSV ingest</div>
+        <div class="arch-card-sub">SFTP/FTP drop · validate before normalize</div>
+        <div class="mermaid">
+flowchart TB
+  subgraph vendor["Vendor / U.S. Bank GFS"]
+    CSV["CSV export"]
+  end
+
+  subgraph xfer["AWS Transfer Family"]
+    SFTP["SFTP / FTP"]
+  end
+
+  subgraph landing["S3 landing"]
+    IN["incoming/{feed}/"]
+  end
+
+  subgraph lambda["Lambda · on upload"]
+    VAL["validate CSV contract"]
+    PARSE["parse → core.*"]
+  end
+
+  subgraph archive["S3 archive"]
+    ARC["archive/{vendor}/{feed}/{as_of}/"]
+  end
+
+  subgraph outcomes[" "]
+    OK["core.* row insert"]
+    Q["quarantine + alert"]
+  end
+
+  CSV --> SFTP --> IN --> VAL
+  VAL -->|pass| ARC
+  VAL -->|pass| PARSE --> OK
+  VAL -->|fail| Q
+        </div>
+      </div>
+
+      <p>Lambda does two things on every file:</p>
+      <ol>
+        <li><strong>Archive</strong> — move CSV to immutable S3 hierarchy: <code>archive/{vendor}/{feed}/{as_of_date}/{received_at}_{filename}</code>. This <em>is</em> the raw layer — we do not need a separate JSONB extract table when the vendor artifact is already a file.</li>
+        <li><strong>Normalize</strong> — parse validated rows into typed <code>core.*</code> tables. Idempotent per <code>(as_of, feed, row_key)</code> so reprocessing a file replaces the same logical rows, never silently duplicates.</li>
+      </ol>
+      <p>Downstream EOD (ledger, reports, email) chains via EventBridge once required feeds for an <code>as_of</code> are <strong>validated + loaded</strong>. CloudFront Functions are edge HTTP only; batch work runs on <strong>Lambda</strong> in-region.</p>
+
+      <div class="callout warn">
+        <strong>Ownership split.</strong> Engineering owns <strong>ingest → validate → normalize</strong> (<code>core.*</code>). <strong>Carl Clements</strong> owns <strong>ledger and fund accounting principles</strong> — datapoint formulas, GL logic, NAV compute from normalized inputs onward. The handoff is a clean boundary: normalized tables in, ledger out.
+      </div>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">CSV validation — before normalized insert</h4>
+      <p>Skipping validation and jumping straight to <code>core.*</code> is the main ingest failure mode. If our parser is wrong, we only find out when NAV breaks — too late. Validate <strong>before</strong> insert; on failure, <strong>quarantine the file</strong>, log to <code>reporting.ingest_exceptions</code>, alert ops, and <strong>block</strong> ledger for that feed/<code>as_of</code>.</p>
+      <table>
+        <tr><th>Failure</th><th>Typical cause</th><th>Gate</th></tr>
+        <tr><td><strong>Schema drift</strong></td><td>New, renamed, or missing column; column reorder</td><td>Strict column contract per feed (versioned). Unknown column → block. Missing required column → block.</td></tr>
+        <tr><td><strong>Format change</strong></td><td>Date pattern flip, decimal separator, quoted-field breakage, encoding shift</td><td>Typed parsers with explicit formats; reject rows that fail cast.</td></tr>
+        <tr><td><strong>Bad / empty data</strong></td><td>Nulls in required fields, negative qty where impossible, duplicate keys</td><td>Row-level rules + aggregate sanity (row count vs prior day, sum checks).</td></tr>
+        <tr><td><strong>Wrong file</strong></td><td>Bad <code>as_of</code> in filename, duplicate upload, truncated/partial file</td><td>Filename pattern match; file-size floor; checksum; dedupe on <code>(feed, as_of, checksum)</code>.</td></tr>
+        <tr><td><strong>Late or missing file</strong></td><td>SFTP push delayed, vendor outage</td><td>EventBridge cutover timer; missing required feed → block EOD, alert.</td></tr>
+        <tr><td><strong>Parser bug (ours)</strong></td><td>Mapping typo, wrong delimiter assumption</td><td>Immutable S3 archive lets us replay; dev calibration diffs catch systematic errors.</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Each feed ships with a <strong>CSV contract</strong> in repo config: expected columns, types, required/nullable, filename pattern, and schema version. Vendor changes the file → contract version bumps → parser update → replay from archive. Never mutate a archived CSV.</p>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Ingest metadata</h4>
+      <p>Lightweight <code>ingest.files</code> table — not a second copy of the data:</p>
+      <div class="formula">feed, vendor, as_of_date, s3_key, received_at, checksum, schema_version, row_count, status (validated | quarantined | loaded)</div>
 
       <h3>Storage model</h3>
-      <p>Three layers — not one table per API field, not one giant table either.</p>
+      <p>Four layers — raw is the CSV file on S3, not a parsed duplicate in Postgres.</p>
       <table>
-        <tr><th>Layer</th><th>Schema</th><th>Contents</th></tr>
-        <tr><td><strong>Raw</strong></td><td><code>raw_ingest.*</code></td><td>Immutable vendor payloads (JSONB) + metadata. One table per feed type (prices, holdings, corp_actions…).</td></tr>
-        <tr><td><strong>Normalized</strong></td><td><code>core.*</code></td><td>Typed, queryable columns: <code>price_eod</code>, <code>holdings_qty</code>, <code>corp_action</code>. Parsed from raw; idempotent per (as_of, security, vendor).</td></tr>
-        <tr><td><strong>Computed</strong></td><td><code>ledger.*</code></td><td>Datapoint values, GL lines, NAV components. Produced by formulas in the datapoint catalog.</td></tr>
-        <tr><td><strong>Recon &amp; reporting</strong></td><td><code>reporting.*</code></td><td>Separate DB: exception log, vendor scorecard, calibration diffs (dev). Does not block the NAV path.</td></tr>
-        <tr><td><strong>Report archive</strong></td><td><code>s3://reports/</code></td><td>Immutable daily HTML (volume report, future packs). Versioned by <code>{report_type}/{as_of_date}.html</code></td></tr>
+        <tr><th>Layer</th><th>Where</th><th>Contents</th><th>Owner</th></tr>
+        <tr><td><strong>Raw</strong></td><td><code>s3://archive/</code> + <code>ingest.files</code></td><td>Immutable CSV as received; metadata row per file (checksum, status, schema version)</td><td>Engineering</td></tr>
+        <tr><td><strong>Normalized</strong></td><td><code>core.*</code></td><td>Typed columns: <code>price_eod</code>, <code>holdings_qty</code>, <code>corp_action</code>… Parsed only after CSV validation passes</td><td>Engineering</td></tr>
+        <tr><td><strong>Ledger</strong></td><td><code>ledger.*</code></td><td>Datapoint values, GL lines, NAV — produced from <code>core.*</code> + <code>CFG.*</code></td><td>Carl Clements</td></tr>
+        <tr><td><strong>Recon &amp; reporting</strong></td><td><code>reporting.*</code></td><td>Ingest exceptions, calibration diffs (dev), vendor scorecard (prod). Does not block writes but gates EOD sign-off</td><td>Shared</td></tr>
+        <tr><td><strong>Report archive</strong></td><td><code>s3://reports/</code></td><td>Rendered HTML (daily volume report, future packs)</td><td>Engineering</td></tr>
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Encryption:</strong> TLS in transit; AES-256 at rest (cloud KMS or on-prem HSM). Fund accounting data is not PCI, but it is fiduciary — treat as confidential. On-prem is viable for latency/control; cloud is viable for ops cost. Either works if access is role-scoped and audit-logged.</p>
 
@@ -1785,10 +1848,10 @@ flowchart TD
       <p>Every exception writes to <code>reporting.vendor_exceptions</code>: field, as_of, vendor flagged, values from A/B/C, resolution. Over time this becomes a <strong>vendor reliability scorecard</strong>. Three sources are sufficient for tiebreak — if A, B, and C all disagree, that is a <strong>block-NAV</strong> event.</p>
 
       <h3>Transform</h3>
-      <p>Normalized → computed via the datapoint formulas (detail cards). Transforms are deterministic, versioned, and replayable from stored inputs. No transform runs without persisted raw + normalized inputs for that as_of date.</p>
+      <p><code>core.*</code> → <code>ledger.*</code> via datapoint formulas (detail cards) — owned by Carl. Transforms are deterministic, versioned, and replayable from archived CSV + normalized rows. No ledger run for an <code>as_of</code> until required feeds show <code>status = loaded</code> in <code>ingest.files</code>.</p>
 
       <h3>Retention</h3>
-      <p>SEC Rule 204-2 requires investment advisers to retain books and records for <strong>at least five years</strong> (first two in primary office). NAV history, GL, reconciliation logs, and vendor raw payloads qualify. Design default: <strong>7 years online</strong>, then archive to cold storage — covers examination cycles with margin. Immutable raw JSONB makes replay and audit defensible.</p>
+      <p>SEC Rule 204-2 requires investment advisers to retain books and records for <strong>at least five years</strong> (first two in primary office). NAV history, GL, reconciliation logs, and vendor CSV archives qualify. Design default: <strong>7 years online</strong> on S3, then glacier — covers examination cycles with margin. Immutable CSV archive makes replay and audit defensible without a parallel JSONB store.</p>
     </section>
 
     <section id="workflows">
@@ -1810,16 +1873,19 @@ flowchart TD
 
       <div class="mermaid">
 sequenceDiagram
-  participant V as Vendors (D1-D4)
-  participant I as Ingest
-  participant L as Ledger engine
+  participant V as Vendor CSV (SFTP)
+  participant I as Ingest + validate
+  participant C as core.* tables
+  participant L as Ledger (Carl)
   participant R as Recon / reporting
   participant A as Accountant
   participant P as Publish
 
-  V->>I: EOD files (post-close window)
-  I->>L: Normalized rows
-  L->>R: 3-source price compare
+  V->>I: CSV drop to S3 landing
+  I->>I: Contract check · quarantine on fail
+  I->>C: Normalized rows (on pass)
+  C->>L: core.* ready for as_of
+  L->>R: Price / custodian compare
   R-->>A: Exception queue (if any)
   A->>L: Approve / override
   L->>L: Compute datapoints + NAV
@@ -1887,9 +1953,9 @@ flowchart LR
       <h2>Implementation plan</h2>
       <ul>
         <li>Get access to the current accounting system and backend — learn how it works, view the data</li>
-        <li>Stand up ingest for the new pipelines; build datapoint calculations from the catalog above</li>
-        <li>Each EOD: diff our output vs U.S. Bank reference; backsolve breaks until congruent</li>
-        <li>Once calibrated: S3, tables, EventBridge, and Lambda for automated EOD batch — keep diffing</li>
+        <li>Stand up SFTP → S3 → Lambda ingest with CSV validation; load <code>core.*</code> tables</li>
+        <li>Carl owns ledger from normalized data; engineering supports ingest and calibration diffs vs U.S. Bank</li>
+        <li>Once calibrated: EventBridge EOD chain, report archive, SES — keep diffing</li>
         <li>Build front-end UI in parallel once the numbers are trustworthy</li>
       </ul>
     </section>
