@@ -943,6 +943,7 @@
         <a href="#workflows">Workflows</a>
         <a href="#outputs">Outputs</a>
         <a href="#daily-report">Daily report</a>
+        <a href="#frontend">UI</a>
         <a href="#implementation">Plan</a>
       </div>
     </nav>
@@ -1767,6 +1768,34 @@ flowchart TB
       </table>
       <p style="color:var(--etf-muted);font-size:13px;">Each feed ships with a <strong>CSV contract</strong> in repo config: expected columns, types, required/nullable, filename pattern, and schema version. Vendor changes the file → contract version bumps → parser update → replay from archive. Never mutate a archived CSV.</p>
 
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Cross-day sanity tests</h4>
+      <p>After schema validation, compare today's file against <strong>T−1</strong> loaded data. These are cheap catches for stale or broken drops — run on every feed before <code>core.*</code> insert.</p>
+      <table>
+        <tr><th>Test</th><th>What it catches</th><th>Typical response</th></tr>
+        <tr><td><strong>Identical to yesterday</strong></td><td>Vendor re-sent stale file; <code>as_of</code> wrong inside file</td><td>Block · quarantine · alert (your example — check all key metrics)</td></tr>
+        <tr><td><strong>Row count collapse</strong></td><td>Truncated export, empty file, parser read wrong sheet</td><td>Block if count &lt; floor or &gt;50% drop vs T−1 without explanation</td></tr>
+        <tr><td><strong>Row count spike</strong></td><td>Duplicate rows, wrong fund rolled in, delimiter break</td><td>Block if &gt;2× T−1 without corp-action / trade event flag</td></tr>
+        <tr><td><strong>All prices unchanged</strong></td><td>Stale marks on an equity pricing file</td><td>Block pricing feed when 100% of liquid names match T−1</td></tr>
+        <tr><td><strong>Holdings qty unchanged</strong></td><td>Stale custodian positions after known trading day</td><td>Warn or block when trades exist in confirms but holdings file is flat</td></tr>
+        <tr><td><strong>Cash / NAV flat</strong></td><td>Custodian or TA file not refreshed</td><td>Block when aggregate cash, shares outstanding, or fund-level NAV equals T−1 on active day</td></tr>
+        <tr><td><strong>Filename vs content <code>as_of</code></strong></td><td>Wrong file in right folder</td><td>Block on mismatch between filename date and max date in rows</td></tr>
+        <tr><td><strong>Checksum duplicate</strong></td><td>Same bytes uploaded twice</td><td>Skip second file; log as duplicate, do not re-load</td></tr>
+        <tr><td><strong>Outlier move</strong></td><td>Single bad price or qty typo</td><td>Flag rows where Δ vs T−1 exceeds CFG tolerance (e.g. price &gt;20%, qty &gt;50%)</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Thresholds live in <code>CFG.recon_tolerances</code> per feed — not hardcoded. Log every failed test to <code>reporting.ingest_exceptions</code> with T and T−1 aggregates for ops review.</p>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Industry alignment</h4>
+      <p>Index and market-data providers (e.g. <strong>MSCI</strong>, Bloomberg) set the pattern fund admins mirror:</p>
+      <ul>
+        <li><strong>Scheduled file delivery</strong> — daily packages over SFTP/FTP at published cutover windows; ASCII/delimited modules per dataset (index level, security level, constituents — we split D1–D5 the same way)</li>
+        <li><strong>Versioned file contracts</strong> — vendors announce schema changes before they ship; we version contracts and never silently accept unknown columns (MSCI explicitly reserves the right to change formats with advance notice)</li>
+        <li><strong>Immutable archive</strong> — every delivery retained as-received; replays and audits trace to the original file, not a re-export</li>
+        <li><strong>Validate → load</strong> — no direct insert into downstream tables; quarantine on failure; idempotent load per <code>as_of</code></li>
+        <li><strong>Distribution cycles</strong> — EventBridge cutover only after required modules for the date are present and validated (mirrors MSCI's fixed daily delivery schedule)</li>
+        <li><strong>API optional, files canonical</strong> — providers offer APIs for flexibility; batch CSV/SFTP remains the audit trail fund accounting relies on</li>
+      </ul>
+      <p style="color:var(--etf-muted);font-size:13px;">Our ingest methodology should be indistinguishable from how a Bloomberg or MSCI client would wire a fund admin — modular feeds, strict contracts, archived raw files, gated normalize.</p>
+
       <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Ingest metadata</h4>
       <p>Lightweight <code>ingest.files</code> table — not a second copy of the data:</p>
       <div class="formula">feed, vendor, as_of_date, s3_key, received_at, checksum, schema_version, row_count, status (validated | quarantined | loaded)</div>
@@ -1947,16 +1976,52 @@ flowchart LR
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Distribution groups</strong> stored in fund config — not hardcoded. Example: <code>daily_volume_report</code> → desk, issuer, distribution list. AWS SES identity and suppressions managed in-console; recipient lists live in our DB so ops can update without redeploying Lambda.</p>
       <p>Sophisticated report packs (monthly performance, audit extracts) follow the same pattern: Lambda render → S3 archive → SES to a different distribution group. Detail deferred — same infrastructure.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">The HTML report is a <strong>distribution output</strong> (email + archive) — not the operator console. Day-to-day fund accounting work happens in the <a href="#frontend">desktop UI</a>.</p>
+    </section>
+
+    <section id="frontend">
+      <h2>Operator UI</h2>
+      <p>Fund accountants do not live in a static HTML page. They need a persistent workspace to review feeds, exceptions, trial balance, and sign off NAV. The daily volume report is an artifact we <em>generate and send</em> — the primary surface is a <strong>desktop app</strong>.</p>
+
+      <h3>Why Electron</h3>
+      <ul>
+        <li><strong>Ops workflow fit</strong> — EOD is a multi-step session (wait for feeds → review breaks → sign off), not a one-page read. A desktop app matches how fund admins actually work.</li>
+        <li><strong>Thick-client pattern</strong> — industry fund systems (including U.S. Bank GFS) are operator consoles, not web reports. Electron gives native windowing, menus, and keyboard flow without shipping a separate native codebase per OS.</li>
+        <li><strong>Security boundary</strong> — app talks to an internal API (API Gateway + Lambda or service layer); no DB credentials in the client. Role-scoped auth for accountant vs engineering.</li>
+        <li><strong>HTML report stays downstream</strong> — Lambda still renders daily volume HTML for SES distribution and S3 archive. Electron has a "export / preview report" action; it does not replace the app.</li>
+      </ul>
+
+      <h3>Design approach</h3>
+      <p>No wireframes in this doc — UI follows <strong>workflow discovery</strong>:</p>
+      <ol>
+        <li><strong>Shadow U.S. Bank GFS</strong> during access period — map screens, actions, and what accountants touch every EOD</li>
+        <li><strong>Map to blueprint workflows</strong> — EOD batch, exception resolution, calibration diffs, sign-off (see <a href="#workflows">workflows</a>)</li>
+        <li><strong>Build surfaces incrementally</strong> — read-only viewers first; write actions (sign-off, override) only after ingest + ledger are trusted</li>
+      </ol>
+
+      <h3>Key surfaces</h3>
+      <p>Buttons and views informed by fund-admin convention — exact layout TBD after U.S. Bank walkthrough.</p>
+      <table>
+        <tr><th>Surface</th><th>Purpose</th><th>Primary actions</th></tr>
+        <tr><td><strong>EOD dashboard</strong></td><td>Single pane: which feeds landed, validated, loaded for <code>as_of</code></td><td>Refresh status · drill into quarantined file · view ingest exception detail</td></tr>
+        <tr><td><strong>Trial balance</strong></td><td>Fund picker → GL lines by datapoint group</td><td>Filter by fund / period · expand row to source inputs · export for audit</td></tr>
+        <tr><td><strong>Exception queue</strong></td><td>Unified inbox: ingest failures, recon breaks, calibration diffs</td><td>Acknowledge · assign · link to offending file/row · block / release sign-off</td></tr>
+        <tr><td><strong>Calibration diff</strong> (dev)</td><td>Side-by-side U.S. Bank vs Corgi line items</td><td>Filter by GL line · mark resolved · open formula reference</td></tr>
+        <tr><td><strong>NAV sign-off</strong></td><td>Accountant gate before publish</td><td>Approve NAV · block with reason · audit trail on every action</td></tr>
+        <tr><td><strong>Reports</strong></td><td>Generate distribution artifacts</td><td>Preview daily volume report · trigger SES send · open S3 archive history</td></tr>
+        <tr><td><strong>Fund config</strong></td><td>Read CFG: tickers, fee bps, GL mapping, distribution groups</td><td>View only initially — Carl owns config writes</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Stack:</strong> Electron shell + web UI (React or equivalent) → internal REST API → Postgres / S3. Match Corgi visual language (dark, orange accent) for brand continuity. Build after ingest is stable; read-only viewers can ship during calibration.</p>
     </section>
 
     <section id="implementation">
       <h2>Implementation plan</h2>
       <ul>
         <li>Get access to the current accounting system and backend — learn how it works, view the data</li>
-        <li>Stand up SFTP → S3 → Lambda ingest with CSV validation; load <code>core.*</code> tables</li>
+        <li>Stand up SFTP → S3 → Lambda ingest with CSV + cross-day validation; load <code>core.*</code> tables</li>
         <li>Carl owns ledger from normalized data; engineering supports ingest and calibration diffs vs U.S. Bank</li>
-        <li>Once calibrated: EventBridge EOD chain, report archive, SES — keep diffing</li>
-        <li>Build front-end UI in parallel once the numbers are trustworthy</li>
+        <li>Shadow U.S. Bank UI; define Electron surfaces from discovered workflows</li>
+        <li>Once calibrated: EventBridge EOD chain, report render + SES, operator app — keep diffing</li>
       </ul>
     </section>
 
