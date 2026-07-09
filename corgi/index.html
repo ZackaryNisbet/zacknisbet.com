@@ -1784,7 +1784,18 @@ flowchart TB
       </table>
       <p style="color:var(--etf-muted);font-size:13px;">Thresholds live in <code>CFG.recon_tolerances</code> per feed — not hardcoded. Log every failed test to <code>reporting.ingest_exceptions</code> with T and T−1 aggregates for ops review.</p>
 
-      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Industry alignment</h4>
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">SFTP re-pull on stale or failed file</h4>
+      <p>If cross-day or schema checks fail — file identical to yesterday, wrong <code>as_of</code>, truncated drop, etc. — do <strong>not</strong> load into <code>core.*</code>. Instead:</p>
+      <ol>
+        <li>Quarantine the file and log the failure reason</li>
+        <li>Trigger an <strong>SFTP re-pull</strong> for that feed (Lambda polls vendor outbox or requests re-push per vendor SLA)</li>
+        <li>Re-run validation on the new file; cap retries (e.g. 3 attempts before escalating)</li>
+        <li>If still bad at EOD cutover → block ledger for that <code>as_of</code> and alert ops</li>
+      </ol>
+      <p style="color:var(--etf-muted);font-size:13px;">Re-pull only applies when the CSV itself is suspect — not when our parser is wrong. Parser bugs are fixed in code and replayed from the S3 archive.</p>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:24px 0 8px;">Ledger output checks (before GL insert)</h4>
+      <p>Second failure point: bad <em>calculations</em>, not bad CSV. EventBridge invokes ledger Lambda after <code>core.*</code> is loaded. Before writing to <code>ledger.*</code>, sanity-check computed values against <code>CFG.recon_tolerances</code> — NAV delta vs T−1, GL line bounds, impossible negatives. Values outside the realm of possibility → block insert, log exception, do not publish.</p>
       <p>Index and market-data providers (e.g. <strong>MSCI</strong>, Bloomberg) set the pattern fund admins mirror:</p>
       <ul>
         <li><strong>Scheduled file delivery</strong> — daily packages over SFTP/FTP at published cutover windows; ASCII/delimited modules per dataset (index level, security level, constituents — we split D1–D5 the same way)</li>
@@ -1976,23 +1987,14 @@ flowchart LR
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Distribution groups</strong> stored in fund config — not hardcoded. Example: <code>daily_volume_report</code> → desk, issuer, distribution list. AWS SES identity and suppressions managed in-console; recipient lists live in our DB so ops can update without redeploying Lambda.</p>
       <p>Sophisticated report packs (monthly performance, audit extracts) follow the same pattern: Lambda render → S3 archive → SES to a different distribution group. Detail deferred — same infrastructure.</p>
-      <p style="color:var(--etf-muted);font-size:13px;">The HTML report is a <strong>distribution output</strong> (email + archive) — not the operator console. Day-to-day fund accounting work happens in the <a href="#frontend">web app</a>.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">The HTML report is a <strong>distribution output</strong> (email + archive) — not the main UI. Day-to-day work happens in the <a href="#frontend">web app</a>.</p>
     </section>
 
     <section id="frontend">
-      <h2>Operator UI</h2>
-      <p>Fund accountants need a persistent workspace — not a static HTML report. The daily volume report is an artifact we <em>generate and send</em>. The primary surface is a <strong>web app</strong>.</p>
-
-      <h3>Why web-first</h3>
-      <ul>
-        <li><strong>Internal v1 + future sales</strong> — one product, link-based demos, no per-firm install friction. Easier to sell to other issuers than shipping Electron builds.</li>
-        <li><strong>Same backend either way</strong> — browser client → internal API (API Gateway + service layer) → Postgres / S3. No DB credentials in the client; role-scoped auth.</li>
-        <li><strong>HTML report stays downstream</strong> — Lambda still renders daily volume HTML for SES + S3 archive. The web app is the operator console; the report is a distribution output.</li>
-        <li><strong>Desktop optional later</strong> — legacy fund admin (U.S. Bank GFS) is thick-client. If a buyer requires on-prem or air-gapped deployment, wrap the same web UI in Electron then — not the default.</li>
-      </ul>
-
-      <h3>What we do not know yet</h3>
-      <p>No wireframes or screen inventory in this doc. I have not used U.S. Bank GFS or another fund admin console firsthand. Specific pages, layout, and button priority come from <strong>shadowing the incumbent system</strong> after access — then mapping to the workflows in this blueprint. Build read-only viewers first; sign-off and override actions only after ingest + ledger are trusted.</p>
+      <h2>UI</h2>
+      <p>The most critical feature is calculating reliable figures — eliminating dependence on U.S. Bank as fund administrator. A polished UI is secondary but matters for selling the system to other firms later.</p>
+      <p><strong>Web first</strong> — faster iteration, easier demos to prospective clients. The daily volume HTML report is a distribution artifact we generate and send; the web app is where accountants work.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">Specific screens and layout TBD — validate by shadowing the current U.S. Bank workflow once we have access. Desktop shell (Electron) only if a buyer requires on-prem deployment.</p>
     </section>
 
     <section id="implementation">
@@ -2002,7 +2004,7 @@ flowchart LR
         <li>Stand up SFTP → S3 → Lambda ingest with CSV + cross-day validation; load <code>core.*</code> tables</li>
         <li>Carl owns ledger from normalized data; engineering supports ingest and calibration diffs vs U.S. Bank</li>
         <li>Shadow U.S. Bank UI after access; define web app from discovered workflows — not before</li>
-        <li>Once calibrated: EventBridge EOD chain, report render + SES, operator web app — keep diffing</li>
+        <li>Once calibrated: EventBridge EOD chain, report render + SES, web app — keep diffing</li>
       </ul>
     </section>
 
