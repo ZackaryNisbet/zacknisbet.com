@@ -759,77 +759,89 @@ pie showData
 
     <section id="architecture">
       <h2>Architecture — today vs target</h2>
-      <p>Fund accounting pulls from two independent input lanes: <strong>market data</strong> (prices, corp actions, reference) and <strong>operational truth</strong> (custodian holdings, cash, trades, AP confirms). The <strong>fund administrator</strong> ingests both and produces NAV, GL, and reports for the <strong>issuer</strong>. These are distinct roles — even when the same institution performs more than one.</p>
+      <p>Five fixed roles — only the <strong>company inside each box</strong> changes. Fund accounting always pulls market data and operational truth into a <strong>fund administrator</strong>, which produces NAV and GL for the <strong>issuer</strong>.</p>
 
       <h3>Roles</h3>
       <table class="role-legend">
-        <tr><th>Role</th><th>Who</th><th>Responsibility</th></tr>
-        <tr><td>Issuer / sponsor</td><td>Corgi</td><td>ETF issuer; consumes NAV, GL, and regulatory outputs; does not run daily fund accounting</td></tr>
-        <tr><td>Fund administrator</td><td>U.S. Bank GFS (today) → Corgi in-house (target)</td><td>NAV engine, general ledger, trial balance, fee accruals, corp-action application, EOD batch</td></tr>
-        <tr><td>Custodian</td><td>U.S. Bank (today and target)</td><td>Safekeeping of fund assets; source of holdings, cash, settlement, and AP create/redeem confirms (dataset 4)</td></tr>
-        <tr><td>Market data vendor</td><td>Bloomberg (primary), ICE (backup)</td><td>EOD prices, FX, corporate actions, security reference, venue turnover (datasets 1–3, 5)</td></tr>
-        <tr><td>Transfer agent</td><td>Typically bundled with administrator</td><td>Share registry, creations/redemptions processing — feeds shares outstanding into operational truth</td></tr>
+        <tr><th>Role</th><th>Responsibility</th><th>Accountability</th></tr>
+        <tr><td>Issuer / sponsor</td><td>ETF issuer; consumes NAV, GL, and regulatory outputs</td><td>Owns the fund; does not run daily accounting</td></tr>
+        <tr><td>Fund administrator</td><td>NAV engine, GL, trial balance, fee accruals, corp-action application, EOD batch</td><td>Reconciles all inputs; signs off NAV before publish</td></tr>
+        <tr><td>Custodian</td><td>Safekeeping of fund assets; holdings, cash, settlement, trade confirms</td><td>Warrants accuracy of custody records under custody agreement</td></tr>
+        <tr><td>Market data vendor</td><td>EOD prices, FX, corporate actions, security reference, venue turnover</td><td>Vendor SLA on data quality; admin reconciles before use</td></tr>
+        <tr><td>Transfer agent</td><td>Share registry; creations / redemptions processing; shares outstanding</td><td>Share-count accuracy; feeds operational truth into admin</td></tr>
       </table>
 
       <div class="callout warn">
-        <strong>Are Bloomberg / ICE data sources for U.S. Bank?</strong> Partially — and only for market data. Bloomberg and ICE feed the <em>administrator's</em> pricing and reference pipelines (datasets 1–3, 5). They do <em>not</em> supply custodian holdings or cash. Dataset 4 comes from <strong>U.S. Bank Custody</strong>, a separate system from GFS. Today both sit under U.S. Bank; GFS may contract Bloomberg directly (administrator pass-through) or receive a feed from Corgi's own Data License — either way, market data and custody data are two inputs into the NAV engine, not one vendor feeding the other.
+        <strong>Removing U.S. Bank as fund admin ≠ removing U.S. Bank entirely.</strong> The target diagram assumes Corgi takes <em>administration only</em>. U.S. Bank stays as <strong>custodian</strong> under a separate contract — they still hold the assets and must still deliver holdings / cash / trade files to whoever runs NAV. That feed does not depend on GFS being your admin; it depends on the custody agreement. If custodian data is wrong, the <strong>custodian</strong> is liable under that contract. If Corgi admin publishes a bad NAV without catching it in reconciliation, the <strong>administrator</strong> is liable. Daily recs exist to catch errors before sign-off. To remove U.S. Bank completely would require a <strong>custody migration</strong> (e.g. BNY, State Street) — a separate, larger project than bringing admin in-house.
       </div>
 
       <div class="arch-grid">
         <div class="arch-card today">
           <div class="arch-card-header">Today</div>
-          <div class="arch-card-sub">Outsourced fund administration · U.S. Bank GFS</div>
+          <div class="arch-card-sub">U.S. Bank GFS = fund admin + transfer agent</div>
           <div class="mermaid">
 flowchart TB
-  subgraph vendors["Market data vendors"]
-    BBG["Bloomberg — primary"]
-    ICE["ICE — backup"]
+  subgraph md["Market data vendor"]
+    MD["Bloomberg · ICE backup"]
   end
 
-  subgraph usbank["U.S. Bank"]
-    CUST["U.S. Bank Custody — custodian"]
-    GFS["U.S. Bank GFS — fund administrator"]
+  subgraph cust["Custodian"]
+    CU["U.S. Bank"]
   end
 
-  subgraph corgi["Corgi"]
-    ISS["Issuer / sponsor"]
+  subgraph ta["Transfer agent"]
+    TR["U.S. Bank GFS"]
   end
 
-  BBG -->|"Datasets 1–3, 5 — prices, corp actions, reference"| GFS
-  ICE -.->|"backup / reconcile"| GFS
-  CUST -->|"Dataset 4 — holdings, cash, trades, AP confirms"| GFS
-  GFS -->|"NAV, GL, trial balance, reports"| ISS
+  subgraph admin["Fund administrator"]
+    FA["U.S. Bank GFS"]
+  end
+
+  subgraph iss["Issuer / sponsor"]
+    IS["Corgi"]
+  end
+
+  MD -->|"Datasets 1–3, 5"| FA
+  CU -->|"Dataset 4 — holdings, cash, trades"| FA
+  TR -->|"Shares outstanding, C/R processing"| FA
+  FA -->|"NAV, GL, trial balance"| IS
           </div>
         </div>
 
         <div class="arch-card target">
           <div class="arch-card-header">Target</div>
-          <div class="arch-card-sub">In-house fund administration · U.S. Bank remains custodian</div>
+          <div class="arch-card-sub">Corgi = fund admin + transfer agent · U.S. Bank = custodian only</div>
           <div class="mermaid">
 flowchart TB
-  subgraph vendors["Market data vendors"]
-    BBG["Bloomberg — primary"]
-    ICE["ICE — backup"]
+  subgraph md["Market data vendor"]
+    MD["Bloomberg · ICE backup"]
   end
 
-  subgraph usbank["U.S. Bank"]
-    CUST["U.S. Bank Custody — custodian"]
+  subgraph cust["Custodian"]
+    CU["U.S. Bank"]
   end
 
-  subgraph corgi["Corgi"]
-    ADMIN["Corgi Fund Administration — in-house"]
-    ISS["Issuer / sponsor"]
+  subgraph ta["Transfer agent"]
+    TR["Corgi in-house"]
   end
 
-  BBG -->|"Datasets 1–3, 5 — prices, corp actions, reference"| ADMIN
-  ICE -.->|"backup / reconcile"| ADMIN
-  CUST -->|"Dataset 4 — holdings, cash, trades, AP confirms"| ADMIN
-  ADMIN -->|"NAV, GL, trial balance, reports"| ISS
+  subgraph admin["Fund administrator"]
+    FA["Corgi in-house"]
+  end
+
+  subgraph iss["Issuer / sponsor"]
+    IS["Corgi"]
+  end
+
+  MD -->|"Datasets 1–3, 5"| FA
+  CU -->|"Dataset 4 — holdings, cash, trades"| FA
+  TR -->|"Shares outstanding, C/R processing"| FA
+  FA -->|"NAV, GL, trial balance"| IS
           </div>
         </div>
       </div>
 
-      <p style="color:var(--etf-muted);font-size:13px;">What changes: the <strong>fund administrator</strong> role moves from U.S. Bank GFS to Corgi in-house. The <strong>custodian</strong> (U.S. Bank) and <strong>market data vendors</strong> (Bloomberg / ICE) stay. Corgi ingests the same six datasets — it owns the NAV engine and GL instead of receiving them as an outsourced deliverable.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">What changes: <strong>fund administrator</strong> and <strong>transfer agent</strong> move from U.S. Bank GFS to Corgi in-house. <strong>Custodian</strong> and <strong>market data vendors</strong> stay on existing contracts. Bloomberg / ICE feed the admin's pricing pipelines — not the custodian. Custodian data is a separate input (dataset 4) governed by the custody SLA, not the admin outsourcing agreement.</p>
     </section>
 
     <section id="data-sourcing">
