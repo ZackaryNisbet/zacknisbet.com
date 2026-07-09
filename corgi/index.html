@@ -86,10 +86,10 @@
     .header-inner {
       width: 100%;
       margin: 0 auto;
-      padding: 20px 40px;
+      padding: 10px 40px;
       display: flex;
-      align-items: flex-start;
-      gap: 24px;
+      align-items: center;
+      gap: 16px;
     }
 
     .logo-link {
@@ -98,69 +98,64 @@
       text-decoration: none;
       color: inherit;
       flex-shrink: 0;
-      padding-top: 4px;
     }
 
     .logo-link img {
-      height: 26px;
+      height: 20px;
       width: auto;
+      display: block;
     }
 
-    .header-hero {
+    .header-title-block {
       flex: 1;
       min-width: 0;
     }
 
-    .header-hero .eyebrow {
-      margin-bottom: 8px;
-    }
-
-    .header-hero .header-title {
-      font-size: clamp(22px, 2.5vw, 30px);
-      font-weight: 600;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin: 0 0 8px;
-      color: var(--etf-white);
-    }
-
-    .header-hero .header-subtitle {
-      color: var(--etf-white2);
+    .header-title-block .header-title {
       font-size: 14px;
-      font-weight: 300;
-      font-style: italic;
-      line-height: 1.5;
-      margin: 0 0 12px;
-      max-width: 720px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--etf-white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .header-byline {
+    .header-meta {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px 14px;
-      font-size: 11px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+      text-align: right;
+      font-size: 10px;
       color: var(--etf-muted);
       letter-spacing: 0.04em;
     }
 
-    .header-byline .author-name {
-      font-size: 12px;
+    .header-meta .author-name {
+      font-size: 11px;
       font-weight: 500;
       color: var(--etf-white2);
-      letter-spacing: 0.02em;
     }
 
-    .header-byline .author-role {
-      font-size: 11px;
+    .header-meta .author-role {
+      font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--etf-orange);
     }
 
-    .header-byline .sep {
-      color: var(--etf-border);
+    .header-meta a {
+      color: var(--etf-white3);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .header-meta a:hover {
+      color: var(--etf-orange);
     }
 
     nav.doc-nav {
@@ -622,10 +617,10 @@
     .footer-meta a:hover { color: var(--etf-orange); }
 
     @media (max-width: 640px) {
-      .header-inner { padding: 16px; gap: 16px; flex-direction: column; }
+      .header-inner { padding: 8px 16px; gap: 12px; }
+      .header-meta .author-role { display: none; }
       .header-inner, main, .site-footer { padding-left: 16px; padding-right: 16px; }
       nav.doc-nav { padding: 0 16px; }
-      .header-hero .header-title { font-size: 20px; }
     }
 
     h4 {
@@ -685,7 +680,7 @@
       padding: 18px 20px;
       background: var(--etf-black2);
       border: 1px solid var(--etf-border2);
-      scroll-margin-top: 160px;
+      scroll-margin-top: 88px;
     }
 
     .dp-card-head {
@@ -799,19 +794,14 @@
         <a href="https://corgifunds.com/" class="logo-link" target="_blank" rel="noopener noreferrer">
           <img src="/corgi/assets/images/corgifunds-logo-light.webp" alt="CorgiFunds">
         </a>
-        <div class="header-hero" id="overview">
-          <span class="eyebrow">Corgi Strategies</span>
-          <h1 class="header-title">ETF Fund Administration Blueprint</h1>
-          <p class="header-subtitle">Required inputs, datapoints, and sourcing for in-house fund accounting.</p>
-          <div class="header-byline">
-            <span class="author-name">Zack Nisbet</span>
-            <span class="sep">·</span>
-            <span>Work Trial</span>
-            <span class="sep">·</span>
-            <span class="author-role">Full Stack Engineer - ETF Focus</span>
-            <span class="sep">·</span>
-            <span>July 8–9, 2026</span>
-          </div>
+        <div class="header-title-block" id="overview">
+          <span class="header-title">ETF Fund Administration Blueprint</span>
+        </div>
+        <div class="header-meta">
+          <span class="author-name">Zack Nisbet</span>
+          <span class="author-role">Work Trial · Full Stack Engineer - ETF Focus</span>
+          <span>July 8–9, 2026</span>
+          <a href="https://corgifunds.com/">corgifunds.com</a>
         </div>
       </div>
     </div>
@@ -819,8 +809,12 @@
       <div class="nav-inner">
         <a href="#foundations">Foundations</a>
         <a href="#architecture">Architecture</a>
-        <a href="#data-sourcing">Data sourcing</a>
+        <a href="#data-sourcing">Sourcing</a>
+        <a href="#internal-fields">Internal fields</a>
         <a href="#datapoints">Datapoints</a>
+        <a href="#pipelines">Pipelines</a>
+        <a href="#workflows">Workflows</a>
+        <a href="#outputs">Outputs</a>
       </div>
     </nav>
   </header>
@@ -1316,6 +1310,164 @@ flowchart TB
         <tr><td>Reconciliation break</td><td>Custodian qty/cash ≠ internal books (Dataset 4 — Operational truth)</td><td>Explain and clear before NAV publish</td></tr>
         <tr><td>NAV sign-off</td><td>All recs and exceptions resolved</td><td>Authorizes publish to TA and external parties</td></tr>
         <tr><td>GL journal entry</td><td>Non-standard adjustment</td><td>Manual debit/credit to any GL line</td></tr>
+      </table>
+    </section>
+
+
+    <section id="internal-fields">
+      <h2>Internal fields</h2>
+      <p>Not everything comes from a vendor feed or a formula. Corgi must <strong>store and maintain</strong> fund-specific configuration and identifiers — the fund master. Without these, datapoint computes have nothing to key on.</p>
+
+      <table>
+        <tr><th>Field</th><th>Why we store it</th><th>Example</th></tr>
+        <tr><td>Fund ticker</td><td>Maps vendor security IDs to Corgi product; used in reports and baskets</td><td>DNRO, EUV</td></tr>
+        <tr><td>Fund legal name</td><td>Regulatory filings, investor communications</td><td>Corgi Global X … ETF</td></tr>
+        <tr><td>Share class</td><td>Multi-class funds; fee and NAV per class</td><td>Class A / institutional</td></tr>
+        <tr><td>Fund share ISIN / CUSIP</td><td>ETF share identifier — distinct from underlying holdings</td><td>US… / XS…</td></tr>
+        <tr><td>Base currency</td><td>FX conversion anchor for trial balance</td><td>USD, EUR</td></tr>
+        <tr><td>Fee schedule (bps)</td><td>Unitary fee accrual — no vendor supplies this</td><td>20 bps on net assets</td></tr>
+        <tr><td>Fiscal year-end</td><td>Period close, annual audit boundary</td><td>Dec 31</td></tr>
+        <tr><td>Authorized participants</td><td>Create/redeem settlement and breakage rules</td><td>AP bank list</td></tr>
+        <tr><td>Listing venues</td><td>Turnover report venue columns</td><td>LSE, Xetra, NYSE Arca</td></tr>
+        <tr><td>GL chart mapping</td><td>Datapoint → GL account code</td><td>211161 EUV mapping</td></tr>
+        <tr><td>Recon tolerances</td><td>Validation thresholds (bps, absolute)</td><td>Equity price ±5 bps</td></tr>
+        <tr><td>NAV cutoff time</td><td>EOD batch schedule per market</td><td>4:00 PM ET equity close</td></tr>
+        <tr><td>Settlement calendar</td><td>T+1 US / T+2 EU rules per market</td><td>US equity T+1; EU T+2</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;">Stored in <code>CFG.*</code> referenced throughout datapoint formulas. Changes are versioned and effective-dated — not overwritten silently.</p>
+    </section>
+
+    <section id="pipelines">
+      <h2>Data pipelines</h2>
+      <p>Receiving data is the easy part — a scheduled API pull or file drop. The hard part is <strong>when</strong> you pull, <strong>what</strong> you store, <strong>how</strong> you validate, and <strong>how</strong> you prove it later. Everything below assumes we persist data; we do not compute NAV from live API calls at publish time.</p>
+
+      <h3>Why end-of-day?</h3>
+      <p>Fund accounting runs on an <strong>as-of date</strong>, not in real time. A trade executed today does not settle today — US equities are <strong>T+1</strong> (next business day); EU markets are typically <strong>T+2</strong>. Until settlement, the position is in investment receivable/payable, not cash. Market data vendors publish <strong>official EOD marks</strong> only after the close. Running the batch intraday would mean marking on incomplete prices and booking unsettled trades as settled.</p>
+      <p>EOD batch logic: wait for (1) market close + official prices, (2) custodian day-end file, (3) corp-action confirmations — then compute, reconcile, sign off, publish.</p>
+
+      <div class="mermaid">
+flowchart LR
+  subgraph intraday["Intraday"]
+    T["Trade executed"]
+  end
+  subgraph eod["EOD batch (as-of date)"]
+    P["Prices available"]
+    C["Custodian file"]
+    R["Reconcile 3 sources"]
+    N["Compute NAV"]
+    S["Sign-off &amp; publish"]
+  end
+  subgraph later["Later"]
+    SET["T+1 / T+2 settlement hits cash"]
+  end
+  T --> P
+  P --> R
+  C --> R
+  R --> N --> S
+  T -.-> SET
+      </div>
+
+      <h3>Ingest</h3>
+      <p>Each feed runs on a schedule after vendor publication window. Ingest writes an immutable row — never overwrite the vendor payload.</p>
+      <div class="formula">curl / SFTP / vendor API → raw_ingest.{feed} (as_of_date, vendor, received_at, payload JSONB)</div>
+      <p>One JSONB column per feed preserves <strong>exactly what the vendor sent</strong>. If a computed NAV is wrong six months later, we can replay from raw without guessing whether the vendor or our transform was at fault.</p>
+
+      <h3>Storage model</h3>
+      <p>Three layers — not one table per API field, not one giant table either.</p>
+      <table>
+        <tr><th>Layer</th><th>Schema</th><th>Contents</th></tr>
+        <tr><td><strong>Raw</strong></td><td><code>raw_ingest.*</code></td><td>Immutable vendor payloads (JSONB) + metadata. One table per feed type (prices, holdings, corp_actions…).</td></tr>
+        <tr><td><strong>Normalized</strong></td><td><code>core.*</code></td><td>Typed, queryable columns: <code>price_eod</code>, <code>holdings_qty</code>, <code>corp_action</code>. Parsed from raw; idempotent per (as_of, security, vendor).</td></tr>
+        <tr><td><strong>Computed</strong></td><td><code>ledger.*</code></td><td>Datapoint values, GL lines, NAV components. Produced by formulas in the datapoint catalog.</td></tr>
+        <tr><td><strong>Recon &amp; reporting</strong></td><td><code>reporting.*</code></td><td>Separate DB: exception log, vendor scorecard, SLA metrics. Does not block the NAV path.</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Encryption:</strong> TLS in transit; AES-256 at rest (cloud KMS or on-prem HSM). Fund accounting data is not PCI, but it is fiduciary — treat as confidential. On-prem is viable for latency/control; cloud is viable for ops cost. Either works if access is role-scoped and audit-logged.</p>
+
+      <h3>Validation &amp; reconciliation</h3>
+      <p>Three vendors per market-data pipeline (primary, backup, cross-check). When A ≠ B, pull C as tiebreaker.</p>
+      <div class="mermaid">
+flowchart TD
+  A["Primary (A)"] --> CMP{"A = B?"}
+  B["Backup (B)"] --> CMP
+  CMP -->|Yes| OK["Use consensus value"]
+  CMP -->|No| C["Cross-check (C)"]
+  C --> V{"A = C?"}
+  V -->|Yes| FLAG_B["Flag B · use A · log exception"]
+  V -->|No| W{"B = C?"}
+  W -->|Yes| FLAG_A["Flag A · use B · log exception"]
+  W -->|No| ESC["Escalate — block NAV · manual review"]
+      </div>
+      <p>Every exception writes to <code>reporting.vendor_exceptions</code>: field, as_of, vendor flagged, values from A/B/C, resolution. Over time this becomes a <strong>vendor reliability scorecard</strong> — which feed is actually worth paying for.</p>
+
+      <h3>Accuracy &amp; uptime SLAs — what the numbers mean</h3>
+      <table class="field-table">
+        <tr><th>SLA</th><th>Downtime / error budget (per year)</th><th>Fund accounting implication</th></tr>
+        <tr><td>99.9% uptime</td><td>~8.8 hours unavailable</td><td>Miss one EOD window if outage hits cutover — need backup vendor or delayed NAV</td></tr>
+        <tr><td>99.99% uptime</td><td>~52 minutes</td><td>Roughly one delayed batch per year tolerable without process change</td></tr>
+        <tr><td>99.9% field accuracy</td><td>1 in 1,000 values wrong</td><td>~100-name book × 10 fields/day × 250 days ≈ 250K points → <strong>~250 bad marks/year</strong></td></tr>
+        <tr><td>99.99% field accuracy</td><td>1 in 10,000 values wrong</td><td>Same book → <strong>~25 bad marks/year</strong> — still material; why 3-source recon exists</td></tr>
+      </table>
+      <p>Three sources are enough for a tiebreaker — a fourth is diminishing returns unless SLA math shows residual risk above appetite. If A, B, and C all disagree, that is a <strong>block-NAV</strong> event, not an auto-resolve.</p>
+
+      <h3>Transform</h3>
+      <p>Normalized → computed via the datapoint formulas (detail cards). Transforms are deterministic, versioned, and replayable from stored inputs. No transform runs without persisted raw + normalized inputs for that as_of date.</p>
+
+      <h3>Retention</h3>
+      <p>SEC Rule 204-2 requires investment advisers to retain books and records for <strong>at least five years</strong> (first two in primary office). NAV history, GL, reconciliation logs, and vendor raw payloads qualify. Design default: <strong>7 years online</strong>, then archive to cold storage — covers examination cycles with margin. Immutable raw JSONB makes replay and audit defensible.</p>
+    </section>
+
+    <section id="workflows">
+      <h2>Fund administration workflows</h2>
+      <p>Industry-standard daily and periodic processes the system must support — not exotic, but all mandatory for a regulated ETF administrator.</p>
+
+      <table>
+        <tr><th>Workflow</th><th>Frequency</th><th>Trigger → outcome</th></tr>
+        <tr><td><strong>EOD NAV batch</strong></td><td>Daily</td><td>Feeds arrive → ingest → validate → compute datapoints → reconcile custodian → sign-off → publish official NAV</td></tr>
+        <tr><td><strong>Trade &amp; settlement</strong></td><td>Daily</td><td>Trade date books receivable/payable; settlement date (T+1/T+2) moves cash and clears bridge accounts</td></tr>
+        <tr><td><strong>Corporate actions</strong></td><td>Event-driven</td><td>Vendor alert → 2-of-3 confirm → adjust qty/cost/income → post GL entries</td></tr>
+        <tr><td><strong>AP create / redeem</strong></td><td>As occurred</td><td>TA confirm → basket vs holdings rec → settlement → update shares outstanding and capital</td></tr>
+        <tr><td><strong>Fee accrual</strong></td><td>Daily</td><td>CFG.fee_bps × net_assets → accrued unitary fee; periodic payment clears accrual</td></tr>
+        <tr><td><strong>Reconciliation</strong></td><td>Daily</td><td>Custodian vs internal holdings/cash; vendor A vs B vs C; all breaks cleared before NAV sign-off</td></tr>
+        <tr><td><strong>Exception resolution</strong></td><td>As needed</td><td>Pricing override, corp-action confirm, manual JE — audit trail required</td></tr>
+        <tr><td><strong>Month / quarter / year-end close</strong></td><td>Periodic</td><td>Accrual true-ups, financial statement pack, audit support file</td></tr>
+      </table>
+
+      <div class="mermaid">
+sequenceDiagram
+  participant V as Vendors (D1-D4)
+  participant I as Ingest
+  participant L as Ledger engine
+  participant R as Recon / reporting
+  participant A as Accountant
+  participant P as Publish
+
+  V->>I: EOD files (post-close window)
+  I->>L: Normalized rows
+  L->>R: 3-source price compare
+  R-->>A: Exception queue (if any)
+  A->>L: Approve / override
+  L->>L: Compute datapoints + NAV
+  L->>A: Trial balance for sign-off
+  A->>P: Publish NAV + outputs
+      </div>
+    </section>
+
+    <section id="outputs">
+      <h2>Major outputs</h2>
+      <p>Established artifacts every fund administrator produces — regulatory, operational, and investor-facing. These are not optional nice-to-haves; they are what auditors, the SEC, APs, and the issuer expect.</p>
+
+      <table>
+        <tr><th>Output</th><th>Audience</th><th>Frequency</th><th>Source</th></tr>
+        <tr><td><strong>Official NAV / NAV per share</strong></td><td>TA, exchanges, issuer, APs</td><td>Daily</td><td>Computed ledger · signed off</td></tr>
+        <tr><td><strong>Trial balance / general ledger</strong></td><td>Internal, audit, issuer</td><td>Daily</td><td>All datapoint GL lines</td></tr>
+        <tr><td><strong>Portfolio valuation</strong></td><td>Issuer, compliance</td><td>Daily</td><td>Holdings × marks + accruals</td></tr>
+        <tr><td><strong>Schedule of investments</strong></td><td>SEC (N-PORT), annual report</td><td>Quarterly / annual</td><td>Holdings snapshot</td></tr>
+        <tr><td><strong>Creation / redemption basket file</strong></td><td>Authorized participants</td><td>Daily + on demand</td><td>Holdings + cash component for CU</td></tr>
+        <tr><td><strong>Daily volume / flow report</strong></td><td>Corgi issuer, distribution</td><td>Daily</td><td>Dataset 5 turnover + Dataset 4 flows</td></tr>
+        <tr><td><strong>Reconciliation &amp; exception report</strong></td><td>Operations, vendor management</td><td>Daily</td><td>reporting.vendor_exceptions</td></tr>
+        <tr><td><strong>SEC regulatory filings</strong></td><td>SEC</td><td>Periodic</td><td>N-CEN, N-PORT, financial statements</td></tr>
+        <tr><td><strong>Audit support package</strong></td><td>External auditor</td><td>Annual</td><td>GL, NAV history, raw ingest replay, rec sign-offs</td></tr>
+        <tr><td><strong>Investor factsheet / performance</strong></td><td>Investors, marketing</td><td>Monthly</td><td>NAV series, AUM, benchmark</td></tr>
       </table>
     </section>
 
