@@ -1736,20 +1736,19 @@ flowchart LR
 
       <div class="mermaid">
 flowchart TB
-  IN["Same D1-D4 inputs"]
-
-  subgraph parallel["Parallel compute · same as_of"]
+  subgraph sources[" "]
     direction LR
-    USB["U.S. Bank compute<br>trial balance / NAV"]
-    CI["Corgi compute<br>datapoint formulas"]
+    USB["U.S. Bank"]
+    CI["Corgi compute"]
   end
+  DIFF["diff"]
+  OK["congruent"]
+  FIX["trace issue · tweak formulas"]
 
-  IN --> USB
-  IN --> CI
-  USB --> DIFF{"Line-by-line diff"}
+  USB --> DIFF
   CI --> DIFF
-  DIFF -->|Congruent| OK["Calibration pass"]
-  DIFF -->|Mismatch| FIX["Trace · tweak formulas · rerun"]
+  DIFF --> OK
+  DIFF --> FIX
   FIX --> CI
       </div>
 
