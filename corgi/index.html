@@ -3,6 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Visit ping → Discord (#zacknisbet-com-visits). Fire-and-forget; never blocks render. -->
+  <script>
+    (function () {
+      try {
+        var im = new Image();
+        im.referrerPolicy = 'no-referrer';
+        im.src = 'https://ibacdmdmyzcfmhesrhiz.supabase.co/functions/v1/website-event?e=visit&s=zn'
+          + '&p=' + encodeURIComponent(location.pathname || '/')
+          + '&r=' + encodeURIComponent(document.referrer || '')
+          + '&t=' + Date.now();
+      } catch (e) { /* analytics must never break the page */ }
+    })();
+  </script>
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" type="image/png" href="/corgi/assets/images/corgifunds-favicon.png">
   <title>Corgi Fund Accounting System Blueprint</title>
