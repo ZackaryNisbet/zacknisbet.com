@@ -203,42 +203,46 @@
       text-shadow: 0 0 20px rgba(255, 85, 0, 0.45);
     }
 
-    .scroll-progress {
-      position: relative;
-      height: 3px;
+    .scroll-rail {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100vh;
+      z-index: 200;
       background: var(--etf-black3);
-      overflow: hidden;
+      pointer-events: none;
     }
 
-    .scroll-progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #cc4400, var(--etf-orange), #ff7733);
-      box-shadow: 0 0 12px rgba(255, 85, 0, 0.6);
-      transition: width 0.08s linear;
+    .scroll-rail-fill {
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, #cc4400, var(--etf-orange) 40%, #ff7733);
+      box-shadow: -2px 0 14px rgba(255, 85, 0, 0.55);
+      transition: height 0.08s linear;
       position: relative;
       z-index: 2;
     }
 
-    .scroll-progress-markers {
+    .scroll-rail-markers {
       position: absolute;
       inset: 0;
       z-index: 1;
-      pointer-events: none;
     }
 
-    .scroll-progress-marker {
+    .scroll-rail-marker {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: rgba(255, 255, 255, 0.12);
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-50%);
     }
 
-    .scroll-progress-marker.is-active {
-      background: rgba(255, 85, 0, 0.5);
-      width: 2px;
+    .scroll-rail-marker.is-active {
+      background: var(--etf-orange);
+      box-shadow: 0 0 8px rgba(255, 85, 0, 0.7);
+      height: 3px;
     }
 
     main {
@@ -912,7 +916,6 @@
           <span class="author-name">Zack Nisbet</span>
           <span class="author-role">Work Trial · Full Stack Engineer - ETF Focus</span>
           <span>July 8–9, 2026</span>
-          <a href="https://corgifunds.com/">corgifunds.com</a>
         </div>
       </div>
     </div>
@@ -926,13 +929,15 @@
         <a href="#pipelines">Pipelines</a>
         <a href="#workflows">Workflows</a>
         <a href="#outputs">Outputs</a>
+        <a href="#daily-report">Daily report</a>
       </div>
     </nav>
-    <div class="scroll-progress" aria-hidden="true">
-      <div class="scroll-progress-markers" id="scroll-markers"></div>
-      <div class="scroll-progress-fill" id="scroll-fill"></div>
-    </div>
   </header>
+
+  <div class="scroll-rail" aria-hidden="true">
+    <div class="scroll-rail-markers" id="scroll-markers"></div>
+    <div class="scroll-rail-fill" id="scroll-fill"></div>
+  </div>
 
   <main>
     <section id="foundations">
@@ -1626,17 +1631,6 @@ flowchart TB
         </tr>
         </tbody>
       </table>
-
-
-      <h3>Manual overrides</h3>
-      <table class="field-table">
-        <tr><th>Exception</th><th>Trigger</th><th>Action</th></tr>
-        <tr><td>Pricing override</td><td>Stale, missing, or halted vendor mark (Dataset 1 — Pricing &amp; FX)</td><td>Fund accountant selects replacement mark; audit trail required</td></tr>
-        <tr><td>Corp action confirm</td><td>Complex merger, spin, or contested terms (Dataset 2 — Corporate actions &amp; FI events)</td><td>Human confirms before qty/cost/receivable adjustment</td></tr>
-        <tr><td>Reconciliation break</td><td>Custodian qty/cash ≠ internal books (Dataset 4 — Operational truth)</td><td>Explain and clear before NAV publish</td></tr>
-        <tr><td>NAV sign-off</td><td>All recs and exceptions resolved</td><td>Authorizes publish to TA and external parties</td></tr>
-        <tr><td>GL journal entry</td><td>Non-standard adjustment</td><td>Manual debit/credit to any GL line</td></tr>
-      </table>
     </section>
 
 
@@ -1659,6 +1653,7 @@ flowchart TB
         <tr><td>Recon tolerances</td><td>Validation thresholds (bps, absolute)</td><td>Equity price ±5 bps</td></tr>
         <tr><td>NAV cutoff time</td><td>EOD batch schedule per market</td><td>4:00 PM ET equity close</td></tr>
         <tr><td>Settlement calendar</td><td>T+1 US / T+2 EU rules per market</td><td>US equity T+1; EU T+2</td></tr>
+        <tr><td>Distribution groups</td><td>Email recipients per report type</td><td>daily_volume_report → desk + issuer</td></tr>
       </table>
       <p style="color:var(--etf-muted);font-size:13px;">Stored in <code>CFG.*</code> referenced throughout datapoint formulas. Changes are versioned and effective-dated — not overwritten silently.</p>
     </section>
@@ -1693,10 +1688,11 @@ flowchart LR
   T -.-> SET
       </div>
 
-      <h3>Ingest</h3>
-      <p>Each feed runs on a schedule after vendor publication window. Ingest writes an immutable row — never overwrite the vendor payload.</p>
-      <div class="formula">curl / SFTP / vendor API → raw_ingest.{feed} (as_of_date, vendor, received_at, payload JSONB)</div>
-      <p>One JSONB column per feed preserves <strong>exactly what the vendor sent</strong>. If a computed NAV is wrong six months later, we can replay from raw without guessing whether the vendor or our transform was at fault.</p>
+      <h3>Ingest &amp; compute (AWS)</h3>
+      <p>Each feed runs on a schedule after vendor publication window. Ingest writes an immutable row — never overwrite the vendor payload. Corgi uses <strong>AWS</strong> (not Supabase edge functions): <strong>EventBridge</strong> schedules EOD triggers, <strong>Lambda</strong> runs transforms and report generation, <strong>S3</strong> stores raw payloads and rendered HTML, <strong>SES</strong> emails stakeholders.</p>
+      <div class="formula">vendor API / SFTP → Lambda ingest → raw_ingest.{feed} (as_of_date, vendor, received_at, payload JSONB on S3 + Postgres)</div>
+      <p>Pipeline stages chain via EventBridge or S3 event notifications: <strong>raw → normalized → ledger</strong>. CloudFront Functions are for lightweight edge HTTP only; batch accounting and report rendering run on <strong>Lambda</strong> in-region. Lambda@Edge is optional for serving cached historical reports at the CDN — not for EOD compute.</p>
+      <p>One JSONB column per feed preserves <strong>exactly what the vendor sent</strong>. If a computed NAV is wrong six months later, we replay from raw without guessing whether the vendor or our transform was at fault.</p>
 
       <h3>Storage model</h3>
       <p>Three layers — not one table per API field, not one giant table either.</p>
@@ -1705,12 +1701,38 @@ flowchart LR
         <tr><td><strong>Raw</strong></td><td><code>raw_ingest.*</code></td><td>Immutable vendor payloads (JSONB) + metadata. One table per feed type (prices, holdings, corp_actions…).</td></tr>
         <tr><td><strong>Normalized</strong></td><td><code>core.*</code></td><td>Typed, queryable columns: <code>price_eod</code>, <code>holdings_qty</code>, <code>corp_action</code>. Parsed from raw; idempotent per (as_of, security, vendor).</td></tr>
         <tr><td><strong>Computed</strong></td><td><code>ledger.*</code></td><td>Datapoint values, GL lines, NAV components. Produced by formulas in the datapoint catalog.</td></tr>
-        <tr><td><strong>Recon &amp; reporting</strong></td><td><code>reporting.*</code></td><td>Separate DB: exception log, vendor scorecard, SLA metrics. Does not block the NAV path.</td></tr>
+        <tr><td><strong>Recon &amp; reporting</strong></td><td><code>reporting.*</code></td><td>Separate DB: exception log, vendor scorecard, calibration diffs (dev). Does not block the NAV path.</td></tr>
+        <tr><td><strong>Report archive</strong></td><td><code>s3://reports/</code></td><td>Immutable daily HTML (volume report, future packs). Versioned by <code>{report_type}/{as_of_date}.html</code></td></tr>
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Encryption:</strong> TLS in transit; AES-256 at rest (cloud KMS or on-prem HSM). Fund accounting data is not PCI, but it is fiduciary — treat as confidential. On-prem is viable for latency/control; cloud is viable for ops cost. Either works if access is role-scoped and audit-logged.</p>
 
-      <h3>Validation &amp; reconciliation</h3>
-      <p>Three vendors per market-data pipeline (primary, backup, cross-check). When A ≠ B, pull C as tiebreaker.</p>
+      <h3>Validation — development vs production</h3>
+      <p>Two phases. Do not conflate them.</p>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:20px 0 8px;">Development (pre-launch calibration)</h4>
+      <p>While building the in-house engine, the trusted reference is <strong>U.S. Bank GFS output</strong> — labeled ground truth from the system we are replacing. Each EOD:</p>
+      <ol>
+        <li>Run our best-effort datapoint functions on the same inputs</li>
+        <li>Import U.S. Bank trial balance / NAV extract for the same <code>as_of</code></li>
+        <li>Diff every GL line and datapoint — log to <code>reporting.calibration_diffs</code></li>
+        <li>Where we disagree, backsolve: trace inputs → formula → find the break</li>
+        <li>Fix compute, rerun until output is congruent</li>
+      </ol>
+      <p>After several days of this loop, calculations should match on all standard paths. Remaining gaps are edge cases — corp-action quirks, FI amortization corners — where domain review (operations team) closes the last mile before we hit them in production.</p>
+
+      <div class="mermaid">
+flowchart LR
+  IN["Same D1-D4 inputs"] --> US["U.S. Bank reference output"]
+  IN --> CI["Corgi in-house compute"]
+  US --> DIFF{"Line-by-line diff"}
+  CI --> DIFF
+  DIFF -->|Match| OK["Calibration pass"]
+  DIFF -->|Break| FIX["Trace · fix · rerun"]
+  FIX --> CI
+      </div>
+
+      <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:28px 0 8px;">Production (post-launch vendor reconciliation)</h4>
+      <p>Once live, U.S. Bank is no longer the reference — <strong>three market-data vendors</strong> per pipeline are. When primary (A) ≠ backup (B), cross-check (C) breaks the tie.</p>
       <div class="mermaid">
 flowchart TD
   A["Primary (A)"] --> CMP{"A = B?"}
@@ -1723,17 +1745,7 @@ flowchart TD
   W -->|Yes| FLAG_A["Flag A · use B · log exception"]
   W -->|No| ESC["Escalate — block NAV · manual review"]
       </div>
-      <p>Every exception writes to <code>reporting.vendor_exceptions</code>: field, as_of, vendor flagged, values from A/B/C, resolution. Over time this becomes a <strong>vendor reliability scorecard</strong> — which feed is actually worth paying for.</p>
-
-      <h3>Accuracy &amp; uptime SLAs — what the numbers mean</h3>
-      <table class="field-table">
-        <tr><th>SLA</th><th>Downtime / error budget (per year)</th><th>Fund accounting implication</th></tr>
-        <tr><td>99.9% uptime</td><td>~8.8 hours unavailable</td><td>Miss one EOD window if outage hits cutover — need backup vendor or delayed NAV</td></tr>
-        <tr><td>99.99% uptime</td><td>~52 minutes</td><td>Roughly one delayed batch per year tolerable without process change</td></tr>
-        <tr><td>99.9% field accuracy</td><td>1 in 1,000 values wrong</td><td>~100-name book × 10 fields/day × 250 days ≈ 250K points → <strong>~250 bad marks/year</strong></td></tr>
-        <tr><td>99.99% field accuracy</td><td>1 in 10,000 values wrong</td><td>Same book → <strong>~25 bad marks/year</strong> — still material; why 3-source recon exists</td></tr>
-      </table>
-      <p>Three sources are enough for a tiebreaker — a fourth is diminishing returns unless SLA math shows residual risk above appetite. If A, B, and C all disagree, that is a <strong>block-NAV</strong> event, not an auto-resolve.</p>
+      <p>Every exception writes to <code>reporting.vendor_exceptions</code>: field, as_of, vendor flagged, values from A/B/C, resolution. Over time this becomes a <strong>vendor reliability scorecard</strong>. Three sources are sufficient for tiebreak — if A, B, and C all disagree, that is a <strong>block-NAV</strong> event.</p>
 
       <h3>Transform</h3>
       <p>Normalized → computed via the datapoint formulas (detail cards). Transforms are deterministic, versioned, and replayable from stored inputs. No transform runs without persisted raw + normalized inputs for that as_of date.</p>
@@ -1753,7 +1765,8 @@ flowchart TD
         <tr><td><strong>Corporate actions</strong></td><td>Event-driven</td><td>Vendor alert → 2-of-3 confirm → adjust qty/cost/income → post GL entries</td></tr>
         <tr><td><strong>AP create / redeem</strong></td><td>As occurred</td><td>TA confirm → basket vs holdings rec → settlement → update shares outstanding and capital</td></tr>
         <tr><td><strong>Fee accrual</strong></td><td>Daily</td><td>CFG.fee_bps × net_assets → accrued unitary fee; periodic payment clears accrual</td></tr>
-        <tr><td><strong>Reconciliation</strong></td><td>Daily</td><td>Custodian vs internal holdings/cash; vendor A vs B vs C; all breaks cleared before NAV sign-off</td></tr>
+        <tr><td><strong>Calibration (dev)</strong></td><td>Daily until cutover</td><td>Corgi compute vs U.S. Bank reference → diff → backsolve → fix until congruent</td></tr>
+        <tr><td><strong>Reconciliation (prod)</strong></td><td>Daily</td><td>Custodian vs internal; vendor A vs B vs C; all breaks cleared before NAV sign-off</td></tr>
         <tr><td><strong>Exception resolution</strong></td><td>As needed</td><td>Pricing override, corp-action confirm, manual JE — audit trail required</td></tr>
         <tr><td><strong>Month / quarter / year-end close</strong></td><td>Periodic</td><td>Accrual true-ups, financial statement pack, audit support file</td></tr>
       </table>
@@ -1789,12 +1802,48 @@ sequenceDiagram
         <tr><td><strong>Portfolio valuation</strong></td><td>Issuer, compliance</td><td>Daily</td><td>Holdings × marks + accruals</td></tr>
         <tr><td><strong>Schedule of investments</strong></td><td>SEC (N-PORT), annual report</td><td>Quarterly / annual</td><td>Holdings snapshot</td></tr>
         <tr><td><strong>Creation / redemption basket file</strong></td><td>Authorized participants</td><td>Daily + on demand</td><td>Holdings + cash component for CU</td></tr>
-        <tr><td><strong>Daily volume / flow report</strong></td><td>Corgi issuer, distribution</td><td>Daily</td><td>Dataset 5 turnover + Dataset 4 flows</td></tr>
+        <tr><td><strong>Daily volume / flow report</strong></td><td>Corgi issuer, distribution</td><td>Daily</td><td>Dataset 5 + Dataset 4 · see <a href="#daily-report">Daily report</a></td></tr>
         <tr><td><strong>Reconciliation &amp; exception report</strong></td><td>Operations, vendor management</td><td>Daily</td><td>reporting.vendor_exceptions</td></tr>
         <tr><td><strong>SEC regulatory filings</strong></td><td>SEC</td><td>Periodic</td><td>N-CEN, N-PORT, financial statements</td></tr>
         <tr><td><strong>Audit support package</strong></td><td>External auditor</td><td>Annual</td><td>GL, NAV history, raw ingest replay, rec sign-offs</td></tr>
         <tr><td><strong>Investor factsheet / performance</strong></td><td>Investors, marketing</td><td>Monthly</td><td>NAV series, AUM, benchmark</td></tr>
       </table>
+    </section>
+
+    <section id="daily-report">
+      <h2>Daily fund report</h2>
+      <p>Corgi runs a <strong>Daily Volume Report</strong> every business day — all funds on one HTML page. Tracks AUM, primary-market flow (creates / redeems), secondary-market turnover by venue, and NAV deltas. This is an issuer-facing operations report, distinct from the official NAV publish.</p>
+
+      <h3>Report structure</h3>
+      <p>Matches the provided sample (<code>daily_volume_report_anonymised_.html</code>). Skeleton generator: <code>daily_volume_report.py</code>.</p>
+      <table>
+        <tr><th>Panel</th><th>Contents</th></tr>
+        <tr><td>Daily AUM change</td><td>Per-fund flow (create/redeem), flow vs price decomposition, BOD/EOD AUM</td></tr>
+        <tr><td>YTD AUM change</td><td>Gross creates, gross redeems, flow + price attribution, YoY AUM</td></tr>
+        <tr><td>Per-fund detail</td><td>Ticker, passive/active, inception, name, TER, theme, AUM, flow (1D/T+1/30D/YTD), venue turnover columns (LSE, Xetra, Euronext…), NAV per share + delta %</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Flow</strong> columns = primary market (AP creates/redeems). <strong>Turnover</strong> columns = secondary market volume by listing venue (Dataset 5).</p>
+
+      <h3>Generation pipeline (AWS)</h3>
+      <div class="mermaid">
+flowchart LR
+  EOD["EOD batch complete"] --> EB["EventBridge schedule"]
+  EB --> L["Lambda: render report"]
+  L --> DB["ledger + core + dataset 5"]
+  L --> S3["S3 reports/daily/{date}.html"]
+  S3 --> SES["SES email · HTML embed"]
+  SES --> DG["CFG.distribution_groups"]
+      </div>
+      <table>
+        <tr><th>Step</th><th>AWS service</th><th>Detail</th></tr>
+        <tr><td>Trigger</td><td>EventBridge</td><td>Fires after EOD NAV sign-off (or fixed cutover time)</td></tr>
+        <tr><td>Render</td><td>Lambda</td><td>Query reporting DB → build HTML from template → all Corgi funds</td></tr>
+        <tr><td>Store</td><td>S3</td><td>Immutable archive: <code>reports/daily_volume/{YYYY-MM-DD}.html</code> — full history retained</td></tr>
+        <tr><td>Distribute</td><td>SES</td><td>HTML body embedded in email to recipients in <code>CFG.distribution_groups</code></td></tr>
+        <tr><td>Access</td><td>CloudFront + S3</td><td>Optional: serve historical reports via CDN for internal dashboard</td></tr>
+      </table>
+      <p style="color:var(--etf-muted);font-size:13px;"><strong>Distribution groups</strong> stored in fund config — not hardcoded. Example: <code>daily_volume_report</code> → desk, issuer, distribution list. AWS SES identity and suppressions managed in-console; recipient lists live in our DB so ops can update without redeploying Lambda.</p>
+      <p>Sophisticated report packs (monthly performance, audit extracts) follow the same pattern: Lambda render → S3 archive → SES to a different distribution group. Detail deferred — same infrastructure.</p>
     </section>
 
   </main>
@@ -1845,16 +1894,16 @@ sequenceDiagram
 
       function updateProgress() {
         var pct = (window.scrollY / scrollMax()) * 100;
-        fill.style.width = pct + '%';
+        fill.style.height = pct + '%';
       }
 
       function placeMarkers() {
         markersEl.innerHTML = '';
         sections.forEach(function (s) {
           var marker = document.createElement('span');
-          marker.className = 'scroll-progress-marker';
+          marker.className = 'scroll-rail-marker';
           marker.dataset.section = s.id;
-          marker.style.left = (s.el.offsetTop / document.documentElement.scrollHeight) * 100 + '%';
+          marker.style.top = (s.el.offsetTop / document.documentElement.scrollHeight) * 100 + '%';
           markersEl.appendChild(marker);
         });
       }
@@ -1870,7 +1919,7 @@ sequenceDiagram
           a.classList.toggle('is-active', on);
           a.setAttribute('aria-current', on ? 'true' : 'false');
         });
-        markersEl.querySelectorAll('.scroll-progress-marker').forEach(function (m) {
+        markersEl.querySelectorAll('.scroll-rail-marker').forEach(function (m) {
           m.classList.toggle('is-active', m.dataset.section === id);
         });
       }
