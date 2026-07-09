@@ -1167,7 +1167,7 @@ flowchart TB
       <h2>Datapoints</h2>
       <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference GL: EUV thematic equity fund (211161). Bond funds (e.g. 211265) add fixed-income lines. Groups reflect Corgi product type — not GL sub-category codes.</p>
       <p style="color:var(--etf-muted);font-size:13px;">Click any row to expand the description and formula. One source of truth — no separate detail section.</p>
-      <p class="input-legend" style="color:var(--etf-muted);font-size:12px;">Field prefixes: <code>D1</code> pricing &amp; FX · <code>D2</code> corp actions &amp; FI events · <code>D3</code> security reference · <code>D4</code> operational truth · <code>CFG</code> fund config (fee schedule, base currency)</p>
+      <p class="input-legend" style="color:var(--etf-muted);font-size:12px;">Field prefixes: <code>D1</code> pricing &amp; FX · <code>D2</code> corp actions &amp; FI events · <code>D3</code> security reference · <code>D4</code> operational truth · <code>CFG</code> fund config (fee schedule, base currency)<br><strong style="color:var(--etf-white2);font-weight:500;">Method:</strong> <span class="dp-method-pulled">Pulled</span> = maps 1:1 to a single normalized input field · <span class="dp-method-computed">Computed</span> = combines two or more inputs via an explicit formula</p>
 
       <table class="summary-table dp-accordion">
         <thead>
@@ -1177,7 +1177,7 @@ flowchart TB
         <tr class="dp-row" data-dp="dp-cash" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-cash">
           <td class="dp-group">All ETFs</td>
           <td class="dp-name-cell"><span class="dp-name">Cash</span><span class="dp-chevron" aria-hidden="true"></span></td>
-          <td class="dp-method-pulled">Pulled</td>
+          <td class="dp-method-computed">Computed</td>
         </tr>
         <tr class="dp-expand-row" id="expand-dp-cash" data-dp="dp-cash" hidden>
           <td colspan="3">
