@@ -54,7 +54,9 @@
 
     * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scrollbar-width: none; }
+    html::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style: none; }
 
     body {
       margin: 0;
@@ -198,6 +200,45 @@
     nav.doc-nav a.is-active {
       color: var(--etf-orange);
       border-bottom-color: var(--etf-orange);
+      text-shadow: 0 0 20px rgba(255, 85, 0, 0.45);
+    }
+
+    .scroll-progress {
+      position: relative;
+      height: 3px;
+      background: var(--etf-black3);
+      overflow: hidden;
+    }
+
+    .scroll-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #cc4400, var(--etf-orange), #ff7733);
+      box-shadow: 0 0 12px rgba(255, 85, 0, 0.6);
+      transition: width 0.08s linear;
+      position: relative;
+      z-index: 2;
+    }
+
+    .scroll-progress-markers {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .scroll-progress-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateX(-50%);
+    }
+
+    .scroll-progress-marker.is-active {
+      background: rgba(255, 85, 0, 0.5);
+      width: 2px;
     }
 
     main {
@@ -749,6 +790,76 @@
       border-bottom-color: var(--etf-orange);
     }
 
+    .dp-accordion .dp-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dp-accordion .dp-row:hover td {
+      background: rgba(255, 85, 0, 0.05);
+    }
+
+    .dp-accordion .dp-row.is-open td {
+      background: rgba(255, 85, 0, 0.08);
+      border-bottom-color: transparent;
+    }
+
+    .dp-accordion .dp-row.is-open + .dp-expand-row td {
+      border-top: none;
+    }
+
+    .dp-name-cell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dp-name {
+      font-weight: 500;
+      color: var(--etf-white);
+    }
+
+    .dp-chevron {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--etf-white3);
+      border-bottom: 2px solid var(--etf-white3);
+      transform: rotate(-45deg);
+      transition: transform 0.2s ease, border-color 0.2s;
+      margin-top: -2px;
+    }
+
+    .dp-row.is-open .dp-chevron {
+      transform: rotate(45deg);
+      border-color: var(--etf-orange);
+      margin-top: 2px;
+    }
+
+    .dp-expand-row td {
+      padding: 0 !important;
+      border-top: none;
+    }
+
+    .dp-panel {
+      padding: 16px 20px 18px;
+      background: var(--etf-black2);
+      border-top: 1px solid rgba(255, 85, 0, 0.2);
+      animation: dpExpand 0.2s ease;
+    }
+
+    .dp-panel p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: var(--etf-white2);
+    }
+
+    @keyframes dpExpand {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .dp-method-pulled { color: #7eeea0; }
     .dp-method-computed { color: #ffd966; }
 
@@ -817,6 +928,10 @@
         <a href="#outputs">Outputs</a>
       </div>
     </nav>
+    <div class="scroll-progress" aria-hidden="true">
+      <div class="scroll-progress-markers" id="scroll-markers"></div>
+      <div class="scroll-progress-fill" id="scroll-fill"></div>
+    </div>
   </header>
 
   <main>
@@ -1046,260 +1161,471 @@ flowchart TB
     <section id="datapoints">
       <h2>Datapoints</h2>
       <p>Every line on the fund general ledger and trial balance maps to a datapoint below. Reference GL: EUV thematic equity fund (211161). Bond funds (e.g. 211265) add fixed-income lines. Groups reflect Corgi product type — not GL sub-category codes.</p>
-      <p style="color:var(--etf-muted);font-size:13px;"><strong>Summary</strong> = scannable index. Click a datapoint to jump to its definition. <strong>Detail below</strong> = single source of truth for descriptions and formulas.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">Click any row to expand the description and formula. One source of truth — no separate detail section.</p>
       <p class="input-legend" style="color:var(--etf-muted);font-size:12px;">Field prefixes: <code>D1</code> pricing &amp; FX · <code>D2</code> corp actions &amp; FI events · <code>D3</code> security reference · <code>D4</code> operational truth · <code>CFG</code> fund config (fee schedule, base currency)</p>
 
-      <h3>Summary</h3>
-      <table class="summary-table">
-        <tr><th>Group</th><th>Datapoint</th><th>Method</th></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-cash" class="dp-link">Cash</a></td><td class="dp-method-pulled">Pulled</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-investment-receivable" class="dp-link">Investment receivable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-investment-payable" class="dp-link">Investment payable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-dividend-withholding-tax-payable" class="dp-link">Dividend withholding tax payable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-accrued-unitary-fee" class="dp-link">Accrued unitary fee expense</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-settlement-breakage" class="dp-link">Settlement breakage income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-withholding-tax-expense" class="dp-link">Withholding tax — dividends (expense)</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-unitary-fee-expense" class="dp-link">Unitary fee expense</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-ar-subscriptions" class="dp-link">Accounts receivable — subscriptions</a></td><td class="dp-method-pulled">Pulled</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-ap-redemptions" class="dp-link">Accounts payable — redemptions</a></td><td class="dp-method-pulled">Pulled</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-capital-flow" class="dp-link">Subscriptions / redemptions (capital)</a></td><td class="dp-method-pulled">Pulled</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-total-assets" class="dp-link">Total assets</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-total-liabilities" class="dp-link">Total liabilities</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-net-assets" class="dp-link">Net assets</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-shares-outstanding" class="dp-link">Shares outstanding</a></td><td class="dp-method-pulled">Pulled</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-nav-per-share" class="dp-link">NAV per share</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-net-income" class="dp-link">Net income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">All ETFs</td><td><a href="#dp-total-capital" class="dp-link">Total capital</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-cost-equity" class="dp-link">Cost of investments — equity</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-unrealized-equity" class="dp-link">Net unrealized appreciation/depreciation — equity</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-dividends-receivable" class="dp-link">Dividends receivable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-dividend-income" class="dp-link">Dividend income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-accum-unrealized" class="dp-link">Accumulated net unrealized G/L (capital)</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Equity ETF</td><td><a href="#dp-realized-st-equity" class="dp-link">Realized gain/loss — short term</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-cost-fi" class="dp-link">Cost of investments — fixed income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-unrealized-fi" class="dp-link">Net unrealized appreciation/depreciation — FI</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-interest-receivable" class="dp-link">Investment interest receivable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-interest-income" class="dp-link">Investment interest income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-amort-premium" class="dp-link">Amortization of premium</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-accretion-discount" class="dp-link">Accretion of discount</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Bond ETF</td><td><a href="#dp-realized-st-fi" class="dp-link">Realized gain/loss — short term</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td><a href="#dp-cost-treasury" class="dp-link">Cost of investments — short-term</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td><a href="#dp-treasury-interest-receivable" class="dp-link">Investment interest receivable</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td><a href="#dp-treasury-interest-income" class="dp-link">Investment interest income</a></td><td class="dp-method-computed">Computed</td></tr>
-        <tr><td class="dp-group">Treasury ETF</td><td><a href="#dp-realized-st-treasury" class="dp-link">Realized gain/loss — short term</a></td><td class="dp-method-computed">Computed</td></tr>
+      <table class="summary-table dp-accordion">
+        <thead>
+          <tr><th>Group</th><th>Datapoint</th><th>Method</th></tr>
+        </thead>
+        <tbody>
+        <tr class="dp-row" data-dp="dp-cash" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-cash">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Cash</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-pulled">Pulled</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-cash" data-dp="dp-cash" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-cash">
+              <p>Settled and unsettled cash balances across all currencies, converted to fund base currency for the trial balance.</p>
+              <div class="dp-formula">D4.cash_settled + D4.cash_unsettled per currency × D1.fx_rate → CFG.base_currency</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-investment-receivable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-investment-receivable">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment receivable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-investment-receivable" data-dp="dp-investment-receivable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-investment-receivable">
+              <p>Amounts due from sales not yet settled. Bridges trade date and settlement date.</p>
+              <div class="dp-formula">Σ D4.trade_proceeds where side = sell AND settlement_date &gt; as_of</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-investment-payable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-investment-payable">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment payable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-investment-payable" data-dp="dp-investment-payable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-investment-payable">
+              <p>Amounts owed on purchases not yet settled. Bridges trade date and settlement date.</p>
+              <div class="dp-formula">Σ D4.trade_cost where side = buy AND settlement_date &gt; as_of</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-dividend-withholding-tax-payable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-dividend-withholding-tax-payable">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Dividend withholding tax payable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-dividend-withholding-tax-payable" data-dp="dp-dividend-withholding-tax-payable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-dividend-withholding-tax-payable">
+              <p>Withholding tax accrued on dividends, not yet remitted.</p>
+              <div class="dp-formula">Σ (D2.dividend_gross × D3.withholding_rate) per holding on D2.ex_date; unpaid balance</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-accrued-unitary-fee" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-accrued-unitary-fee">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Accrued unitary fee expense</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-accrued-unitary-fee" data-dp="dp-accrued-unitary-fee" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-accrued-unitary-fee">
+              <p>Daily accrual of unitary management fee based on fund net assets.</p>
+              <div class="dp-formula">CFG.fee_bps × net_assets ÷ days_in_period<br>net_assets = total_assets − total_liabilities</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-settlement-breakage" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-settlement-breakage">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Settlement breakage income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-settlement-breakage" data-dp="dp-settlement-breakage" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-settlement-breakage">
+              <p>Difference between expected and actual cash on AP create/redeem settlement.</p>
+              <div class="dp-formula">D4.ap_settlement_expected − D4.ap_settlement_actual</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-withholding-tax-expense" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-withholding-tax-expense">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Withholding tax — dividends (expense)</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-withholding-tax-expense" data-dp="dp-withholding-tax-expense" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-withholding-tax-expense">
+              <p>Withholding tax expense recognized on dividend entitlement (P&amp;L).</p>
+              <div class="dp-formula">Σ (D2.dividend_gross × D3.withholding_rate) recognized on D2.ex_date</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-unitary-fee-expense" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-unitary-fee-expense">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Unitary fee expense</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-unitary-fee-expense" data-dp="dp-unitary-fee-expense" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-unitary-fee-expense">
+              <p>Periodic recognition or payment of accrued unitary fee.</p>
+              <div class="dp-formula">accrued_unitary_fee balance recognized or paid in period<br>(from CFG.fee_bps × net_assets accrual)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-ar-subscriptions" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-ar-subscriptions">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Accounts receivable — subscriptions</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-pulled">Pulled</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-ar-subscriptions" data-dp="dp-ar-subscriptions" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-ar-subscriptions">
+              <p>Cash owed to the fund from AP creations not yet settled.</p>
+              <div class="dp-formula">D4.ap_create.pending_cash_due</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-ap-redemptions" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-ap-redemptions">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Accounts payable — redemptions</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-pulled">Pulled</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-ap-redemptions" data-dp="dp-ap-redemptions" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-ap-redemptions">
+              <p>Cash owed on pending AP redemptions not yet settled.</p>
+              <div class="dp-formula">D4.ap_redeem.pending_cash_owed</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-capital-flow" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-capital-flow">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Subscriptions / redemptions (capital)</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-pulled">Pulled</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-capital-flow" data-dp="dp-capital-flow" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-capital-flow">
+              <p>Settled primary-market capital flow for the period.</p>
+              <div class="dp-formula">D4.ap_flow.capital_settled (creates − redeems)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-total-assets" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-total-assets">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Total assets</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-total-assets" data-dp="dp-total-assets" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-total-assets">
+              <p>Sum of all asset general ledger lines.</p>
+              <div class="dp-formula">Σ all asset GL lines (cash + investments + receivables + accrued income)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-total-liabilities" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-total-liabilities">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Total liabilities</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-total-liabilities" data-dp="dp-total-liabilities" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-total-liabilities">
+              <p>Sum of all liability general ledger lines.</p>
+              <div class="dp-formula">Σ all liability GL lines (payables + accrued fees + tax payable)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-net-assets" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-net-assets">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Net assets</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-net-assets" data-dp="dp-net-assets" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-net-assets">
+              <p>Fund net asset value before per-share division.</p>
+              <div class="dp-formula">total_assets − total_liabilities</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-shares-outstanding" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-shares-outstanding">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Shares outstanding</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-pulled">Pulled</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-shares-outstanding" data-dp="dp-shares-outstanding" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-shares-outstanding">
+              <p>Fund shares issued and outstanding per transfer agent.</p>
+              <div class="dp-formula">D4.ta_shares_outstanding</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-nav-per-share" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-nav-per-share">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">NAV per share</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-nav-per-share" data-dp="dp-nav-per-share" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-nav-per-share">
+              <p>Published net asset value per fund share.</p>
+              <div class="dp-formula">net_assets ÷ D4.ta_shares_outstanding</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-net-income" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-net-income">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Net income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-net-income" data-dp="dp-net-income" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-net-income">
+              <p>P&amp;L for the period.</p>
+              <div class="dp-formula">Σ income accounts − Σ expense accounts for period</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-total-capital" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-total-capital">
+          <td class="dp-group">All ETFs</td>
+          <td class="dp-name-cell"><span class="dp-name">Total capital</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-total-capital" data-dp="dp-total-capital" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-total-capital">
+              <p>Shareholder equity roll-forward.</p>
+              <div class="dp-formula">subscriptions_capital + accumulated_unrealized_GL + retained_earnings</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-cost-equity" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-cost-equity">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Cost of investments — equity</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-cost-equity" data-dp="dp-cost-equity" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-cost-equity">
+              <p>Original purchase price of equity holdings, per tax lot, adjusted for corporate actions.</p>
+              <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.corp_action (splits, mergers, spin-offs)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-unrealized-equity" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-unrealized-equity">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Net unrealized appreciation/depreciation — equity</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-unrealized-equity" data-dp="dp-unrealized-equity" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-unrealized-equity">
+              <p>Mark-to-market gain or loss on equity holdings vs cost basis.</p>
+              <div class="dp-formula">Σ (D4.holdings_qty × D1.eod_price − cost_basis) per equity position</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-dividends-receivable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-dividends-receivable">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Dividends receivable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-dividends-receivable" data-dp="dp-dividends-receivable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-dividends-receivable">
+              <p>Dividends declared but not yet paid.</p>
+              <div class="dp-formula">Σ D2.dividend_declared_unpaid per holding where D2.pay_date &gt; as_of</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-dividend-income" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-dividend-income">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Dividend income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-dividend-income" data-dp="dp-dividend-income" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-dividend-income">
+              <p>Dividend income recognized on ex-date.</p>
+              <div class="dp-formula">Σ D2.dividend_gross recognized on D2.ex_date for D4.holdings_qty on record date</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-accum-unrealized" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-accum-unrealized">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Accumulated net unrealized G/L (capital)</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-accum-unrealized" data-dp="dp-accum-unrealized" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-accum-unrealized">
+              <p>Capital-side roll-forward of unrealized appreciation/depreciation.</p>
+              <div class="dp-formula">prior_accumulated_unrealized + Δ net_unrealized_equity for period</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-realized-st-equity" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-realized-st-equity">
+          <td class="dp-group">Equity ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Realized gain/loss — short term</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-realized-st-equity" data-dp="dp-realized-st-equity" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-realized-st-equity">
+              <p>Profit or loss on equity sales with holding period under one year.</p>
+              <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched D4.tax_lot.cost_basis) where holding_period &lt; 1 yr</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-cost-fi" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-cost-fi">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Cost of investments — fixed income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-cost-fi" data-dp="dp-cost-fi" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-cost-fi">
+              <p>Amortized cost basis of bond holdings per tax lot.</p>
+              <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.fi_events; amortized cost per D3.day_count</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-unrealized-fi" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-unrealized-fi">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Net unrealized appreciation/depreciation — FI</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-unrealized-fi" data-dp="dp-unrealized-fi" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-unrealized-fi">
+              <p>Mark-to-market gain or loss on bonds vs amortized cost.</p>
+              <div class="dp-formula">Σ (D4.holdings_qty × D1.fi_clean_price − amortized_cost) per bond</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-interest-receivable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-interest-receivable">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment interest receivable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-interest-receivable" data-dp="dp-interest-receivable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-interest-receivable">
+              <p>Accrued coupon not yet received.</p>
+              <div class="dp-formula">Σ accrued coupon where pay_date &gt; as_of<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-interest-income" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-interest-income">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment interest income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-interest-income" data-dp="dp-interest-income" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-interest-income">
+              <p>Coupon income accrued for the period.</p>
+              <div class="dp-formula">Σ daily coupon accrual<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-amort-premium" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-amort-premium">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Amortization of premium</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-amort-premium" data-dp="dp-amort-premium" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-amort-premium">
+              <p>Daily amortization of bond purchase premium to par.</p>
+              <div class="dp-formula">(D4.tax_lot.purchase_price − D3.par) × amort_factor<br>factor from D1.yield_to_maturity + D3.day_count</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-accretion-discount" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-accretion-discount">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Accretion of discount</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-accretion-discount" data-dp="dp-accretion-discount" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-accretion-discount">
+              <p>Daily accretion of bond purchase discount to par.</p>
+              <div class="dp-formula">(D3.par − D4.tax_lot.purchase_price) × accretion_factor<br>factor from D1.yield_to_maturity + D3.day_count</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-realized-st-fi" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-realized-st-fi">
+          <td class="dp-group">Bond ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Realized gain/loss — short term</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-realized-st-fi" data-dp="dp-realized-st-fi" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-realized-st-fi">
+              <p>Profit or loss on bond sales with holding period under one year.</p>
+              <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched amortized_cost) where holding_period &lt; 1 yr</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-cost-treasury" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-cost-treasury">
+          <td class="dp-group">Treasury ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Cost of investments — short-term</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-cost-treasury" data-dp="dp-cost-treasury" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-cost-treasury">
+              <p>Cost basis of treasury bill and note holdings.</p>
+              <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.fi_events (bills, notes)</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-treasury-interest-receivable" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-treasury-interest-receivable">
+          <td class="dp-group">Treasury ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment interest receivable</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-treasury-interest-receivable" data-dp="dp-treasury-interest-receivable" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-treasury-interest-receivable">
+              <p>Accrued coupon on treasury holdings not yet received.</p>
+              <div class="dp-formula">Σ accrued coupon where pay_date &gt; as_of<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-treasury-interest-income" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-treasury-interest-income">
+          <td class="dp-group">Treasury ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Investment interest income</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-treasury-interest-income" data-dp="dp-treasury-interest-income" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-treasury-interest-income">
+              <p>Coupon income on treasury holdings for the period.</p>
+              <div class="dp-formula">Σ daily coupon accrual<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
+            </div>
+          </td>
+        </tr>
+        <tr class="dp-row" data-dp="dp-realized-st-treasury" role="button" tabindex="0" aria-expanded="false" aria-controls="expand-dp-realized-st-treasury">
+          <td class="dp-group">Treasury ETF</td>
+          <td class="dp-name-cell"><span class="dp-name">Realized gain/loss — short term</span><span class="dp-chevron" aria-hidden="true"></span></td>
+          <td class="dp-method-computed">Computed</td>
+        </tr>
+        <tr class="dp-expand-row" id="expand-dp-realized-st-treasury" data-dp="dp-realized-st-treasury" hidden>
+          <td colspan="3">
+            <div class="dp-panel" id="dp-realized-st-treasury">
+              <p>Profit or loss on treasury sales with holding period under one year.</p>
+              <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched D4.tax_lot.cost_basis) where holding_period &lt; 1 yr</div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
       </table>
-
-      <h3 id="datapoint-detail">Detail by datapoint</h3>
-      <div class="dp-card" id="dp-cash">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method pulled">Pulled</span></div>
-        <h4>Cash</h4>
-        <p>Settled and unsettled cash balances across all currencies, converted to fund base currency for the trial balance.</p>
-        <div class="dp-formula">D4.cash_settled + D4.cash_unsettled per currency × D1.fx_rate → CFG.base_currency</div>
-      </div>
-      <div class="dp-card" id="dp-investment-receivable">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment receivable</h4>
-        <p>Amounts due from sales not yet settled. Bridges trade date and settlement date.</p>
-        <div class="dp-formula">Σ D4.trade_proceeds where side = sell AND settlement_date &gt; as_of</div>
-      </div>
-      <div class="dp-card" id="dp-investment-payable">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment payable</h4>
-        <p>Amounts owed on purchases not yet settled. Bridges trade date and settlement date.</p>
-        <div class="dp-formula">Σ D4.trade_cost where side = buy AND settlement_date &gt; as_of</div>
-      </div>
-      <div class="dp-card" id="dp-dividend-withholding-tax-payable">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Dividend withholding tax payable</h4>
-        <p>Withholding tax accrued on dividends, not yet remitted.</p>
-        <div class="dp-formula">Σ (D2.dividend_gross × D3.withholding_rate) per holding on D2.ex_date; unpaid balance</div>
-      </div>
-      <div class="dp-card" id="dp-accrued-unitary-fee">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Accrued unitary fee expense</h4>
-        <p>Daily accrual of unitary management fee based on fund net assets.</p>
-        <div class="dp-formula">CFG.fee_bps × net_assets ÷ days_in_period<br>net_assets = total_assets − total_liabilities</div>
-      </div>
-      <div class="dp-card" id="dp-settlement-breakage">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Settlement breakage income</h4>
-        <p>Difference between expected and actual cash on AP create/redeem settlement.</p>
-        <div class="dp-formula">D4.ap_settlement_expected − D4.ap_settlement_actual</div>
-      </div>
-      <div class="dp-card" id="dp-withholding-tax-expense">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Withholding tax — dividends (expense)</h4>
-        <p>Withholding tax expense recognized on dividend entitlement (P&amp;L).</p>
-        <div class="dp-formula">Σ (D2.dividend_gross × D3.withholding_rate) recognized on D2.ex_date</div>
-      </div>
-      <div class="dp-card" id="dp-unitary-fee-expense">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Unitary fee expense</h4>
-        <p>Periodic recognition or payment of accrued unitary fee.</p>
-        <div class="dp-formula">accrued_unitary_fee balance recognized or paid in period<br>(from CFG.fee_bps × net_assets accrual)</div>
-      </div>
-      <div class="dp-card" id="dp-ar-subscriptions">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method pulled">Pulled</span></div>
-        <h4>Accounts receivable — subscriptions</h4>
-        <p>Cash owed to the fund from AP creations not yet settled.</p>
-        <div class="dp-formula">D4.ap_create.pending_cash_due</div>
-      </div>
-      <div class="dp-card" id="dp-ap-redemptions">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method pulled">Pulled</span></div>
-        <h4>Accounts payable — redemptions</h4>
-        <p>Cash owed on pending AP redemptions not yet settled.</p>
-        <div class="dp-formula">D4.ap_redeem.pending_cash_owed</div>
-      </div>
-      <div class="dp-card" id="dp-capital-flow">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method pulled">Pulled</span></div>
-        <h4>Subscriptions / redemptions (capital)</h4>
-        <p>Settled primary-market capital flow for the period.</p>
-        <div class="dp-formula">D4.ap_flow.capital_settled (creates − redeems)</div>
-      </div>
-      <div class="dp-card" id="dp-total-assets">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Total assets</h4>
-        <p>Sum of all asset general ledger lines.</p>
-        <div class="dp-formula">Σ all asset GL lines (cash + investments + receivables + accrued income)</div>
-      </div>
-      <div class="dp-card" id="dp-total-liabilities">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Total liabilities</h4>
-        <p>Sum of all liability general ledger lines.</p>
-        <div class="dp-formula">Σ all liability GL lines (payables + accrued fees + tax payable)</div>
-      </div>
-      <div class="dp-card" id="dp-net-assets">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Net assets</h4>
-        <p>Fund net asset value before per-share division.</p>
-        <div class="dp-formula">total_assets − total_liabilities</div>
-      </div>
-      <div class="dp-card" id="dp-shares-outstanding">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method pulled">Pulled</span></div>
-        <h4>Shares outstanding</h4>
-        <p>Fund shares issued and outstanding per transfer agent.</p>
-        <div class="dp-formula">D4.ta_shares_outstanding</div>
-      </div>
-      <div class="dp-card" id="dp-nav-per-share">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>NAV per share</h4>
-        <p>Published net asset value per fund share.</p>
-        <div class="dp-formula">net_assets ÷ D4.ta_shares_outstanding</div>
-      </div>
-      <div class="dp-card" id="dp-net-income">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Net income</h4>
-        <p>P&amp;L for the period.</p>
-        <div class="dp-formula">Σ income accounts − Σ expense accounts for period</div>
-      </div>
-      <div class="dp-card" id="dp-total-capital">
-        <div class="dp-card-head"><span class="dp-card-group">All ETFs</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Total capital</h4>
-        <p>Shareholder equity roll-forward.</p>
-        <div class="dp-formula">subscriptions_capital + accumulated_unrealized_GL + retained_earnings</div>
-      </div>
-      <div class="dp-card" id="dp-cost-equity">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Cost of investments — equity</h4>
-        <p>Original purchase price of equity holdings, per tax lot, adjusted for corporate actions.</p>
-        <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.corp_action (splits, mergers, spin-offs)</div>
-      </div>
-      <div class="dp-card" id="dp-unrealized-equity">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Net unrealized appreciation/depreciation — equity</h4>
-        <p>Mark-to-market gain or loss on equity holdings vs cost basis.</p>
-        <div class="dp-formula">Σ (D4.holdings_qty × D1.eod_price − cost_basis) per equity position</div>
-      </div>
-      <div class="dp-card" id="dp-dividends-receivable">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Dividends receivable</h4>
-        <p>Dividends declared but not yet paid.</p>
-        <div class="dp-formula">Σ D2.dividend_declared_unpaid per holding where D2.pay_date &gt; as_of</div>
-      </div>
-      <div class="dp-card" id="dp-dividend-income">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Dividend income</h4>
-        <p>Dividend income recognized on ex-date.</p>
-        <div class="dp-formula">Σ D2.dividend_gross recognized on D2.ex_date for D4.holdings_qty on record date</div>
-      </div>
-      <div class="dp-card" id="dp-accum-unrealized">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Accumulated net unrealized G/L (capital)</h4>
-        <p>Capital-side roll-forward of unrealized appreciation/depreciation.</p>
-        <div class="dp-formula">prior_accumulated_unrealized + Δ net_unrealized_equity for period</div>
-      </div>
-      <div class="dp-card" id="dp-realized-st-equity">
-        <div class="dp-card-head"><span class="dp-card-group">Equity ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Realized gain/loss — short term</h4>
-        <p>Profit or loss on equity sales with holding period under one year.</p>
-        <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched D4.tax_lot.cost_basis) where holding_period &lt; 1 yr</div>
-      </div>
-      <div class="dp-card" id="dp-cost-fi">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Cost of investments — fixed income</h4>
-        <p>Amortized cost basis of bond holdings per tax lot.</p>
-        <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.fi_events; amortized cost per D3.day_count</div>
-      </div>
-      <div class="dp-card" id="dp-unrealized-fi">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Net unrealized appreciation/depreciation — FI</h4>
-        <p>Mark-to-market gain or loss on bonds vs amortized cost.</p>
-        <div class="dp-formula">Σ (D4.holdings_qty × D1.fi_clean_price − amortized_cost) per bond</div>
-      </div>
-      <div class="dp-card" id="dp-interest-receivable">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment interest receivable</h4>
-        <p>Accrued coupon not yet received.</p>
-        <div class="dp-formula">Σ accrued coupon where pay_date &gt; as_of<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
-      </div>
-      <div class="dp-card" id="dp-interest-income">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment interest income</h4>
-        <p>Coupon income accrued for the period.</p>
-        <div class="dp-formula">Σ daily coupon accrual<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
-      </div>
-      <div class="dp-card" id="dp-amort-premium">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Amortization of premium</h4>
-        <p>Daily amortization of bond purchase premium to par.</p>
-        <div class="dp-formula">(D4.tax_lot.purchase_price − D3.par) × amort_factor<br>factor from D1.yield_to_maturity + D3.day_count</div>
-      </div>
-      <div class="dp-card" id="dp-accretion-discount">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Accretion of discount</h4>
-        <p>Daily accretion of bond purchase discount to par.</p>
-        <div class="dp-formula">(D3.par − D4.tax_lot.purchase_price) × accretion_factor<br>factor from D1.yield_to_maturity + D3.day_count</div>
-      </div>
-      <div class="dp-card" id="dp-realized-st-fi">
-        <div class="dp-card-head"><span class="dp-card-group">Bond ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Realized gain/loss — short term</h4>
-        <p>Profit or loss on bond sales with holding period under one year.</p>
-        <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched amortized_cost) where holding_period &lt; 1 yr</div>
-      </div>
-      <div class="dp-card" id="dp-cost-treasury">
-        <div class="dp-card-head"><span class="dp-card-group">Treasury ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Cost of investments — short-term</h4>
-        <p>Cost basis of treasury bill and note holdings.</p>
-        <div class="dp-formula">Σ D4.tax_lot.cost_basis adjusted for D2.fi_events (bills, notes)</div>
-      </div>
-      <div class="dp-card" id="dp-treasury-interest-receivable">
-        <div class="dp-card-head"><span class="dp-card-group">Treasury ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment interest receivable</h4>
-        <p>Accrued coupon on treasury holdings not yet received.</p>
-        <div class="dp-formula">Σ accrued coupon where pay_date &gt; as_of<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
-      </div>
-      <div class="dp-card" id="dp-treasury-interest-income">
-        <div class="dp-card-head"><span class="dp-card-group">Treasury ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Investment interest income</h4>
-        <p>Coupon income on treasury holdings for the period.</p>
-        <div class="dp-formula">Σ daily coupon accrual<br>D3.coupon_rate × D4.holdings_par ÷ D3.day_count_basis</div>
-      </div>
-      <div class="dp-card" id="dp-realized-st-treasury">
-        <div class="dp-card-head"><span class="dp-card-group">Treasury ETF</span><span class="dp-card-method computed">Computed</span></div>
-        <h4>Realized gain/loss — short term</h4>
-        <p>Profit or loss on treasury sales with holding period under one year.</p>
-        <div class="dp-formula">Σ (D4.trade_sale_proceeds − matched D4.tax_lot.cost_basis) where holding_period &lt; 1 yr</div>
-      </div>
 
 
       <h3>Manual overrides</h3>
@@ -1499,6 +1825,109 @@ sequenceDiagram
         edgeLabelBackground: "#131313"
       }
     });
+  </script>
+  <script>
+    (function () {
+      const fill = document.getElementById('scroll-fill');
+      const markersEl = document.getElementById('scroll-markers');
+      const navLinks = Array.from(document.querySelectorAll('.doc-nav a'));
+      const sections = navLinks
+        .map(function (a) {
+          var id = a.getAttribute('href').slice(1);
+          var el = document.getElementById(id);
+          return el ? { id: id, el: el, link: a } : null;
+        })
+        .filter(Boolean);
+
+      function scrollMax() {
+        return Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+      }
+
+      function updateProgress() {
+        var pct = (window.scrollY / scrollMax()) * 100;
+        fill.style.width = pct + '%';
+      }
+
+      function placeMarkers() {
+        var max = scrollMax();
+        markersEl.innerHTML = '';
+        sections.forEach(function (s) {
+          var marker = document.createElement('span');
+          marker.className = 'scroll-progress-marker';
+          marker.dataset.section = s.id;
+          marker.style.left = (s.el.offsetTop / document.documentElement.scrollHeight) * 100 + '%';
+          markersEl.appendChild(marker);
+        });
+      }
+
+      var activeId = sections.length ? sections[0].id : null;
+      var headerH = document.querySelector('.site-header').offsetHeight;
+
+      function setActive(id) {
+        if (activeId === id) return;
+        activeId = id;
+        navLinks.forEach(function (a) {
+          var on = a.getAttribute('href') === '#' + id;
+          a.classList.toggle('is-active', on);
+          a.setAttribute('aria-current', on ? 'true' : 'false');
+        });
+        markersEl.querySelectorAll('.scroll-progress-marker').forEach(function (m) {
+          m.classList.toggle('is-active', m.dataset.section === id);
+        });
+      }
+
+      function updateActiveSection() {
+        var pos = window.scrollY + headerH + 40;
+        var current = sections[0];
+        sections.forEach(function (s) {
+          if (s.el.offsetTop <= pos) current = s;
+        });
+        setActive(current.id);
+      }
+
+      window.addEventListener('scroll', function () {
+        updateProgress();
+        updateActiveSection();
+      }, { passive: true });
+      window.addEventListener('resize', function () {
+        headerH = document.querySelector('.site-header').offsetHeight;
+        placeMarkers();
+        updateProgress();
+        updateActiveSection();
+      });
+      placeMarkers();
+      updateProgress();
+      updateActiveSection();
+
+      function toggleRow(row) {
+        var slug = row.dataset.dp;
+        var expand = document.getElementById('expand-' + slug);
+        var open = row.classList.toggle('is-open');
+        row.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (expand) {
+          expand.hidden = !open;
+          if (open) expand.removeAttribute('hidden');
+        }
+      }
+
+      document.querySelectorAll('.dp-row').forEach(function (row) {
+        row.addEventListener('click', function () { toggleRow(row); });
+        row.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleRow(row);
+          }
+        });
+      });
+
+      if (location.hash && location.hash.startsWith('#dp-')) {
+        var target = document.querySelector('.dp-row[data-dp="' + location.hash.slice(1) + '"]');
+        if (target) {
+          toggleRow(target);
+          setTimeout(function () { target.scrollIntoView({ block: 'nearest' }); }, 50);
+        }
+      }
+    })();
   </script>
 </body>
 </html>
