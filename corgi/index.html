@@ -1734,22 +1734,38 @@ flowchart LR
       </ol>
       <p>After several days of this loop, calculations should match on all standard paths. Remaining gaps are edge cases — corp-action quirks, FI amortization corners — where domain review (operations team) closes the last mile before we hit them in production.</p>
 
-      <div class="mermaid">
+      <div class="arch-card target" style="margin: 20px 0; max-width: 480px;">
+        <div class="arch-card-header">Calibration loop</div>
+        <div class="arch-card-sub">Same inputs · parallel compute · diff until congruent</div>
+        <div class="mermaid">
 flowchart TB
-  subgraph sources[" "]
-    direction LR
-    USB["U.S. Bank"]
-    CI["Corgi compute"]
+  subgraph inputs["Inputs · same as_of"]
+    IN["D1–D4"]
   end
-  DIFF["diff"]
-  OK["congruent"]
-  FIX["trace issue · tweak formulas"]
 
+  subgraph usb["U.S. Bank"]
+    USB["trial balance / NAV"]
+  end
+
+  subgraph corgi["Corgi compute"]
+    CI["datapoint formulas"]
+  end
+
+  subgraph cmp["Compare"]
+    DIFF["line-by-line diff"]
+  end
+
+  OK["congruent"]
+  FIX["trace · tweak formulas"]
+
+  IN --> USB
+  IN --> CI
   USB --> DIFF
   CI --> DIFF
-  DIFF --> OK
-  DIFF --> FIX
-  FIX --> CI
+  DIFF -->|congruent| OK
+  DIFF -->|mismatch| FIX
+  FIX -->|"rerun"| CI
+        </div>
       </div>
 
       <h4 style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--etf-white2);margin:28px 0 8px;">Production (post-launch vendor reconciliation)</h4>
