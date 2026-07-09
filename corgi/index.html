@@ -1976,42 +1976,23 @@ flowchart LR
       </table>
       <p style="color:var(--etf-muted);font-size:13px;"><strong>Distribution groups</strong> stored in fund config — not hardcoded. Example: <code>daily_volume_report</code> → desk, issuer, distribution list. AWS SES identity and suppressions managed in-console; recipient lists live in our DB so ops can update without redeploying Lambda.</p>
       <p>Sophisticated report packs (monthly performance, audit extracts) follow the same pattern: Lambda render → S3 archive → SES to a different distribution group. Detail deferred — same infrastructure.</p>
-      <p style="color:var(--etf-muted);font-size:13px;">The HTML report is a <strong>distribution output</strong> (email + archive) — not the operator console. Day-to-day fund accounting work happens in the <a href="#frontend">desktop UI</a>.</p>
+      <p style="color:var(--etf-muted);font-size:13px;">The HTML report is a <strong>distribution output</strong> (email + archive) — not the operator console. Day-to-day fund accounting work happens in the <a href="#frontend">web app</a>.</p>
     </section>
 
     <section id="frontend">
       <h2>Operator UI</h2>
-      <p>Fund accountants do not live in a static HTML page. They need a persistent workspace to review feeds, exceptions, trial balance, and sign off NAV. The daily volume report is an artifact we <em>generate and send</em> — the primary surface is a <strong>desktop app</strong>.</p>
+      <p>Fund accountants need a persistent workspace — not a static HTML report. The daily volume report is an artifact we <em>generate and send</em>. The primary surface is a <strong>web app</strong>.</p>
 
-      <h3>Why Electron</h3>
+      <h3>Why web-first</h3>
       <ul>
-        <li><strong>Ops workflow fit</strong> — EOD is a multi-step session (wait for feeds → review breaks → sign off), not a one-page read. A desktop app matches how fund admins actually work.</li>
-        <li><strong>Thick-client pattern</strong> — industry fund systems (including U.S. Bank GFS) are operator consoles, not web reports. Electron gives native windowing, menus, and keyboard flow without shipping a separate native codebase per OS.</li>
-        <li><strong>Security boundary</strong> — app talks to an internal API (API Gateway + Lambda or service layer); no DB credentials in the client. Role-scoped auth for accountant vs engineering.</li>
-        <li><strong>HTML report stays downstream</strong> — Lambda still renders daily volume HTML for SES distribution and S3 archive. Electron has a "export / preview report" action; it does not replace the app.</li>
+        <li><strong>Internal v1 + future sales</strong> — one product, link-based demos, no per-firm install friction. Easier to sell to other issuers than shipping Electron builds.</li>
+        <li><strong>Same backend either way</strong> — browser client → internal API (API Gateway + service layer) → Postgres / S3. No DB credentials in the client; role-scoped auth.</li>
+        <li><strong>HTML report stays downstream</strong> — Lambda still renders daily volume HTML for SES + S3 archive. The web app is the operator console; the report is a distribution output.</li>
+        <li><strong>Desktop optional later</strong> — legacy fund admin (U.S. Bank GFS) is thick-client. If a buyer requires on-prem or air-gapped deployment, wrap the same web UI in Electron then — not the default.</li>
       </ul>
 
-      <h3>Design approach</h3>
-      <p>No wireframes in this doc — UI follows <strong>workflow discovery</strong>:</p>
-      <ol>
-        <li><strong>Shadow U.S. Bank GFS</strong> during access period — map screens, actions, and what accountants touch every EOD</li>
-        <li><strong>Map to blueprint workflows</strong> — EOD batch, exception resolution, calibration diffs, sign-off (see <a href="#workflows">workflows</a>)</li>
-        <li><strong>Build surfaces incrementally</strong> — read-only viewers first; write actions (sign-off, override) only after ingest + ledger are trusted</li>
-      </ol>
-
-      <h3>Key surfaces</h3>
-      <p>Buttons and views informed by fund-admin convention — exact layout TBD after U.S. Bank walkthrough.</p>
-      <table>
-        <tr><th>Surface</th><th>Purpose</th><th>Primary actions</th></tr>
-        <tr><td><strong>EOD dashboard</strong></td><td>Single pane: which feeds landed, validated, loaded for <code>as_of</code></td><td>Refresh status · drill into quarantined file · view ingest exception detail</td></tr>
-        <tr><td><strong>Trial balance</strong></td><td>Fund picker → GL lines by datapoint group</td><td>Filter by fund / period · expand row to source inputs · export for audit</td></tr>
-        <tr><td><strong>Exception queue</strong></td><td>Unified inbox: ingest failures, recon breaks, calibration diffs</td><td>Acknowledge · assign · link to offending file/row · block / release sign-off</td></tr>
-        <tr><td><strong>Calibration diff</strong> (dev)</td><td>Side-by-side U.S. Bank vs Corgi line items</td><td>Filter by GL line · mark resolved · open formula reference</td></tr>
-        <tr><td><strong>NAV sign-off</strong></td><td>Accountant gate before publish</td><td>Approve NAV · block with reason · audit trail on every action</td></tr>
-        <tr><td><strong>Reports</strong></td><td>Generate distribution artifacts</td><td>Preview daily volume report · trigger SES send · open S3 archive history</td></tr>
-        <tr><td><strong>Fund config</strong></td><td>Read CFG: tickers, fee bps, GL mapping, distribution groups</td><td>View only initially — Carl owns config writes</td></tr>
-      </table>
-      <p style="color:var(--etf-muted);font-size:13px;"><strong>Stack:</strong> Electron shell + web UI (React or equivalent) → internal REST API → Postgres / S3. Match Corgi visual language (dark, orange accent) for brand continuity. Build after ingest is stable; read-only viewers can ship during calibration.</p>
+      <h3>What we do not know yet</h3>
+      <p>No wireframes or screen inventory in this doc. I have not used U.S. Bank GFS or another fund admin console firsthand. Specific pages, layout, and button priority come from <strong>shadowing the incumbent system</strong> after access — then mapping to the workflows in this blueprint. Build read-only viewers first; sign-off and override actions only after ingest + ledger are trusted.</p>
     </section>
 
     <section id="implementation">
@@ -2020,8 +2001,8 @@ flowchart LR
         <li>Get access to the current accounting system and backend — learn how it works, view the data</li>
         <li>Stand up SFTP → S3 → Lambda ingest with CSV + cross-day validation; load <code>core.*</code> tables</li>
         <li>Carl owns ledger from normalized data; engineering supports ingest and calibration diffs vs U.S. Bank</li>
-        <li>Shadow U.S. Bank UI; define Electron surfaces from discovered workflows</li>
-        <li>Once calibrated: EventBridge EOD chain, report render + SES, operator app — keep diffing</li>
+        <li>Shadow U.S. Bank UI after access; define web app from discovered workflows — not before</li>
+        <li>Once calibrated: EventBridge EOD chain, report render + SES, operator web app — keep diffing</li>
       </ul>
     </section>
 
