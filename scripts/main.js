@@ -9,7 +9,7 @@
  * Adding `reveal-ready` tells the <head> failsafe that JS ran, so it won't strip
  * `motion` and leave reveal-hidden content stuck. See ARCHITECTURE.md.
  */
-import { initContact } from "./contact.js";
+import { initContact } from "./contact.js?v=2";
 import { initScrollProgress } from "./scroll-progress.js";
 import { initReveals } from "./reveals.js";
 import { initTravelDock } from "./travel-dock.js";

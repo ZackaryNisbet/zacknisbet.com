@@ -9,6 +9,94 @@
   gap: 14px;
 }
 
+/* Current work stays visibly distinct from the employment history below it. */
+.engagements {
+  margin-bottom: clamp(44px, 7vh, 76px);
+}
+
+.engagements-intro {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 18px clamp(28px, 5vw, 72px);
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.engagements-intro h3 {
+  font-family: var(--display);
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.engagements-intro p {
+  max-width: 58ch;
+  color: var(--text-2);
+}
+
+.engagement-list {
+  border-top: 1px solid var(--line-2);
+}
+
+.engagement-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.75fr) minmax(0, 1.55fr) auto;
+  gap: 14px clamp(24px, 4vw, 52px);
+  align-items: center;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.engagement-identity h4 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.engagement-identity p {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+}
+
+.engagement-row > p {
+  max-width: 66ch;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.engagement-row > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text);
+  transition: color 0.2s var(--ease);
+}
+
+.engagement-row > a span {
+  color: var(--accent);
+  transition: transform 0.2s var(--ease);
+}
+
+.engagement-row > a:hover {
+  color: var(--accent);
+}
+
+.engagement-row > a:hover span {
+  transform: translate(2px, -2px);
+}
+
 .role-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -60,7 +148,7 @@
 .logo-box img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .role-card h3,
@@ -338,66 +426,254 @@
 }
 
 /* ---------- contact ---------- */
-.contact-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 64px);
-  align-items: center;
-}
-
-.portrait {
-  margin: 0;
+.contact-card {
+  --card-ink: oklch(0.2 0.014 163);
+  --card-muted: oklch(0.34 0.012 163);
+  position: relative;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
+  padding: clamp(24px, 5vw, 56px);
+  border: 1px solid oklch(0.72 0.025 85);
+  border-radius: 18px;
+  background: oklch(0.94 0.016 86);
+  color: var(--card-ink);
+  box-shadow:
+    inset 0 4px 0 var(--accent),
+    0 28px 80px oklch(0 0 0 / 0.24);
 }
 
-.portrait img {
-  display: block;
-  width: 100%;
-  height: auto;
+.contact-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: clamp(32px, 6vw, 72px);
 }
 
-.contact-copy {
-  max-width: 60ch;
+.contact-card-topline .kicker {
+  color: var(--card-muted);
 }
-.contact-copy h2 {
+
+.contact-card-topline .kicker::before {
+  color: var(--accent);
+}
+
+.contact-card-topline > span {
   font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--card-ink);
+}
+
+.contact-card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(250px, 0.75fr);
+  gap: 18px clamp(36px, 7vw, 92px);
+  align-items: start;
+}
+
+.contact-identity h2 {
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 6vw, 5.2rem);
   font-weight: 800;
-  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
-  letter-spacing: -0.03em;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  color: var(--card-ink);
+}
+
+.contact-identity p {
+  margin-top: 16px;
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  font-weight: 700;
+  color: var(--card-muted);
+}
+
+.contact-purpose {
+  max-width: 48ch;
+  color: var(--card-muted);
+  font-size: 1rem;
+}
+
+.contact-direct {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  align-self: end;
+  gap: 18px;
+  padding-top: 5px;
+  font-style: normal;
+}
+
+.contact-detail {
+  display: grid;
+  gap: 7px;
+}
+
+.contact-detail > span {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.contact-value-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.contact-value-row > a {
+  width: fit-content;
+  font-family: var(--display);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--card-ink);
+  border-bottom: 1px solid oklch(0.2 0.014 163 / 0.3);
+  transition: border-color 0.2s var(--ease);
+}
+
+.contact-value-row > a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.copy-button {
+  display: inline-flex;
+  min-width: 74px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  padding: 7px 9px;
+  border: 1px solid oklch(0.2 0.014 163 / 0.22);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--card-muted);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
   line-height: 1;
-  margin-top: 14px;
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
 }
-.contact-copy > p {
-  margin-top: 18px;
-  color: var(--text-2);
-  font-size: 1.05rem;
+
+.copy-button:hover {
+  border-color: oklch(0.2 0.014 163 / 0.48);
+  background: oklch(0.2 0.014 163 / 0.06);
+  color: var(--card-ink);
 }
-.contact-actions {
+
+.copy-button[data-state="copied"] {
+  border-color: var(--card-ink);
+  background: var(--card-ink);
+  color: oklch(0.94 0.016 86);
+}
+
+.copy-icon-wrap {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.copy-icon {
+  position: absolute;
+  inset: 0;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    opacity 0.2s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.copy-icon-check {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.copy-button[data-state="copied"] .copy-icon-default {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.copy-button[data-state="copied"] .copy-icon-check {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.copy-button[data-state="copied"] .copy-button-label {
+  animation: copy-label-in 0.3s var(--ease);
+}
+
+@keyframes copy-label-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-button,
+  .copy-icon {
+    transition: none;
+  }
+
+  .copy-button[data-state="copied"] .copy-button-label {
+    animation: none;
+  }
+}
+
+.contact-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
+  gap: 6px 18px;
+  margin-top: clamp(40px, 7vw, 80px);
+  padding-top: 20px;
+  border-top: 1px solid oklch(0.2 0.014 163 / 0.18);
 }
-.contact-actions a {
+
+.contact-links a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 22px;
-  border: 1px solid var(--line-2);
-  border-radius: 999px;
-  font-weight: 600;
-  transition:
-    border-color 0.25s var(--ease),
-    background 0.25s var(--ease);
+  padding: 8px 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--card-muted);
+  transition: color 0.2s var(--ease);
 }
-.contact-actions a:first-child {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+
+.contact-links a:hover {
+  color: var(--card-ink);
 }
-.contact-actions a:hover {
-  border-color: var(--line-3);
+
+.contact-links svg,
+.contact-links img {
+  width: 19px;
+  height: 19px;
+  flex: none;
+}
+
+.contact-links svg {
+  fill: currentColor;
+}
+
+.contact-links img {
+  border-radius: 4px;
+  object-fit: contain;
 }

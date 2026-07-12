@@ -1,6 +1,6 @@
 /*
  * Hero: the team photo as a framed exhibit, the type-forward identity column,
- * the floating "current focus" status card, and the on-air press cue.
+ * and the floating "current focus" status card.
  */
 
 .hero {
@@ -168,7 +168,12 @@ html.motion .hero-inner {
   box-shadow: 0 16px 44px oklch(0 0 0 / 0.42);
 }
 
-.current-panel img {
+.current-panel > img {
+  width: 34px;
+  height: 34px;
+  max-width: none;
+  aspect-ratio: 1;
+  object-fit: contain;
   border-radius: 8px;
 }
 .current-panel p {
@@ -192,39 +197,4 @@ html.motion .hero-inner {
   font-size: 0.86rem;
   line-height: 1.45;
   color: var(--text-2);
-}
-
-/* ---------- on-air press cue ---------- */
-.news-cue {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 26px;
-  font-family: var(--mono);
-  font-size: 0.73rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--text-2);
-  transition: color 0.2s var(--ease);
-}
-.news-cue:hover {
-  color: var(--text);
-}
-.rec-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-html.motion .rec-dot {
-  animation: rec-pulse 2.2s ease-in-out infinite;
-}
-@keyframes rec-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
 }

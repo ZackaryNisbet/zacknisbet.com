@@ -101,18 +101,28 @@ requiredClasses.forEach((c) =>
 );
 check(/id="year"/.test(html), "DOM contract: #year not found (contact.js)");
 check(/data-email-link/.test(html), "DOM contract: [data-email-link] not found (contact.js)");
+check(/href="tel:\+15188605101"/.test(html), "Contact: public phone link is missing");
+check(
+  (html.match(/data-copy-target=/g) ?? []).length === 2,
+  "DOM contract: expected email and phone copy controls",
+);
 
 // 5. Referenced files exist --------------------------------------------------
 const refs = [
   ...[...html.matchAll(/<link[^>]+href="(\/[^"]+\.css)"/g)].map((m) => m[1]),
-  ...[...html.matchAll(/<script[^>]+src="(\/[^"]+\.js)"/g)].map((m) => m[1]),
+  ...[...html.matchAll(/<script[^>]+src="(\/[^"?]+\.js)(?:\?[^"]*)?"/g)].map((m) => m[1]),
 ];
 refs.forEach((ref) =>
   check(existsSync(`.${ref}`), `Broken reference: ${ref} does not exist on disk`),
 );
-["sitemap.xml", "robots.txt", "favicon.svg"].forEach((f) =>
-  check(existsSync(f), `Missing expected file: ${f}`),
-);
+[
+  "sitemap.xml",
+  "robots.txt",
+  "favicon.svg",
+  "favicon-32.png",
+  "favicon.ico",
+  "apple-touch-icon.png",
+].forEach((f) => check(existsSync(f), `Missing expected file: ${f}`));
 
 // Report ---------------------------------------------------------------------
 if (failures.length) {

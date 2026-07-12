@@ -63,6 +63,17 @@
   .role-card {
     grid-template-columns: 1fr;
   }
+  .engagements-intro {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .engagement-row {
+    grid-template-columns: minmax(160px, 0.65fr) minmax(0, 1.35fr);
+  }
+  .engagement-row > a {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
   .role-bullets {
     grid-column: 1;
   }
@@ -76,11 +87,13 @@
   .press-card.feature {
     grid-column: span 2;
   }
-  .contact-inner {
+  .contact-card-main {
     grid-template-columns: 1fr;
   }
-  .portrait {
-    max-width: 220px;
+  .contact-direct {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 18px;
   }
   .role-card .role-meta {
     grid-column: 1;
@@ -101,6 +114,22 @@
   .nav a {
     font-size: 0.68rem;
     letter-spacing: 0.02em;
+  }
+  .engagement-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .engagement-row > a {
+    grid-column: 1;
+  }
+  .contact-card {
+    border-radius: 14px;
+  }
+  .contact-card-topline {
+    padding-bottom: 36px;
+  }
+  .contact-links {
+    gap: 4px 16px;
   }
   .press-grid {
     grid-template-columns: 1fr;

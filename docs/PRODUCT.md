@@ -21,7 +21,7 @@ Direct, operational, technical. The site should feel like a working operator's d
 - Public name: Zack Nisbet
 - Full/alternate name: Zackary Nisbet, Zackary Paul Nisbet
 - Tagline: Founder, Software Engineer, and Operator
-- Current public work: Founder at Rammenta
+- Current public work: Founder at Rammenta; independent contractor for Vulcan Technologies and Scouter; completed a full-stack engineering work trial for Corgi Funds
 - Current status: left day-to-day K9 Resorts/LPHI operator role on June 23, 2026; remains LPHI co-founder/investor and is open to the next operator-engineer role
 - Past/current entity signals: Luxury Pet Hotel Investments, K9 Resorts Luxury Pet Hotels, Wolfspeed, Duke University Fuqua School of Business, SUNY Polytechnic Institute
 

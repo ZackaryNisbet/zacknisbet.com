@@ -8,6 +8,9 @@ Alternate domain: https://zackarynisbet.com/ should redirect to https://zacknisb
 
 Current public work:
 - Founder, Rammenta
+- Independent contractor, Vulcan Technologies
+- Independent contractor, Scouter
+- Completed full-stack engineering work trial, Corgi Funds: https://zacknisbet.com/corgi/
 
 Professional experience:
 - Co-Founder, Director of Resorts at Luxury Pet Hotel Investments, Dec 2023 to Jun 2026; remains co-founder/investor
@@ -20,7 +23,7 @@ Education:
 Canonical profiles:
 - LinkedIn: https://www.linkedin.com/in/zacknisbet/
 - GitHub: https://github.com/ZackaryNisbet
-- Hugging Face: https://huggingface.co/ZackaryNisbet
+- Hugging Face: https://huggingface.co/zacknisbet
 - Rammenta: https://www.rammenta.com/
 - K9 Operations: https://k9operations.com/
 
