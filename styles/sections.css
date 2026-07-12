@@ -3,98 +3,25 @@
  * press grid + quote card, and contact.
  */
 
-/* ---------- experience ---------- */
+/* ---------- experience + current engagements ---------- */
 .role-list {
   display: grid;
   gap: 14px;
 }
 
-/* Current work stays visibly distinct from the employment history below it. */
-.engagements {
-  margin-bottom: clamp(44px, 7vh, 76px);
-}
-
-.engagements-intro {
+/* Section head variant with a short note beside the kicker. */
+.section-head.split {
   display: grid;
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
-  gap: 18px clamp(28px, 5vw, 72px);
-  align-items: end;
-  margin-bottom: 24px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px clamp(28px, 6vw, 80px);
+  align-items: baseline;
 }
 
-.engagements-intro h3 {
-  font-family: var(--display);
-  font-size: clamp(1.65rem, 3vw, 2.35rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.025em;
-  color: var(--text);
-}
-
-.engagements-intro p {
-  max-width: 58ch;
+.section-note {
+  max-width: 54ch;
   color: var(--text-2);
-}
-
-.engagement-list {
-  border-top: 1px solid var(--line-2);
-}
-
-.engagement-row {
-  display: grid;
-  grid-template-columns: minmax(190px, 0.75fr) minmax(0, 1.55fr) auto;
-  gap: 14px clamp(24px, 4vw, 52px);
-  align-items: center;
-  padding: 22px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.engagement-identity h4 {
-  font-family: var(--display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text);
-}
-
-.engagement-identity p {
-  margin-top: 4px;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.03em;
-  color: var(--accent);
-}
-
-.engagement-row > p {
-  max-width: 66ch;
-  font-size: 0.94rem;
+  font-size: 0.98rem;
   line-height: 1.55;
-  color: var(--text-2);
-}
-
-.engagement-row > a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 7px;
-  white-space: nowrap;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--text);
-  transition: color 0.2s var(--ease);
-}
-
-.engagement-row > a span {
-  color: var(--accent);
-  transition: transform 0.2s var(--ease);
-}
-
-.engagement-row > a:hover {
-  color: var(--accent);
-}
-
-.engagement-row > a:hover span {
-  transform: translate(2px, -2px);
 }
 
 .role-card {
@@ -149,6 +76,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  padding: 5px;
 }
 
 .role-card h3,
@@ -178,6 +106,22 @@
   font-size: 0.74rem;
   letter-spacing: 0.03em;
   color: var(--text-3);
+}
+
+.role-meta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  transition: color 0.2s var(--ease);
+}
+
+.role-meta a span {
+  color: var(--accent);
+}
+
+.role-meta a:hover {
+  color: var(--text);
 }
 
 .role-bullets,
@@ -426,19 +370,20 @@
 }
 
 /* ---------- contact ---------- */
+/* Business-card panel in the site's own dark surface language. */
 .contact-card {
-  --card-ink: oklch(0.2 0.014 163);
-  --card-muted: oklch(0.34 0.012 163);
+  --card-ink: var(--text);
+  --card-muted: var(--text-2);
   position: relative;
   overflow: hidden;
-  padding: clamp(24px, 5vw, 56px);
-  border: 1px solid oklch(0.72 0.025 85);
+  padding: clamp(24px, 5vw, 52px);
+  border: 1px solid var(--line-2);
   border-radius: 18px;
-  background: oklch(0.94 0.016 86);
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
   color: var(--card-ink);
   box-shadow:
-    inset 0 4px 0 var(--accent),
-    0 28px 80px oklch(0 0 0 / 0.24);
+    inset 0 3px 0 var(--accent),
+    0 24px 70px oklch(0 0 0 / 0.35);
 }
 
 .contact-card-topline {
@@ -446,15 +391,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding-bottom: clamp(32px, 6vw, 72px);
-}
-
-.contact-card-topline .kicker {
-  color: var(--card-muted);
-}
-
-.contact-card-topline .kicker::before {
-  color: var(--accent);
+  padding-bottom: clamp(30px, 5vw, 56px);
 }
 
 .contact-card-topline > span {
@@ -467,40 +404,54 @@
 
 .contact-card-main {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(250px, 0.75fr);
-  gap: 18px clamp(36px, 7vw, 92px);
-  align-items: start;
+  grid-template-columns: auto minmax(0, 1.25fr) minmax(310px, 0.75fr);
+  gap: 24px clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.contact-portrait {
+  margin: 0;
+  width: clamp(96px, 12vw, 136px);
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.contact-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .contact-identity h2 {
   font-family: var(--display);
-  font-size: clamp(2.5rem, 6vw, 5.2rem);
+  font-size: clamp(2.2rem, 4.6vw, 3.9rem);
   font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.05em;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
   color: var(--card-ink);
 }
 
-.contact-identity p {
-  margin-top: 16px;
-  font-size: clamp(1rem, 1.5vw, 1.18rem);
+.contact-identity > p {
+  margin-top: 14px;
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
   font-weight: 700;
   color: var(--card-muted);
 }
 
-.contact-purpose {
-  max-width: 48ch;
-  color: var(--card-muted);
-  font-size: 1rem;
+.contact-identity .contact-purpose {
+  max-width: 44ch;
+  margin-top: 10px;
+  font-size: 0.98rem;
+  font-weight: 400;
+  color: var(--text-3);
 }
 
 .contact-direct {
-  grid-column: 2;
-  grid-row: 1 / span 2;
   display: grid;
-  align-self: end;
+  align-self: center;
   gap: 18px;
-  padding-top: 5px;
   font-style: normal;
 }
 
@@ -528,12 +479,14 @@
 
 .contact-value-row > a {
   width: fit-content;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--display);
-  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
   font-weight: 700;
   line-height: 1.25;
   color: var(--card-ink);
-  border-bottom: 1px solid oklch(0.2 0.014 163 / 0.3);
+  border-bottom: 1px solid var(--line-3);
   transition: border-color 0.2s var(--ease);
 }
 
@@ -549,7 +502,7 @@
   gap: 6px;
   flex: none;
   padding: 7px 9px;
-  border: 1px solid oklch(0.2 0.014 163 / 0.22);
+  border: 1px solid var(--line-2);
   border-radius: 7px;
   background: transparent;
   color: var(--card-muted);
@@ -564,15 +517,15 @@
 }
 
 .copy-button:hover {
-  border-color: oklch(0.2 0.014 163 / 0.48);
-  background: oklch(0.2 0.014 163 / 0.06);
+  border-color: var(--line-3);
+  background: var(--surface-2);
   color: var(--card-ink);
 }
 
 .copy-button[data-state="copied"] {
-  border-color: var(--card-ink);
-  background: var(--card-ink);
-  color: oklch(0.94 0.016 86);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .copy-icon-wrap {
@@ -642,9 +595,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px 18px;
-  margin-top: clamp(40px, 7vw, 80px);
+  margin-top: clamp(36px, 6vw, 64px);
   padding-top: 20px;
-  border-top: 1px solid oklch(0.2 0.014 163 / 0.18);
+  border-top: 1px solid var(--line);
 }
 
 .contact-links a {
