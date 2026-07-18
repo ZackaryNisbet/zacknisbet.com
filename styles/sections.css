@@ -3,7 +3,7 @@
  * press grid + quote card, and contact.
  */
 
-/* ---------- experience + current engagements ---------- */
+/* ---------- experience + current role ---------- */
 .role-list {
   display: grid;
   gap: 14px;
@@ -50,6 +50,11 @@
 .role-card:hover {
   border-color: var(--line-2);
   background: var(--surface-2);
+}
+
+/* Featured treatment for the single current-role card. */
+.role-card-feature {
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
 }
 
 .role-identity {

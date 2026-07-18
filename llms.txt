@@ -7,10 +7,8 @@ Canonical URL: https://zacknisbet.com/
 Alternate domain: https://zackarynisbet.com/ should redirect to https://zacknisbet.com/
 
 Current public work:
+- Deployed Agent Orchestrator at Vulcan Technologies (YC S25), joined July 2026 as the 16th employee: https://vulcan.ai/
 - Founder, Rammenta
-- Independent contractor, Vulcan Technologies
-- Independent contractor, Scouter
-- Completed full-stack engineering work trial, Corgi Funds: https://zacknisbet.com/corgi/
 
 Professional experience:
 - Co-Founder, Director of Resorts at Luxury Pet Hotel Investments, Dec 2023 to Jun 2026; remains co-founder/investor
