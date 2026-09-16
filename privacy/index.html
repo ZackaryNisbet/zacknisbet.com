@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy — Zack Nisbet's personal automation tools</title>
+    <meta
+      name="description"
+      content="How the private automation tools Zack Nisbet runs on his own accounts handle data."
+    />
+    <!-- Unlisted by design: reachable at its URL (Google requires that for OAuth apps),
+         but not linked from the site, not in sitemap.xml, and not indexed. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://zacknisbet.com/privacy" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles/tokens.css" />
+    <style>
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        line-height: 1.6;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: clamp(48px, 10vw, 96px) var(--gutter) 96px;
+      }
+      h1 {
+        font-family: var(--display);
+        font-size: clamp(28px, 5vw, 40px);
+        line-height: 1.15;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-family: var(--display);
+        font-size: 1.15rem;
+        margin: 40px 0 8px;
+      }
+      .sub {
+        color: var(--text-3);
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin: 0 0 40px;
+      }
+      p,
+      li {
+        color: var(--text-2);
+      }
+      ul {
+        padding-left: 1.1rem;
+      }
+      li {
+        margin: 6px 0;
+      }
+      a {
+        color: var(--accent);
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 48px 0 24px;
+      }
+      footer {
+        color: var(--text-3);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy</h1>
+      <p class="sub">Personal automation tools · Last updated 16 September 2026</p>
+
+      <p>
+        Zack Nisbet builds small private tools that automate his own administrative work — for
+        example an expense tool that reads his own email for receipts and prepares his own expense
+        reports. This page explains what those tools do with data. They are personal software, run
+        by one person, for that person's own accounts.
+      </p>
+
+      <h2>Who this covers</h2>
+      <p>
+        These tools are not products. They are not offered to, sold to, or usable by anyone else.
+        There are no other users and no accounts to create. Each tool runs on Zack Nisbet's own
+        computer and is authorised only against mailboxes and services he owns or administers.
+      </p>
+
+      <h2>What data is accessed</h2>
+      <ul>
+        <li>
+          Email that the tool identifies as receipt- or invoice-shaped, read through Google's Gmail
+          API with read-only permission, together with any attached receipts.
+        </li>
+        <li>
+          Calendar entries, read-only, where a tool uses them to describe the business purpose of an
+          expense.
+        </li>
+        <li>
+          Information derived from the above: merchant, amount, date and category of a purchase.
+        </li>
+      </ul>
+      <p>
+        Access is granted by Zack Nisbet signing in to his own accounts, or by an administrator
+        authorisation for a Google Workspace domain he administers. No third party's account is
+        accessed.
+      </p>
+
+      <h2>How the data is used</h2>
+      <p>
+        Only to do the task the tool exists for: find expenses, summarise them for review, and file
+        the approved ones with the relevant expense system. The data is not used for advertising,
+        profiling, model training, or any purpose unrelated to that task.
+      </p>
+
+      <h2>Where the data is stored</h2>
+      <p>
+        On Zack Nisbet's own machine. Credentials are held in the operating system's keychain and
+        never written into source code or project files. Nothing is published, and no copy is sent
+        anywhere except to the service the expense is being filed with.
+      </p>
+
+      <h2>Who the data is shared with</h2>
+      <p>
+        No one. Data is not sold, rented, or disclosed. The only outbound traffic is to the services
+        the tool is explicitly pointed at, such as Google's APIs to read the mail and the expense
+        system the report is filed with.
+      </p>
+
+      <h2>Retention and deletion</h2>
+      <p>
+        Collected records are kept only as long as they are useful for filing and reconciling
+        expenses, and can be deleted at any time by deleting the tool's local data. Access can be
+        withdrawn at any time from
+        <a href="https://myaccount.google.com/permissions" rel="noopener">Google account permissions</a>
+        or by removing the administrator authorisation, which immediately stops all access.
+      </p>
+
+      <h2>Google user data</h2>
+      <p>
+        Use of information received from Google APIs follows the
+        <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="noopener"
+          >Google API Services User Data Policy</a
+        >, including its Limited Use requirements.
+      </p>
+
+      <h2>Contact</h2>
+      <p>Questions about this page: zacknisbet@gmail.com</p>
+
+      <hr />
+      <footer>
+        <a href="/">zacknisbet.com</a>
+      </footer>
+    </main>
+  </body>
+</html>
